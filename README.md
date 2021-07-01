@@ -31,7 +31,7 @@ Perform de-duplication and validation to identify data import errors before the 
 ### BadgesBrief
 * title: title: Text (primary)
 * Created Date: _createdDate: Date and Time
-* ShortDesctiption: shortDescription: Text
+* ShortDescription: shortDescription: Text
 * imageUrl: imageUrl: Media Gallery entry
 
 ### BadgesDetailed
