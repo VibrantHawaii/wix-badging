@@ -1,5 +1,3 @@
-// TODO add search and filter by awarded badge
-
 import wixData from 'wix-data';
 import wixLocation from 'wix-location';
 
@@ -19,7 +17,6 @@ $w.onReady(function () {
         $item("#name").text = itemData.name;
         $item("#region").text = itemData.region;
 
-        // TODO make click on any element in this cell result in navigation to the learner page
         // $item("#name").onClick( (event) => {
         // 	var target = "/learner?";
         // 	target += "name=" + encodeURIComponent(itemData.name);
