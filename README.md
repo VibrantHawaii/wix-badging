@@ -21,16 +21,13 @@ Perform de-duplication and validation to identify data import errors before the 
 
 ### Users
 * title: title: Text (primary)
-* Created Date: _createdDate: Date and Time
-* Updated Date: _updatedDate: Date and Time
 * Region: Text
 
 ### Regions
-* Title: title: Text (primary)
+* title: title: Text (primary)
 
 ### BadgesBrief
 * title: title: Text (primary)
-* Created Date: _createdDate: Date and Time
 * ShortDescription: shortDescription: Text
 * imageUrl: imageUrl: Media Gallery entry
 
@@ -39,16 +36,16 @@ Perform de-duplication and validation to identify data import errors before the 
 * detailedDesctiption: detailedDesctiption: Text
 
 ### AwardedBadges
-* SequenceID: title: Text (primary)
+ID is a system-generated unique ID. This is leveraged to make search result entries unique. SequenceID is needed as a primary key for this table (as ID can't be set as the primary key, for some reason...).
+* sequenceID: title: Text (primary)
 * ID: _id: Text
-* Created Date: _createdDate: Date and Time
 * UserName: userName: Text
 * BadgeName: badgeName: Text
 
 ## Repository Structure
 As (to this author's knowledge) Wix does not interact "well" with git/GitHub, the Wix content is represented in GitHub as follows:
-+ Wix page content is described under *src/[page name].md*
-+ JS for pages is described under *src/js/[page name].js*
+* Wix page content is described under *src/[page name].md*
+* JS for pages is described under *src/js/[page name].js*
 
 ## Installation
 + Create pages in Wix reflecting each page described in this repository (under */src/[page name].md*)
@@ -65,8 +62,8 @@ As (to this author's knowledge) Wix does not interact "well" with git/GitHub, th
 + Prettify search page
 + Prettify search results list page
 + Search results page - show badges as repeater
-* Change DBs (esp awardedbadges) to use references instead of text names
-* Standardize DB field names
++ Change DBs (esp awardedbadges) to use references instead of text names
++ <del>Standardize DB field names
 + Add analytics (GA?)
   * See if DB setup/description/instantiation can be programmatic instead of manual
 + Contact learner capability
@@ -81,15 +78,15 @@ As (to this author's knowledge) Wix does not interact "well" with git/GitHub, th
     + Check unique tokens when email request issued
     + IP address tracking fo sender (to catch abuse?)
     + Cookie tracking of sender (to catch abuse?) - would need Cookie permission interstitial...
-* Data import
++ Data import
     + Validate that GSheets supports templates
     + Validate whether GSheets supports list/entry validation from a master file
     + GSheet template for manual (non-GClassroom) user/course entry, with validated email addresses and region selection
     + Make test folder in git
     + Save sample GClassroom data import files
     + Architect import system
-        * Users (need to de-dup)
-        * Courses
-* Data Recovery
-   * Add transaction logging DBs to all DB import paths to allow recovery of state on an import fail or corruption. 
+        + Users (need to de-dup)
+        + Courses
++ Data Recovery
+   + Add transaction logging DBs to all DB import paths to allow recovery of state on an import fail or corruption. 
   
