@@ -57,10 +57,11 @@ As (to this author's knowledge) Wix does not interact "well" with git/GitHub, th
 ## ToDos
 + <del>Set up github repository
 + <del>Prune/hide learner personal pages
-+ Pretty list design for single badge search result list entry
-+ Migrate code to VH Preview site
-+ Prettify search page
-+ Prettify search results list page
++ VH site and UI
+  + Migrate code to VH Preview site
+  + Pretty list design for single badge search result list entry
+  + Prettify search page
+  + Prettify search results list page
 + Search results page - show badges as repeater
 + Change DBs (esp awardedbadges) to use references instead of text names
 + <del>Standardize DB field names
