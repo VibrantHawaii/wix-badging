@@ -1,104 +1,83 @@
+// TODO add search and filter by awarded badge
+
 import wixData from 'wix-data';
 import wixLocation from 'wix-location';
 
 $w.onReady(function () {
-    $w("#badgeRepeater").onItemReady(($item, itemData, index) => {
-        $item("#badgeName").text = itemData.badgeName;
-        $item("#shortDescription").text = itemData.shortDescription;
-        $item("#badgeImg").src = itemData.imageUrl;
-
-        // TODO make click on any element in this cell result in navigation to the badge page
-        let goToBadgePage = function () {
-            var target = "/badge?";
-            target += "name=" + encodeURIComponent(itemData.badgeName);
-            wixLocation.to(target);
-        }
-
-        $item("#badgeImg").onClick( (event) => {
-            goToBadgePage();
-        });
-        $item("#badgeName").onClick( (event) => {
-            goToBadgePage();
-        });
-        $item("#readMoreBtn").onClick( (event) => {
-            goToBadgePage();
-        });
-        $item("#shortDescription").onClick( (event) => {
-            goToBadgePage();
-        });
-    });
-
-    let noBadgesAwarded = function () {
-        // User had no badges
-        $w("#badgeRepeater").hide();
-        $w("#noBadgesText").show();
-    }
+    let badges = "All";
+    let regions = "All";
 
     let params = (new URL(wixLocation.url)).searchParams;
+    if (params.has("regions")) {
+        regions = params.get("regions");
+    }
+    if (params.has("badges")) {
+        badges = params.get("badges");
+    }
 
-    if (params.has("name")) {
-        let name = decodeURIComponent(params.get("name"));
+    $w("#learnersRepeater").onItemReady(($item, itemData, index) => {
+        $item("#name").text = itemData.name;
+        $item("#region").text = itemData.region;
 
-        wixData.query("Users")
-            .contains("title", params.get("name"))
-            .find()
-            .then( (results) => {
-                if (results.length == 0) {
-                    console.error("ERROR - NO USERS FOUND")
-                    return;
-                }
-                if (results.length > 1) {
-                    console.error("ERROR - " + results.length + " USERS FOUND WITH THE SAME NAME");
-                    return;
-                }
+        // TODO make click on any element in this cell result in navigation to the learner page
+        // $item("#name").onClick( (event) => {
+        // 	var target = "/learner?";
+        // 	target += "name=" + encodeURIComponent(itemData.name);
+        // 	wixLocation.to(target);
+        // })
+    });
 
-                let learner = results.items[0];
-                $w("#name").text = learner.title;
-                $w("#region").text = learner.region;
+    let operatingUserQuery = wixData.query("Users");
+    if (regions != "All") {
+        operatingUserQuery = operatingUserQuery.contains("region", regions);
+    }
 
-                $w("#portfolioBtn").onClick( (event) => {
-                    wixLocation.to(learner.gDrivePortfolioUrl);
-                });
+    operatingUserQuery
+        .ascending("title")
+        .find()
+        .then( (userResults) => {
+            if (userResults.length == 0) {
+                $w("#statusText").show();
+                $w("#learnersRepeater").hide();
+                return;
+            }
 
-                wixData.query("AwardedBadges")
-                    .contains("userName", learner.title)
-                    .find()
-                    .then( (badgeResults) => {
-                        if (badgeResults.length == 0) {
-                            noBadgesAwarded();
-                            return;
-                        }
+            let learnerNames = userResults.items.map( (user) => {
+                return user.title;
+            });
 
-                        let awardedBadges = badgeResults.items.map( (award) => {
-                            return award.badgeName;
-                        });
+            let operatingAwardedBadgesQuery = wixData.query("AwardedBadges");
+            if (badges != "All") {
+                operatingAwardedBadgesQuery = operatingAwardedBadgesQuery.contains("badgeName", badges)
+                operatingAwardedBadgesQuery = operatingAwardedBadgesQuery.hasSome("userName", learnerNames)
+            }
 
-                        wixData.query("BadgesBrief")
-                            .hasSome("title", awardedBadges)
-                            .find()
-                            .then( (badgeResults) => {
-                                let badges = badgeResults.items;
-                                if (badges.length == 0) {
-                                    noBadgesAwarded();
-                                    return;
-                                }
+            operatingAwardedBadgesQuery
+                .ascending("userName")
+                .find()
+                .then( (awardedBadgeResults) => {
+                    if (awardedBadgeResults.length == 0) {
+                        $w("#statusText").show();
+                        $w("#learnersRepeater").hide();
+                        return;
+                    }
 
-                                let dataArray = badges.map((item) => {
-                                    return {
-                                        "_id":item.title.replace(/\W/g, ''),
-                                        "badgeName":item.title,
-                                        "shortDescription":item.shortDescription,
-                                        "imageUrl":item.imageUrl[0].src
-                                    };
-                                })
-                                $w("#badgeRepeater").data = dataArray;
+                    $w("#statusText").hide();
 
-                                $w("#badgeRepeater").show();
-                            });
+                    let filteredUsers = userResults.items.filter( user => {
+                        return awardedBadgeResults.items.some( (awardedBadge) => user.title == awardedBadge.userName);
                     });
 
-            });
-    } else {
-        console.error("ERROR - NO USER NAME SUPPLIED IN QUERY PARAMS")
-    }
+                    let dataArray = filteredUsers.map((user) => {
+                        return {
+                            "_id":user.title.replace(/\W/g, ''),
+                            "name":user.title,
+                            "region":user.region
+                        };
+                    })
+                    $w("#learnersRepeater").data = dataArray;
+
+                    $w("#learnersRepeater").show();
+                });
+        });
 });

@@ -56,7 +56,7 @@ As (to this author's knowledge) Wix does not interact "well" with git/GitHub, th
 
 ## ToDos
 + <del>Set up github repository
-+ Prune/hide learner personal pages
++ <del>Prune/hide learner personal pages
 + Pretty list design for single badge search result list entry
 + Migrate code to VH Preview site
 + Prettify search page
