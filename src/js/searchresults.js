@@ -62,19 +62,33 @@ $w.onReady(function () {
                     $w("#statusText").hide();
 
                     let filteredUsers = userResults.items.filter( user => {
-                        return awardedBadgeResults.items.some( (awardedBadge) => user.title == awardedBadge.userName);
+                        return awardedBadgeResults.items.some( (awardedBadge) => user._id == awardedBadge.userRef);
                     });
 
-                    let dataArray = filteredUsers.map((user) => {
-                        return {
-                            "_id":user._id,
-                            "name":user.title,
-                            "region":user.region
-                        };
-                    })
-                    $w("#learnersRepeater").data = dataArray;
+                    wixData.query("Regions")
+                        .ascending("title")
+                        .find()
+                        .then( (results) => {
+                            if (results.length == 0) {
+                                console.error("NO REGIONS FOUND");
+                            } else {
+                                let regionMap = {};
+                                results.items.map((region) => {
+                                    regionMap[region._id] = region.title;
+                                });
 
-                    $w("#learnersRepeater").show();
+                                let dataArray = filteredUsers.map((user) => {
+                                    return {
+                                        "_id":user._id,
+                                        "name":user.title,
+                                        "region":regionMap[user.regionRef]
+                                    };
+                                })
+                                $w("#learnersRepeater").data = dataArray;
+
+                                $w("#learnersRepeater").show();
+                            }
+                        });
                 });
         });
 });
