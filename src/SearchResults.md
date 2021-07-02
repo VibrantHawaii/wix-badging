@@ -9,5 +9,6 @@ Page to display search results form a query for learners in a region for specifi
 | Container            | learnerContainer       | learnersRepeater  | Hidden: false, Collapsed: false |
 | Text                 | name                   | learnerContainer  | Text: "Name", Hidden: false, Collapsed: false |
 | Text                 | region                 | learnerContainer  | Text: "Region", Hidden: false, Collapsed: false |
-|              |          | learnerContainer  | Hidden: true, Collapsed: false |
-| Image                | badgeImg               |    | Hidden: false, Collapsed: false |
+| Table                | badgesTable            | learnerContainer  | Hidden: true, Collapsed: false |
+| Image                | badgeImg               | badgesTable       | Field: badgeImg, Column |
+| String               | badgeTitle             | badgesTable       | Field: badgeTitle, Column |

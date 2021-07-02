@@ -63,7 +63,7 @@ As (to this author's knowledge) Wix does not interact "well" with git/GitHub, th
   + Pretty list design for single badge search result list entry
   + Prettify search page
   + Prettify search results list page
-+ Search results page - show badges as repeater
++ <del>Search results page - show badges as repeater
 + <del>Change DBs (esp awardedbadges) to use references instead of text names
 + <del>Standardize DB field names
 + Add analytics (GA?)

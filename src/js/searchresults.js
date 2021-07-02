@@ -4,6 +4,7 @@ import wixLocation from 'wix-location';
 $w.onReady(function () {
     let badges = "All";
     let regions = "All";
+    let badgeMap = [];
 
     let params = (new URL(wixLocation.url)).searchParams;
     if (params.has("regions")) {
@@ -13,9 +14,55 @@ $w.onReady(function () {
         badges = params.get("badges");
     }
 
+    wixData.query("BadgesBrief")
+        .find()
+        .then( (badgeResults) => {
+            if (badgeResults.length == 0) {
+                console.error("ERROR - NO BADGES FOUND")
+                return;
+            }
+
+            badgeResults.items.map((badgeItem) => {
+                badgeMap[badgeItem._id] = {
+                    "img": badgeItem.imageUrl[0].src,
+                    "title": badgeItem.title,
+                };
+            });
+        });
+
     $w("#learnersRepeater").onItemReady(($item, itemData, index) => {
         $item("#name").text = itemData.name;
         $item("#region").text = itemData.region;
+
+        // Configure badges table
+        let awardedBadgeCount = itemData.awardedBadges.length;
+        console.log("user " + itemData.name + " has " + awardedBadgeCount + " badges awarded");
+        $item("#badgesTable").columns = [
+            {
+                "id": "badgeImg",
+                "dataPath": "badgeImg",
+                "label": "badgeImg",
+                "type": "image",
+                "width": 80
+            },
+            {
+                "id": "badgeTitle",
+                "dataPath": "badgeTitle",
+                "label": "badgeTitle",
+                "type": "string",
+                "width": 300
+            },
+        ]
+
+        $item("#badgesTable").rows = itemData.awardedBadges.map((badgeRef) => {
+            return {
+                "badgeImg": badgeMap[badgeRef].img,
+                "badgeTitle": badgeMap[badgeRef].title
+            };
+        });
+
+        $item("#badgesTable").show();
+
 
         // $item("#name").onClick( (event) => {
         // 	var target = "/learner?";
@@ -45,7 +92,8 @@ $w.onReady(function () {
 
             let operatingAwardedBadgesQuery = wixData.query("AwardedBadges");
             if (badges != "All") {
-                operatingAwardedBadgesQuery = operatingAwardedBadgesQuery.contains("badgeRef", badges)
+                // Do not filter out for only awarded badge matches here, as the entire list of awarded badges is required to show all badges for the matching users
+                // operatingAwardedBadgesQuery = operatingAwardedBadgesQuery.contains("badgeRef", badges)
                 operatingAwardedBadgesQuery = operatingAwardedBadgesQuery.hasSome("userRef", learnerNames)
             }
 
@@ -53,7 +101,12 @@ $w.onReady(function () {
                 .ascending("userName")
                 .find()
                 .then( (awardedBadgeResults) => {
-                    if (awardedBadgeResults.length == 0) {
+                    let matchingAwardedBadgeResults = awardedBadgeResults.items;
+                    if (badges != "All") {
+                        matchingAwardedBadgeResults = awardedBadgeResults.items.filter((award) => award.badgeRef == badges);
+                    };
+
+                    if (matchingAwardedBadgeResults.length == 0) {
                         $w("#statusText").show();
                         $w("#learnersRepeater").hide();
                         return;
@@ -61,8 +114,12 @@ $w.onReady(function () {
 
                     $w("#statusText").hide();
 
+                    let userBadgeMap = {};
                     let filteredUsers = userResults.items.filter( user => {
-                        return awardedBadgeResults.items.some( (awardedBadge) => user._id == awardedBadge.userRef);
+                        let allAwardedBadgeMatches = awardedBadgeResults.items.filter( (awardedBadge) => user._id == awardedBadge.userRef);
+                        userBadgeMap[user._id] = allAwardedBadgeMatches.map((award) => award.badgeRef);
+
+                        return matchingAwardedBadgeResults.some( (awardedBadge) => user._id == awardedBadge.userRef);
                     });
 
                     wixData.query("Regions")
@@ -81,9 +138,11 @@ $w.onReady(function () {
                                     return {
                                         "_id":user._id,
                                         "name":user.title,
-                                        "region":regionMap[user.regionRef]
+                                        "region":regionMap[user.regionRef],
+                                        "awardedBadges":userBadgeMap[user._id]
                                     };
                                 })
+
                                 $w("#learnersRepeater").data = dataArray;
 
                                 $w("#learnersRepeater").show();
