@@ -66,7 +66,7 @@ As (to this author's knowledge) Wix does not interact "well" with git/GitHub, th
 + <del>Search results page - show badges as repeater
 + <del>Change DBs (esp awardedbadges) to use references instead of text names
 + <del>Standardize DB field names
-+ Selecting badge in searchResults should go to Badge info page
++ <del>Selecting badge in searchResults should go to Badge info page
 + Add analytics (GA?)
   * See if DB setup/description/instantiation can be programmatic instead of manual
 + Contact learner capability

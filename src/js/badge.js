@@ -4,15 +4,29 @@ import wixLocation from 'wix-location';
 $w.onReady(function () {
     let params = (new URL(wixLocation.url)).searchParams;
 
-    if (params.has("name")) {
-        let name = decodeURIComponent(params.get("name"));
+    let briefQuery = wixData.query("BadgesBrief");
 
-        wixData.query("BadgesBrief")
-            .contains("title", params.get("name"))
+    let name = "";
+    let badgeId = "";
+
+    if (params.has("name")) {
+        name = decodeURIComponent(params.get("name"));
+        briefQuery = briefQuery.contains("title", name);
+    }
+    if (params.has("id")) {
+        badgeId = decodeURIComponent(params.get("id"));
+        briefQuery = briefQuery.contains("_id", badgeId);
+    }
+
+    if (name || badgeId) {
+        briefQuery
             .find()
             .then( (results) => {
                 if (results.length == 0) {
-                    console.error("ERROR - BADGE \"" + params.get("name") + "\" WAS NOT FOUND")
+                    if (params.get("name"))
+                        console.error("ERROR - BADGE \"" + params.get("name") + "\" WAS NOT FOUND")
+                    if (params.get("id"))
+                        console.error("ERROR - BADGE WITH ID \"" + params.get("id") + "\" WAS NOT FOUND")
                     return;
                 }
                 if (results.length > 1) {
@@ -40,6 +54,6 @@ $w.onReady(function () {
                     });
             });
     } else {
-        console.error("ERROR - NO BADGE NAME SUPPLIED IN QUERY PARAMS")
+        console.error("ERROR - NO BADGE NAME OR ID SUPPLIED IN QUERY PARAMS")
     }
 });

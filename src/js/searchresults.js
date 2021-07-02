@@ -52,23 +52,32 @@ $w.onReady(function () {
                 "type": "string",
                 "width": 300
             },
-        ]
+            {
+                "id": "badgeId",
+                "dataPath": "badgeId",
+                "label": "badgeId",
+                "type": "string",
+                "width": 0,
+                "visible": false
+            },
+        ];
 
         $item("#badgesTable").rows = itemData.awardedBadges.map((badgeRef) => {
             return {
                 "badgeImg": badgeMap[badgeRef].img,
-                "badgeTitle": badgeMap[badgeRef].title
+                "badgeTitle": badgeMap[badgeRef].title,
+                "badgeId": badgeRef
             };
         });
 
+        $item("#badgesTable").onRowSelect( (event) => {
+            let badgeId = event.rowData.badgeId;
+            let target = "/badge?";
+            target += "id=" + encodeURIComponent(badgeId);
+            wixLocation.to(target);
+        } );
+
         $item("#badgesTable").show();
-
-
-        // $item("#name").onClick( (event) => {
-        // 	var target = "/learner?";
-        // 	target += "name=" + encodeURIComponent(itemData.name);
-        // 	wixLocation.to(target);
-        // })
     });
 
     let operatingUserQuery = wixData.query("Users");
