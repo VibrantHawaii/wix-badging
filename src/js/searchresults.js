@@ -1,5 +1,3 @@
-// TODO add search and filter by awarded badge
-
 import wixData from 'wix-data';
 import wixLocation from 'wix-location';
 
@@ -19,17 +17,16 @@ $w.onReady(function () {
         $item("#name").text = itemData.name;
         $item("#region").text = itemData.region;
 
-        // TODO make click on any element in this cell result in navigation to the learner page
-        $item("#name").onClick( (event) => {
-            var target = "/learner?";
-            target += "name=" + encodeURIComponent(itemData.name);
-            wixLocation.to(target);
-        })
+        // $item("#name").onClick( (event) => {
+        // 	var target = "/learner?";
+        // 	target += "name=" + encodeURIComponent(itemData.name);
+        // 	wixLocation.to(target);
+        // })
     });
 
     let operatingUserQuery = wixData.query("Users");
     if (regions != "All") {
-        operatingUserQuery = operatingUserQuery.contains("region", regions);
+        operatingUserQuery = operatingUserQuery.contains("regionRef", regions);
     }
 
     operatingUserQuery
@@ -43,13 +40,13 @@ $w.onReady(function () {
             }
 
             let learnerNames = userResults.items.map( (user) => {
-                return user.title;
+                return user._id;
             });
 
             let operatingAwardedBadgesQuery = wixData.query("AwardedBadges");
             if (badges != "All") {
-                operatingAwardedBadgesQuery = operatingAwardedBadgesQuery.contains("badgeName", badges)
-                operatingAwardedBadgesQuery = operatingAwardedBadgesQuery.hasSome("userName", learnerNames)
+                operatingAwardedBadgesQuery = operatingAwardedBadgesQuery.contains("badgeRef", badges)
+                operatingAwardedBadgesQuery = operatingAwardedBadgesQuery.hasSome("userRef", learnerNames)
             }
 
             operatingAwardedBadgesQuery
@@ -70,7 +67,7 @@ $w.onReady(function () {
 
                     let dataArray = filteredUsers.map((user) => {
                         return {
-                            "_id":user.title.replace(/\W/g, ''),
+                            "_id":user._id,
                             "name":user.title,
                             "region":user.region
                         };

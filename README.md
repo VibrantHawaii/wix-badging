@@ -21,7 +21,7 @@ Perform de-duplication and validation to identify data import errors before the 
 
 ### Users
 * title: title: Text (primary)
-* Region: Text
+* regionRef: regionRef: Reference -> Regions
 
 ### Regions
 * title: title: Text (primary)
@@ -32,15 +32,16 @@ Perform de-duplication and validation to identify data import errors before the 
 * imageUrl: imageUrl: Media Gallery entry
 
 ### BadgesDetailed
-* title: title: Text (primary)
-* detailedDesctiption: detailedDesctiption: Text
+* title: title: Text (primary) _this is only needed as a primary key, and is otherwise ignored_
+* detailedDesctiption: detailedDescription: Text
+* badgeRef: badgeRef: Reference -> BadgesBrief
 
 ### AwardedBadges
 ID is a system-generated unique ID. This is leveraged to make search result entries unique. SequenceID is needed as a primary key for this table (as ID can't be set as the primary key, for some reason...).
 * sequenceID: title: Text (primary)
 * ID: _id: Text
-* UserName: userName: Text
-* BadgeName: badgeName: Text
+* userRef: userRef: Reference -> Users
+* badgeRef: badgeRef: Reference -> BadgesBrief
 
 ## Repository Structure
 As (to this author's knowledge) Wix does not interact "well" with git/GitHub, the Wix content is represented in GitHub as follows:
@@ -63,7 +64,7 @@ As (to this author's knowledge) Wix does not interact "well" with git/GitHub, th
   + Prettify search page
   + Prettify search results list page
 + Search results page - show badges as repeater
-+ Change DBs (esp awardedbadges) to use references instead of text names
++ <del>Change DBs (esp awardedbadges) to use references instead of text names
 + <del>Standardize DB field names
 + Add analytics (GA?)
   * See if DB setup/description/instantiation can be programmatic instead of manual

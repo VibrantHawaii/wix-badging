@@ -9,7 +9,7 @@ $w.onReady(function () {
             if (results.length > 0) {
                 var searchOptions = [{"label":"All", "value":"All"}];
                 searchOptions.push(...results.items.map((region) => {
-                    return {"label":region.title, "value":region.title}
+                    return {"label":region.title, "value":region._id}
                 }));
                 $w("#searchByRegion").options = searchOptions;
             } else {
@@ -24,7 +24,7 @@ $w.onReady(function () {
             if (results.length > 0) {
                 var searchOptions = [{"label":"All", "value":"All"}];
                 searchOptions.push(...results.items.map((badge) => {
-                    return {"label":badge.title, "value":badge.title}
+                    return {"label":badge.title, "value":badge._id}
                 }));
                 $w("#searchByBadge").options = searchOptions;
             } else {
