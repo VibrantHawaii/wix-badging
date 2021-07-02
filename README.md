@@ -89,6 +89,13 @@ As (to this author's knowledge) Wix does not interact "well" with git/GitHub, th
     + Architect import system
         + Users (need to de-dup)
         + Courses
+    + Create admin-only viewable administration interface
+        + DB management
+          + Badge CRUD
+          + GClassroom CSV awarded badges (and user validation and creation) import
+          + GSheets CSV (and user validation and creation) import
+          + Manual User CRUD
+          + Manual AwardedBadge CRUD
 + Data Recovery
    + Add transaction logging DBs to all DB import paths to allow recovery of state on an import fail or corruption. 
   
