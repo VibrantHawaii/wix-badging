@@ -70,7 +70,7 @@ As (to this author's knowledge) Wix does not interact "well" with git/GitHub, th
 + Add analytics (GA?)
   * See if DB setup/description/instantiation can be programmatic instead of manual
 + Contact learner capability
-    + Add button
+    + Add "Contact" button
     + Ensure PII user DB is separate and only accessible by backend
     + New DB to track transactions (issue unique key for each contact button instance, revoke when used)
     + Contact Learner dialog
@@ -82,9 +82,9 @@ As (to this author's knowledge) Wix does not interact "well" with git/GitHub, th
     + IP address tracking fo sender (to catch abuse?)
     + Cookie tracking of sender (to catch abuse?) - would need Cookie permission interstitial...
 + Data import
-    + Validate that GSheets supports templates
-    + Validate whether GSheets supports list/entry validation from a master file
-    + GSheet template for manual (non-GClassroom) user/course entry, with validated email addresses and region selection
+    + <del>Validate that GSheets supports templates: [*It does, click here to learn  more.*](https://support.google.com/docs/answer/148833?co=GENIE.Platform%3DDesktop&hl=en#zippy=%2Csubmit-a-template)
+    + <del>Validate whether GSheets supports list/entry validation from a master file: [*Yes, it does*](https://stackoverflow.com/questions/24839267/google-docs-create-drop-down-list-using-data-from-another-spreadsheet)
+    + Create GSheet template for manual (non-GClassroom) user/course entry, with validated email addresses and region selection
     + Make test folder in git
     + Save sample GClassroom data import files
     + Architect import system
