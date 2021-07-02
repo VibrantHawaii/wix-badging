@@ -8,6 +8,8 @@ This system is designed to meet Vibrant Hawaii's specific requirements:
 * Ability to populate via import from Google Classroom CSV exports
 * Ability to populate via import from Google Sheets (template) log of attendees at a workshop/class
 
+<strong style="color: red;">NOTE: this architecture requires Wix APIs that are NOT available if Editor X is enabled for the Wix site.</strong>
+
 ## Assumptions
 Learners awarded badges must supply a first and last name, email address, and region (and give permission for VH to use those)
 
@@ -17,8 +19,6 @@ Simple and clear administrative interfaces.
 Perform de-duplication and validation to identify data import errors before the data is introduced into the system.
 
 ## Databases
-
-
 ### Users
 * title: title: Text (primary)
 * regionRef: regionRef: Reference -> Regions
@@ -66,6 +66,7 @@ As (to this author's knowledge) Wix does not interact "well" with git/GitHub, th
 + <del>Search results page - show badges as repeater
 + <del>Change DBs (esp awardedbadges) to use references instead of text names
 + <del>Standardize DB field names
++ Selecting badge in searchResults should go to Badge info page
 + Add analytics (GA?)
   * See if DB setup/description/instantiation can be programmatic instead of manual
 + Contact learner capability
