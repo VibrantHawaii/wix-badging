@@ -33,7 +33,7 @@ Perform de-duplication and validation to identify data import errors before the 
 
 ### BadgesDetailed
 * title: title: Text (primary) _this is only needed as a primary key, and is otherwise ignored_
-* detailedDesctiption: detailedDescription: Text
+* detailedDescription: detailedDescription: Text
 * badgeRef: badgeRef: Reference -> BadgesBrief
 
 ### AwardedBadges
