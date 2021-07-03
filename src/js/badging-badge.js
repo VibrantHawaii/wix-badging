@@ -4,7 +4,7 @@ import wixLocation from 'wix-location';
 $w.onReady(function () {
     let params = (new URL(wixLocation.url)).searchParams;
 
-    let briefQuery = wixData.query("BadgesBrief");
+    let briefQuery = wixData.query("Badging-BadgesBrief");
 
     let name = "";
     let badgeId = "";
@@ -38,7 +38,7 @@ $w.onReady(function () {
                 $w("#name").text = badge.title;
                 $w("#badgeImg").src = badge.imageUrl[0].src;
 
-                wixData.query("BadgesDetailed")
+                wixData.query("Badging-BadgesDetailed")
                     .contains("title", badge.title)
                     .find()
                     .then( (badgeResults) => {

@@ -2,7 +2,7 @@ import wixData from 'wix-data';
 import wixLocation from 'wix-location';
 
 $w.onReady(function () {
-    wixData.query("Regions")
+    wixData.query("Badging-Regions")
         .ascending("title")
         .find()
         .then( (results) => {
@@ -17,7 +17,7 @@ $w.onReady(function () {
             }
         });
 
-    wixData.query("BadgesBrief")
+    wixData.query("Badging-BadgesBrief")
         .ascending("title")
         .find()
         .then( (results) => {

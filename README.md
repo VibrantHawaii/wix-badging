@@ -19,29 +19,29 @@ Simple and clear administrative interfaces.
 Perform de-duplication and validation to identify data import errors before the data is introduced into the system.
 
 ## Databases
-### Users
+### Badging-Users
 * title: title: Text (primary)
-* regionRef: regionRef: Reference -> Regions
+* regionRef: regionRef: Reference -> Badging-Regions
 
-### Regions
+### Badging-Regions
 * title: title: Text (primary)
 
-### BadgesBrief
+### Badging-BadgesBrief
 * title: title: Text (primary)
 * ShortDescription: shortDescription: Text
 * imageUrl: imageUrl: Media Gallery entry
 
-### BadgesDetailed
+### Badging-BadgesDetailed
 * title: title: Text (primary) _this is only needed as a primary key, and is otherwise ignored_
 * detailedDescription: detailedDescription: Text
-* badgeRef: badgeRef: Reference -> BadgesBrief
+* badgeRef: badgeRef: Reference -> Badging-BadgesBrief
 
-### AwardedBadges
+### Badging-AwardedBadges
 ID is a system-generated unique ID. This is leveraged to make search result entries unique. SequenceID is needed as a primary key for this table (as ID can't be set as the primary key, for some reason...).
 * sequenceID: title: Text (primary)
 * ID: _id: Text
-* userRef: userRef: Reference -> Users
-* badgeRef: badgeRef: Reference -> BadgesBrief
+* userRef: userRef: Reference -> Badging-Users
+* badgeRef: badgeRef: Reference -> Badging-BadgesBrief
 
 ## Repository Structure
 As (to this author's knowledge) Wix does not interact "well" with git/GitHub, the Wix content is represented in GitHub as follows:

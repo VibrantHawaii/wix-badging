@@ -14,7 +14,7 @@ $w.onReady(function () {
         badges = params.get("badges");
     }
 
-    wixData.query("BadgesBrief")
+    wixData.query("Badging-BadgesBrief")
         .find()
         .then( (badgeResults) => {
             if (badgeResults.length == 0) {
@@ -80,7 +80,7 @@ $w.onReady(function () {
         $item("#badgesTable").show();
     });
 
-    let operatingUserQuery = wixData.query("Users");
+    let operatingUserQuery = wixData.query("Badging-Users");
     if (regions != "All") {
         operatingUserQuery = operatingUserQuery.contains("regionRef", regions);
     }
@@ -99,7 +99,7 @@ $w.onReady(function () {
                 return user._id;
             });
 
-            let operatingAwardedBadgesQuery = wixData.query("AwardedBadges");
+            let operatingAwardedBadgesQuery = wixData.query("Badging-AwardedBadges");
             if (badges != "All") {
                 // Do not filter out for only awarded badge matches here, as the entire list of awarded badges is required to show all badges for the matching users
                 // operatingAwardedBadgesQuery = operatingAwardedBadgesQuery.contains("badgeRef", badges)
@@ -131,7 +131,7 @@ $w.onReady(function () {
                         return matchingAwardedBadgeResults.some( (awardedBadge) => user._id == awardedBadge.userRef);
                     });
 
-                    wixData.query("Regions")
+                    wixData.query("Badging-Regions")
                         .ascending("title")
                         .find()
                         .then( (results) => {

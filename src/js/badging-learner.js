@@ -39,7 +39,7 @@ $w.onReady(function () {
     if (params.has("name")) {
         let name = decodeURIComponent(params.get("name"));
 
-        wixData.query("Users")
+        wixData.query("Badging-Users")
             .contains("title", params.get("name"))
             .find()
             .then( (results) => {
@@ -60,7 +60,7 @@ $w.onReady(function () {
                     wixLocation.to(learner.gDrivePortfolioUrl);
                 });
 
-                wixData.query("AwardedBadges")
+                wixData.query("Badging-AwardedBadges")
                     .contains("userName", learner.title)
                     .find()
                     .then( (badgeResults) => {
@@ -73,7 +73,7 @@ $w.onReady(function () {
                             return award.badgeName;
                         });
 
-                        wixData.query("BadgesBrief")
+                        wixData.query("Badging-BadgesBrief")
                             .hasSome("title", awardedBadges)
                             .find()
                             .then( (badgeResults) => {
