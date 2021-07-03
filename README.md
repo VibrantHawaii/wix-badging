@@ -53,17 +53,18 @@ As (to this author's knowledge) Wix does not interact "well" with git/GitHub, th
 + Copy the JS for each page into Wix
 * Copy the images for the badges into the Media Gallery
 * Manually create the databases in Wix
-  * Set the badge images to refer to the correct badge image from the Media Gallery
+  * Set the badge images to refer to the correct badge image as a new Media Gallery for each badge image, containing one badge image per media gallery
 
 ## ToDos
 + <del>Set up github repository
 + <del>Prune/hide learner personal pages
 + VH site and UI
-  + Migrate code to VH Preview site
-  + Pretty list design for single badge search result list entry
-  + Prettify search page
+  + <del>Migrate code to VH Preview site
+  + Prettify landing page
   + Prettify search results list page
+  + Prettify badge page
 + <del>Search results page - show badges as repeater
+* investigate if badge images should be images instead of media galleries
 + <del>Change DBs (esp awardedbadges) to use references instead of text names
 + <del>Standardize DB field names
 + <del>Selecting badge in searchResults should go to Badge info page
