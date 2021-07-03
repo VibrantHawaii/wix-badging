@@ -72,7 +72,7 @@ $w.onReady(function () {
 
         $item("#badgesTable").onRowSelect( (event) => {
             let badgeId = event.rowData.badgeId;
-            let target = "/badge?";
+            var target = "/badging-badge?";
             target += "id=" + encodeURIComponent(badgeId);
             wixLocation.to(target);
         } );

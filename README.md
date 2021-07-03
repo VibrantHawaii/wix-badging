@@ -67,7 +67,7 @@ As (to this author's knowledge) Wix does not interact "well" with git/GitHub, th
 + <del>Change DBs (esp awardedbadges) to use references instead of text names
 + <del>Standardize DB field names
 + <del>Selecting badge in searchResults should go to Badge info page
-+ Prefix page names with badging-
++ <del>Prefix page names with badging-
 + Document page path name requirements
 + Add issue date and expiration date for awarded badges
 + Add Support for home region and multiple supported regions

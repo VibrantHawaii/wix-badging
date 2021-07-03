@@ -1,6 +1,9 @@
 # SearchResults Page
 Page to display search results form a query for learners in a region for specific (or all) badges. Displays a list of learners.
 
+## Page URL Slug (in Page Settings -> SEO -> Search (Google)
+badging-search-results
+
 ## Required Elements
 | Type                 | Name                   | Parent Element    | Attributes                                        |
 |----------------------|------------------------|-------------------|--------------------------------|

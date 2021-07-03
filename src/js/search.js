@@ -38,7 +38,7 @@ export function searchBtn_click(event) {
     var regions = $w("#searchByRegion").value ? $w("#searchByRegion").value : "All";
     var badges = $w("#searchByBadge").value ? $w("#searchByBadge").value : "All";
 
-    var target = "/search-results?";
+    var target = "/badging-search-results?";
     target += "regions=" + encodeURIComponent(regions) + "&";
     target += "badges=" + encodeURIComponent(badges);
     wixLocation.to(target);

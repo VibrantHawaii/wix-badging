@@ -1,6 +1,9 @@
 # Badge Page
 Page to show details of a specific single badge
 
+## Page URL Slug (in Page Settings -> SEO -> Search (Google)
+badging-badge
+
 ## Required Elements
 | Type                 | Name                   | Parent Element    | Attributes                                        |
 |----------------------|------------------------|-------------------|--------------------------------|

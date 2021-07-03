@@ -6,6 +6,9 @@ Page to display learner-specific information:
 + Portfolio link button
 + Awarded badges
 
+## Page URL Slug (in Page Settings -> SEO -> Search (Google)
+badging-learner
+
 ## Required Elements
 | Type                 | Name                   | Parent Element    | Attributes                                        |
 |----------------------|------------------------|-------------------|--------------------------------|
