@@ -53,10 +53,12 @@ ID is a system-generated unique ID. This is leveraged to make search result entr
 As (to this author's knowledge) Wix does not interact "well" with git/GitHub, the Wix content is represented in GitHub as follows:
 * Wix page content is described under *src/[page name].md*
 * JS for pages is described under *src/js/[page name].js*
+* JS for backend modules is described under *src/js/backend/[module name].jsw*
 
 ## Installation
 + Create pages in Wix reflecting each page described in this repository (under */src/[page name].md*)
 + Copy the JS for each page into Wix
+* Create the backend module files in Wix and copy the jsw code into Wix
 * Copy the images for the badges into the Media Gallery
 * Manually create the databases in Wix
   * Set the badge images to refer to the correct badge image as a new Media Gallery for each badge image, containing one badge image per media gallery
@@ -74,9 +76,13 @@ As (to this author's knowledge) Wix does not interact "well" with git/GitHub, th
 >
 > Mahalo, Vibrant Hawaii
 
-* Obtain your user ID from the [integration](https://dashboard.emailjs.com/admin/integration) page in the EmailJS dashboard
+* In the emailJS _Settings_ tab, under _API Settings_, check both _"Allow EmailJS API for non-browser applications"_ and _"User access tokens (recommended)"_
+* Obtain your user ID and access token from the [integration](https://dashboard.emailjs.com/admin/integration) page in the EmailJS dashboard
 * Save the emailJS user ID in the Wix Secrets Manager (under Wix site->Settings->Advanced) with the name:
 > emailJS_user_ID
+
+* Save the emailJS access token in the Wix Secrets Manager (under Wix site->Settings->Advanced) with the name:
+>  emailJS_accessToken
 
 * Save the emailJS service ID to user for sending emails to Learners in the Wix Secrets Manager (under Wix site->Settings->Advanced) with the name:
 > emailJS_service_ID
@@ -105,16 +111,18 @@ As (to this author's knowledge) Wix does not interact "well" with git/GitHub, th
 + Contact learner capability
     + <del>Add "Contact" button
     + <del>Investigate [emailJS](https://www.emailjs.com/)
-    + Set up backend JS
+    + <del>Set up backend JS
     + <del>Create and document User-PII DB
     + <del>Ensure PII user DB is separate and only accessible by backend
     + New DB to track transactions (issue unique key for each contact button instance, revoke when used)
     + Contact Learner dialog
+    + Add CAPTCHA to dialog
     + <del>Create JS email provider account
-    + Send email from backend
+    + <del>Send email from backend
+    + Catch error conditions on email send
     + Revoke unique token when email sent
     + Check unique tokens when email request issued
-    + IP address tracking fo sender (to catch abuse?)
+    + IP address tracking for sender (to catch abuse?)
     + Cookie tracking of sender (to catch abuse?) - would need Cookie permission interstitial...
 + Data import
     + <del>Validate that GSheets supports templates: [*It does, click here to learn  more.*](https://support.google.com/docs/answer/148833?co=GENIE.Platform%3DDesktop&hl=en#zippy=%2Csubmit-a-template)
