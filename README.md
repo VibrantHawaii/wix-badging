@@ -93,7 +93,7 @@ As (to this author's knowledge) Wix does not interact "well" with git/GitHub, th
 + Add analytics (GA?)
   * See if DB setup/description/instantiation can be programmatic instead of manual
 + Contact learner capability
-    + Add "Contact" button
+    + <del>Add "Contact" button
     + <del>Investigate [emailJS](https://www.emailjs.com/)
     + Set up backend JS
     + Create and document User-PII DB
