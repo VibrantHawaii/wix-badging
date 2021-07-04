@@ -75,7 +75,11 @@ As (to this author's knowledge) Wix does not interact "well" with git/GitHub, th
 > Mahalo, Vibrant Hawaii
 
 * Obtain your user ID from the [integration](https://dashboard.emailjs.com/admin/integration) page in the EmailJS dashboard
+* Save the emailJS user ID in the Wix Secrets Manager (under Wix site->Settings->Advanced) with the name:
+> emailJS_user_ID
 
+* Save the emailJS service ID to user for sending emails to Learners in the Wix Secrets Manager (under Wix site->Settings->Advanced) with the name:
+> emailJS_service_ID
 
 ## ToDos
 + <del>Set up github repository
