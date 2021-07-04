@@ -87,6 +87,8 @@ As (to this author's knowledge) Wix does not interact "well" with git/GitHub, th
 + <del>Prefix page names with badging-
 + <del>Document page path name requirements
 + Add issue date and expiration date for awarded badges
+    + Add to DB
+    + Utilize in filter to hide not yet issued, and expired, awarded badges
 + Add Support for home region and multiple supported regions
 + Add analytics (GA?)
   * See if DB setup/description/instantiation can be programmatic instead of manual
