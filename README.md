@@ -54,6 +54,22 @@ As (to this author's knowledge) Wix does not interact "well" with git/GitHub, th
 * Copy the images for the badges into the Media Gallery
 * Manually create the databases in Wix
   * Set the badge images to refer to the correct badge image as a new Media Gallery for each badge image, containing one badge image per media gallery
+* Create an account for [emailJS](https://www.emailjs.com/)
+* Create a emailJS template:
+    * Template ID: _badging_contact_learner_
+    * Reply To: _{{enquirer_email}}_
+    * Subject: _Vibrant Hawaii: New message from {{enquirer_name}}: {{enquirer_email}}_
+    * Content:
+> Aloha {{learner_name}},
+>
+>{{enquirer_name}} has sent you a message. You can reply to this email to contact them.
+>
+> {{message}}
+>
+> Mahalo, Vibrant Hawaii
+
+* Obtain your user ID from the [integration](https://dashboard.emailjs.com/admin/integration) page in the EmailJS dashboard
+
 
 ## ToDos
 + <del>Set up github repository
@@ -76,11 +92,13 @@ As (to this author's knowledge) Wix does not interact "well" with git/GitHub, th
   * See if DB setup/description/instantiation can be programmatic instead of manual
 + Contact learner capability
     + Add "Contact" button
+    + <del>Investigate [emailJS](https://www.emailjs.com/)
+    + Set up backend JS
+    + Create and document User-PII DB
     + Ensure PII user DB is separate and only accessible by backend
     + New DB to track transactions (issue unique key for each contact button instance, revoke when used)
     + Contact Learner dialog
-    + Create JS email provider account
-    + Test email sending with basic implementation
+    + <del>Create JS email provider account
     + Send email from backend
     + Revoke unique token when email sent
     + Check unique tokens when email request issued
