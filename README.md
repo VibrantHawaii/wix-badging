@@ -23,6 +23,12 @@ Perform de-duplication and validation to identify data import errors before the 
 * title: title: Text (primary)
 * regionRef: regionRef: Reference -> Badging-Regions
 
+### Badging-Users-PII
+**IMPORTANT: Set the collection use as _Private Data_**
+* sequenceID: title: Text (primary)
+* userRef: userRef: Reference -> Badging-Users
+* email: email: Text (mark as PII and thus encrypted)
+
 ### Badging-Regions
 * title: title: Text (primary)
 
@@ -96,8 +102,8 @@ As (to this author's knowledge) Wix does not interact "well" with git/GitHub, th
     + <del>Add "Contact" button
     + <del>Investigate [emailJS](https://www.emailjs.com/)
     + Set up backend JS
-    + Create and document User-PII DB
-    + Ensure PII user DB is separate and only accessible by backend
+    + <del>Create and document User-PII DB
+    + <del>Ensure PII user DB is separate and only accessible by backend
     + New DB to track transactions (issue unique key for each contact button instance, revoke when used)
     + Contact Learner dialog
     + <del>Create JS email provider account
