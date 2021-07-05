@@ -58,7 +58,7 @@ As (to this author's knowledge) Wix does not interact "well" with git/GitHub, th
 ## Installation
 + Create pages in Wix reflecting each page described in this repository (under */src/[page name].md*)
 + Copy the JS for each page into Wix
-* Create the backend module files in Wix and copy the jsw code into Wix
+* [Create the backend module files in Wix](https://www.wix.com/velo/forum/coding-with-velo/creating-backend-modules-and-learn-how-to-use-them) and copy the jsw code into Wix
 * Copy the images for the badges into the Media Gallery
 * Manually create the databases in Wix
   * Set the badge images to refer to the correct badge image as a new Media Gallery for each badge image, containing one badge image per media gallery
@@ -115,7 +115,8 @@ As (to this author's knowledge) Wix does not interact "well" with git/GitHub, th
     + <del>Create and document User-PII DB
     + <del>Ensure PII user DB is separate and only accessible by backend
     + New DB to track transactions (issue unique key for each contact button instance, revoke when used)
-    + Contact Learner dialog
+    + <del>Contact Learner dialog
+    + Complete error handling and input validation for Contact Learner dialog
     + Add CAPTCHA to dialog
     + <del>Create JS email provider account
     + <del>Send email from backend

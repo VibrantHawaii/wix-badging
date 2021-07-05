@@ -1,5 +1,6 @@
 import wixData from 'wix-data';
 import wixLocation from 'wix-location';
+import wixWindow from 'wix-window';
 
 $w.onReady(function () {
     let badges = "All";
@@ -36,7 +37,7 @@ $w.onReady(function () {
 
         // Configure badges table
         let awardedBadgeCount = itemData.awardedBadges.length;
-        console.log("user " + itemData.name + " has " + awardedBadgeCount + " badges awarded");
+        //console.log("user " + itemData.name + " has " + awardedBadgeCount + " badges awarded");
         $item("#badgesTable").columns = [
             {
                 "id": "badgeImg",
@@ -76,6 +77,13 @@ $w.onReady(function () {
             target += "id=" + encodeURIComponent(badgeId);
             wixLocation.to(target);
         } );
+
+        $item("#contactBtn").onClick((event) => {
+            wixWindow.openLightbox("Badging Contact Popup", {
+                "learnerID": itemData._id,
+                "learnerName": itemData.name
+            })
+        });
 
         $item("#badgesTable").show();
     });
