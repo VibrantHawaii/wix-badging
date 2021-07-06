@@ -1,83 +1,87 @@
 import wixSecretsBackend from 'wix-secrets-backend';
 import {fetch} from 'wix-fetch';
 import wixData from 'wix-data';
+import wixCaptcha from 'wix-captcha-backend';
 
-export function contactLearner(learner_ref, enquirer_name, enquirer_email, message) {
-    return wixData.query("Badging-Users")
-        .eq("_id", learner_ref)
-        .find()
-        .then( (learner_results) => {
-            if (learner_results.length == 0) {
-                let errorText = "ERROR - USER WITH REFERENCE " + learner_ref + " NOT FOUND IN USER DB";
-                console.error(errorText);
-                return Promise.reject(errorText);
-            }
-
-            let learner = learner_results.items[0];
-
-            return wixData.query("Badging-Users-PII")
-                .eq("userRef", learner_ref)
+export function contactLearner(learner_ref, enquirer_name, enquirer_email, message, token) {
+    return wixCaptcha.authorize(token)
+        .then(() => {
+            return wixData.query("Badging-Users")
+                .eq("_id", learner_ref)
                 .find()
-                .then( (learner_pii_results) => {
-                    if (learner_pii_results.length == 0) {
-                        let errorText = "ERROR - USER WITH REFERENCE " + learner_ref + " NOT FOUND IN USER PII DB";
+                .then( (learner_results) => {
+                    if (learner_results.length == 0) {
+                        let errorText = "ERROR - USER WITH REFERENCE " + learner_ref + " NOT FOUND IN USER DB";
                         console.error(errorText);
                         return Promise.reject(errorText);
                     }
 
-                    let learner_name = learner.title;
-                    console.log("user info and PII found: " + learner_name + ", email: " + learner_pii_results.items[0].email)
+                    let learner = learner_results.items[0];
 
-                    return wixSecretsBackend.getSecret("emailJS_user_ID")
-                        .then((emailJS_user_ID) => {
-                            return wixSecretsBackend.getSecret("emailJS_service_ID")
-                                .then((emailJS_service_ID) => {
-                                    return wixSecretsBackend.getSecret("emailJS_accessToken")
-                                        .then((emailJS_accessToken) => {
-                                            console.log("emailJS_user_ID: " + emailJS_user_ID);
-                                            console.log("emailJS_service_ID: " + emailJS_service_ID);
-                                            console.log("emailJS_accessToken: " + emailJS_accessToken);
+                    return wixData.query("Badging-Users-PII")
+                        .eq("userRef", learner_ref)
+                        .find()
+                        .then( (learner_pii_results) => {
+                            if (learner_pii_results.length == 0) {
+                                let errorText = "ERROR - USER WITH REFERENCE " + learner_ref + " NOT FOUND IN USER PII DB";
+                                console.error(errorText);
+                                return Promise.reject(errorText);
+                            }
 
-                                            let params = {
-                                                user_id: emailJS_user_ID,
-                                                service_id: emailJS_service_ID,
-                                                accessToken: emailJS_accessToken,
-                                                template_id: 'badging_contact_learner',
-                                                template_params: {
-                                                    'learner_name': learner_name,
-                                                    'learner_email': learner_pii_results.items[0].email,
-                                                    'enquirer_name': enquirer_name,
-                                                    'enquirer_email': enquirer_email,
-                                                    'message': message
-                                                }
-                                            };
+                            let learner_name = learner.title;
+                            console.log("user info and PII found: " + learner_name + ", email: " + learner_pii_results.items[0].email)
 
-                                            let headers = {
-                                                'Content-type': 'application/json'
-                                            };
+                            return wixSecretsBackend.getSecret("emailJS_user_ID")
+                                .then((emailJS_user_ID) => {
+                                    return wixSecretsBackend.getSecret("emailJS_service_ID")
+                                        .then((emailJS_service_ID) => {
+                                            return wixSecretsBackend.getSecret("emailJS_accessToken")
+                                                .then((emailJS_accessToken) => {
+                                                    console.log("emailJS_user_ID: " + emailJS_user_ID);
+                                                    console.log("emailJS_service_ID: " + emailJS_service_ID);
+                                                    console.log("emailJS_accessToken: " + emailJS_accessToken);
 
-                                            let options = {
-                                                method: 'POST',
-                                                headers: headers,
-                                                body: JSON.stringify(params)
-                                            };
+                                                    let params = {
+                                                        user_id: emailJS_user_ID,
+                                                        service_id: emailJS_service_ID,
+                                                        accessToken: emailJS_accessToken,
+                                                        template_id: 'badging_contact_learner',
+                                                        template_params: {
+                                                            'learner_name': learner_name,
+                                                            'learner_email': learner_pii_results.items[0].email,
+                                                            'enquirer_name': enquirer_name,
+                                                            'enquirer_email': enquirer_email,
+                                                            'message': message
+                                                        }
+                                                    };
 
-                                            fetch('https://api.emailjs.com/api/v1.0/email/send', options)
-                                                .then((httpResponse) => {
-                                                    if (httpResponse.ok) {
-                                                        console.log('Email was sent to ' + learner_name + " from " + enquirer_name + ": " + enquirer_email);
-                                                    } else {
-                                                        return httpResponse.text()
-                                                            .then(text => {
-                                                                console.log("Email send failed with response: " + text);
-                                                                Promise.reject(text);}
-                                                            );
-                                                    }
+                                                    let headers = {
+                                                        'Content-type': 'application/json'
+                                                    };
+
+                                                    let options = {
+                                                        method: 'POST',
+                                                        headers: headers,
+                                                        body: JSON.stringify(params)
+                                                    };
+
+                                                    fetch('https://api.emailjs.com/api/v1.0/email/send', options)
+                                                        .then((httpResponse) => {
+                                                            if (httpResponse.ok) {
+                                                                console.log('Email was sent to ' + learner_name + " from " + enquirer_name + ": " + enquirer_email);
+                                                            } else {
+                                                                return httpResponse.text()
+                                                                    .then(text => {
+                                                                        console.log("Email send failed with response: " + text);
+                                                                        Promise.reject(text);}
+                                                                    );
+                                                            }
+                                                        })
                                                 })
-                                        })
-                                        .catch((error) => {
-                                            console.error(error);
-                                            //   TODO do somthing if this errors out... (return error to caller)
+                                                .catch((error) => {
+                                                    console.error(error);
+                                                    //   TODO do somthing if this errors out... (return error to caller)
+                                                });
                                         });
                                 });
                         });

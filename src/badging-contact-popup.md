@@ -10,7 +10,8 @@ Name:
 | Text                 | contactPopupTitle          | Lightbox          | Text: "Contact", Hidden: false, Collapsed: false |
 | Text                 | contactPopupStatus         | Lightbox          | Text: "Status", Hidden: true, Collapsed: false |
 | Button               | closeBtn                   | Lightbox          | Text: "X", Hidden: false, Collapsed: false |
-| Button               | contactPopupSendBtn        | Lightbox          | Text: "Send", Hidden: false, Collapsed: false |
+| Button               | contactPopupSendBtn        | Lightbox          | Text: "Send", Hidden: false, Collapsed: false, Enabled: false |
 | Input                | contactPopupNameInput      | Lightbox          | Text: "Add your Name", Hidden: false, Collapsed: false, Enabled: true |
 | Input                | contactPopupEmailInput     | Lightbox          | Text: "Add your Email Address", Hidden: false, Collapsed: false, Enabled: true, Settings->Type: Email |
 | Input                | contactPopupMessageInput   | Lightbox          | Text: "Type your message here", Hidden: false, Collapsed: false, Enabled: true |
+| reCAPTCHA            | contactPopupCaptcha        | Lightbox          | Hidden: false, Collapsed: false       |

@@ -116,8 +116,8 @@ As (to this author's knowledge) Wix does not interact "well" with git/GitHub, th
     + <del>Ensure PII user DB is separate and only accessible by backend
     + New DB to track transactions (issue unique key for each contact button instance, revoke when used)
     + <del>Contact Learner dialog
-    + Complete error handling and input validation for Contact Learner dialog
-    + Add CAPTCHA to dialog
+    + <del>Complete error handling and input validation for Contact Learner dialog
+    + <del>Add CAPTCHA to dialog
     + <del>Create JS email provider account
     + <del>Send email from backend
     + Catch error conditions on email send
