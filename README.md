@@ -21,7 +21,8 @@ Perform de-duplication and validation to identify data import errors before the 
 ## Databases
 ### Badging-Users
 * title: title: Text (primary)
-* regionRef: regionRef: Reference -> Badging-Regions
+* homeRegionRef: homeRegionRef: Reference -> Badging-Regions
+* supportedRegionsRef: supportedRegionsRef: Reference -> Badging-Regions (multiple)
 
 ### Badging-Users-PII
 **IMPORTANT: Set the collection use as _Private Data_**
@@ -105,7 +106,8 @@ As (to this author's knowledge) Wix does not interact "well" with git/GitHub, th
 + Add issue date and expiration date for awarded badges
     + Add to DB
     + Utilize in filter to hide not yet issued, and expired, awarded badges
-+ Add Support for home region and multiple supported regions
++ <del>Add Support for home region and multiple supported regions
++ Add progress spinners when loading data
 + Add analytics (GA?)
   * See if DB setup/description/instantiation can be programmatic instead of manual
 + Contact learner capability

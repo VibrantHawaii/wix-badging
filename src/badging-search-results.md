@@ -11,7 +11,8 @@ badging-search-results
 | Repeater             | learnersRepeater       | Root/Any          | Hidden: true, Collapsed: false |
 | Container            | learnerContainer       | learnersRepeater  | Hidden: false, Collapsed: false |
 | Text                 | name                   | learnerContainer  | Text: "Name", Hidden: false, Collapsed: false |
-| Text                 | region                 | learnerContainer  | Text: "Region", Hidden: false, Collapsed: false |
+| Text                 | homeRegion             | learnerContainer  | Text: "Home Region", Hidden: false, Collapsed: false |
+| Text                 | supportedRegions       | learnerContainer  | Text: "Supported Regions", Hidden: false, Collapsed: false |
 | Table                | badgesTable            | learnerContainer  | Hidden: true, Collapsed: false |
 | Image                | badgeImg               | badgesTable       | Field: badgeImg, Column |
 | String               | badgeTitle             | badgesTable       | Field: badgeTitle, Column |

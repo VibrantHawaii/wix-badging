@@ -33,7 +33,8 @@ $w.onReady(function () {
 
     $w("#learnersRepeater").onItemReady(($item, itemData, index) => {
         $item("#name").text = itemData.name;
-        $item("#region").text = itemData.region;
+        $item("#homeRegion").text = "Home: " + itemData.homeRegion;
+        $item("#supportedRegions").text = "Supporting: " + itemData.supportedRegions;
 
         // Configure badges table
         let awardedBadgeCount = itemData.awardedBadges.length;
@@ -90,10 +91,11 @@ $w.onReady(function () {
 
     let operatingUserQuery = wixData.query("Badging-Users");
     if (regions != "All") {
-        operatingUserQuery = operatingUserQuery.contains("regionRef", regions);
+        operatingUserQuery = operatingUserQuery.hasSome("supportedRegionsRef", regions);
     }
 
     operatingUserQuery
+        .include("title", "_id", "homeRegionRef", "supportedRegionsRef")
         .ascending("title")
         .find()
         .then( (userResults) => {
@@ -139,32 +141,24 @@ $w.onReady(function () {
                         return matchingAwardedBadgeResults.some( (awardedBadge) => user._id == awardedBadge.userRef);
                     });
 
-                    wixData.query("Badging-Regions")
-                        .ascending("title")
-                        .find()
-                        .then( (results) => {
-                            if (results.length == 0) {
-                                console.error("NO REGIONS FOUND");
-                            } else {
-                                let regionMap = {};
-                                results.items.map((region) => {
-                                    regionMap[region._id] = region.title;
-                                });
-
-                                let dataArray = filteredUsers.map((user) => {
-                                    return {
-                                        "_id":user._id,
-                                        "name":user.title,
-                                        "region":regionMap[user.regionRef],
-                                        "awardedBadges":userBadgeMap[user._id]
-                                    };
-                                })
-
-                                $w("#learnersRepeater").data = dataArray;
-
-                                $w("#learnersRepeater").show();
-                            }
+                    let dataArray = filteredUsers.map((user) => {
+                        let supportedRegionsTitleArray = user.supportedRegionsRef.map(regionData => {
+                            return regionData.title;
                         });
+                        let supportedRegionString = supportedRegionsTitleArray.join(", ");
+
+                        return {
+                            "_id":user._id,
+                            "name":user.title,
+                            "homeRegion":user.homeRegionRef.title,
+                            "supportedRegions": supportedRegionString,
+                            "awardedBadges":userBadgeMap[user._id]
+                        };
+                    })
+
+                    $w("#learnersRepeater").data = dataArray;
+
+                    $w("#learnersRepeater").show();
                 });
         });
 });
