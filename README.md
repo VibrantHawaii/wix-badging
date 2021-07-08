@@ -49,6 +49,8 @@ ID is a system-generated unique ID. This is leveraged to make search result entr
 * ID: _id: Text
 * userRef: userRef: Reference -> Badging-Users
 * badgeRef: badgeRef: Reference -> Badging-BadgesBrief
+* issueDate: issueDate: Date and Time
+* expiryDate: expiryDate: Date and Time
 
 ## Repository Structure
 As (to this author's knowledge) Wix does not interact "well" with git/GitHub, the Wix content is represented in GitHub as follows:
@@ -103,9 +105,9 @@ As (to this author's knowledge) Wix does not interact "well" with git/GitHub, th
 + <del>Selecting badge in searchResults should go to Badge info page
 + <del>Prefix page names with badging-
 + <del>Document page path name requirements
-+ Add issue date and expiration date for awarded badges
-    + Add to DB
-    + Utilize in filter to hide not yet issued, and expired, awarded badges
++ <del>Add issue date and expiration date for awarded badges
+    + <del>Add to DB
+    + <del>Utilize in filter to hide not yet issued, and expired, awarded badges
 + <del>Add Support for home region and multiple supported regions
 + Add progress spinners when loading data
 + Add analytics (GA?)
@@ -116,13 +118,13 @@ As (to this author's knowledge) Wix does not interact "well" with git/GitHub, th
     + <del>Set up backend JS
     + <del>Create and document User-PII DB
     + <del>Ensure PII user DB is separate and only accessible by backend
-    + New DB to track transactions (issue unique key for each contact button instance, revoke when used)
     + <del>Contact Learner dialog
     + <del>Complete error handling and input validation for Contact Learner dialog
     + <del>Add CAPTCHA to dialog
     + <del>Create JS email provider account
     + <del>Send email from backend
     + Catch error conditions on email send
+    + New DB to track transactions (issue unique token for each contact button instance, revoke when used)
     + Revoke unique token when email sent
     + Check unique tokens when email request issued
     + IP address tracking for sender (to catch abuse?)

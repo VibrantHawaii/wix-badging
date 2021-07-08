@@ -116,13 +116,21 @@ $w.onReady(function () {
                 operatingAwardedBadgesQuery = operatingAwardedBadgesQuery.hasSome("userRef", learnerNames)
             }
 
+            let now = new Date();
+
             operatingAwardedBadgesQuery
+                .lt("issueDate", now)
+                // .gt("expiryDate", now)
                 .ascending("userName")
                 .find()
                 .then( (awardedBadgeResults) => {
-                    let matchingAwardedBadgeResults = awardedBadgeResults.items;
+                    let matchingAwardedBadgeResults = awardedBadgeResults.items.filter((award) => {
+                        if (award.expiryDate === undefined)
+                            return true;
+                        return (award.expiryDate.getTime() > now.getTime());
+                    });
                     if (badges != "All") {
-                        matchingAwardedBadgeResults = awardedBadgeResults.items.filter((award) => award.badgeRef == badges);
+                        matchingAwardedBadgeResults = matchingAwardedBadgeResults.filter((award) => award.badgeRef == badges);
                     };
 
                     if (matchingAwardedBadgeResults.length == 0) {
@@ -135,7 +143,7 @@ $w.onReady(function () {
 
                     let userBadgeMap = {};
                     let filteredUsers = userResults.items.filter( user => {
-                        let allAwardedBadgeMatches = awardedBadgeResults.items.filter( (awardedBadge) => user._id == awardedBadge.userRef);
+                        let allAwardedBadgeMatches = matchingAwardedBadgeResults.filter( (awardedBadge) => user._id == awardedBadge.userRef);
                         userBadgeMap[user._id] = allAwardedBadgeMatches.map((award) => award.badgeRef);
 
                         return matchingAwardedBadgeResults.some( (awardedBadge) => user._id == awardedBadge.userRef);
