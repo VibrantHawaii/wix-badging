@@ -2,10 +2,16 @@ import wixData from 'wix-data';
 import wixLocation from 'wix-location';
 import wixWindow from 'wix-window';
 
+let stillLoadingPageData = true;
+let stillLoadingPageDataAnimationStage = 3; // 1, 2, or 3. Start at 3 to immediately cause wrap around to 1 on instantiation.
+const BASE_LOADING_ANIMATION_TEXT = "Searching the island.";
+
 $w.onReady(function () {
     let badges = "All";
     let regions = "All";
     let badgeMap = [];
+
+    loadingPageDataAnimation();
 
     let params = (new URL(wixLocation.url)).searchParams;
     if (params.has("regions")) {
@@ -101,6 +107,7 @@ $w.onReady(function () {
         .then( (userResults) => {
             if (userResults.length == 0) {
                 $w("#statusText").show();
+                $w("#loadingAnimationText").hide();
                 $w("#learnersRepeater").hide();
                 return;
             }
@@ -135,6 +142,7 @@ $w.onReady(function () {
 
                     if (matchingAwardedBadgeResults.length == 0) {
                         $w("#statusText").show();
+                        $w("#loadingAnimationText").hide();
                         $w("#learnersRepeater").hide();
                         return;
                     }
@@ -165,8 +173,32 @@ $w.onReady(function () {
                     })
 
                     $w("#learnersRepeater").data = dataArray;
-
+                    $w("#loadingAnimationText").hide();
+                    stillLoadingPageData = false;
                     $w("#learnersRepeater").show();
                 });
         });
 });
+
+function loadingPageDataAnimation() {
+    if (stillLoadingPageData) {
+        // Requeue animation
+        let newText = BASE_LOADING_ANIMATION_TEXT;
+        switch (stillLoadingPageDataAnimationStage) {
+            case 1:
+                stillLoadingPageDataAnimationStage++;
+                break;
+            case 2:
+                stillLoadingPageDataAnimationStage++;
+                newText = newText + "."
+                break;
+            case 3:
+                stillLoadingPageDataAnimationStage = 1;
+                newText = newText + ".."
+                break;
+        }
+
+        $w("#loadingAnimationText").text = newText;
+        setTimeout(loadingPageDataAnimation, 700);
+    }
+}

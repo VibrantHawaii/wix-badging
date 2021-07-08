@@ -109,7 +109,7 @@ As (to this author's knowledge) Wix does not interact "well" with git/GitHub, th
     + <del>Add to DB
     + <del>Utilize in filter to hide not yet issued, and expired, awarded badges
 + <del>Add Support for home region and multiple supported regions
-+ Add progress spinners when loading data
++ <del>Add progress spinners when loading data
 + Add analytics (GA?)
   * See if DB setup/description/instantiation can be programmatic instead of manual
 + Contact learner capability

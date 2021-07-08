@@ -7,7 +7,8 @@ badging-search-results
 ## Required Elements
 | Type                 | Name                   | Parent Element    | Attributes                                        |
 |----------------------|------------------------|-------------------|--------------------------------|
-| Text                 | statusText             | Root/Any          | Text: "No Learners found", Hidden: true, Collapsed: false |
+| Text                 | statusText             | Root/Any          | Text: "No Learners Found.", Hidden: true, Collapsed: false |
+| Text                 | loadingAnimationText   | Root/Any          | Text: "Searching the island.", Hidden: false, Collapsed: false |
 | Repeater             | learnersRepeater       | Root/Any          | Hidden: true, Collapsed: false |
 | Container            | learnerContainer       | learnersRepeater  | Hidden: false, Collapsed: false |
 | Text                 | name                   | learnerContainer  | Text: "Name", Hidden: false, Collapsed: false |
