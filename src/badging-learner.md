@@ -6,6 +6,9 @@ Page to display learner-specific information:
 + Portfolio link button
 + Awarded badges
 
+## Hide from menu (in Page Settings -> Page Info)
+True
+
 ## Page URL Slug (in Page Settings -> SEO -> Search (Google)
 badging-learner
 

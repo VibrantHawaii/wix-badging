@@ -1,6 +1,9 @@
 # Search Page
 Page to initiate a search for learners by region or awarded badge.
 
+## Hide from menu (in Page Settings -> Page Info)
+False
+
 ## Page URL Slug (in Page Settings -> SEO -> Search (Google)
 badging-landing
 

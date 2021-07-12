@@ -1,6 +1,9 @@
 # Badge Page
 Page to show details of a specific single badge
 
+## Hide from menu (in Page Settings -> Page Info)
+True
+
 ## Page URL Slug (in Page Settings -> SEO -> Search (Google)
 badging-badge
 
