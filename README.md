@@ -140,8 +140,8 @@ As (to this author's knowledge) Wix does not interact "well" with git/GitHub, th
         + Courses
         + Awarded badges
     + Create admin-only viewable administration interface
-        + Admin only page
-        + Set permissions to only subsets of Wix account roles (currently any logged in user can see the admin page)
+        + <DEL>Admin only page
+        + Set permissions to [only subsets of Wix account roles](https://support.wix.com/en/article/limiting-pages-on-your-site-to-specific-member-roles) (currently any logged in user can see the admin page)
         + DB management
           + Badge CRUD
           + GClassroom CSV awarded badges (and user validation and creation) import

@@ -1,0 +1,267 @@
+import { mediaManager } from 'wix-media-backend';
+import wixData from 'wix-data';
+import {fetch} from 'wix-fetch';
+
+const MAGIC_SUPPORTS_WORD = "Supports";
+let offlineClassCSVStruct = {
+    "1": {
+        "title": "Badge Awarded Date",
+        "type": "awardedDate"
+    },
+    "2": {
+        "title": "Badge Expiry Date (if any)",
+        "type": "expiryDate"
+    },
+    "3": {
+        "title": "Name",
+        "type": "name"
+    },
+    "4": {
+        "title": "Email",
+        "type": "email"
+    }
+    // IMPORTANT All other additional columns are supported regions with type bool
+};
+let offlineClassCSVStructSeeded = false;
+let regions = [];
+
+export function importOfflineClassCSV(fileName, badgeRef) {
+    function validateFile(fileName) {
+        return fetchFileFromMediaManager(fileName).then((fileText) => {
+            // console.log("Filename: " + fileName + " text:\n" + fileText);
+            validateOfflineClassCSVFormat(fileText).then((arrayedCSV) => {
+                // Create user-centered dictionary
+                createUserDict(arrayedCSV, offlineClassCSVStruct, badgeRef).then((userDict) => {
+
+
+
+
+
+
+                    // TODO Add any new users
+
+
+                    // TODO add PII
+
+
+                    // TODO Award badges
+
+
+                })
+            })
+        })
+            .catch((error) => {
+                return(error);
+            });
+    }
+
+    if (offlineClassCSVStructSeeded)
+        return validateFile(fileName)
+    else {
+        seedOfflineClassCSVStruct().then(() => { return validateFile(fileName)});
+        console.log(offlineClassCSVStruct);
+    }
+}
+
+function validateOfflineClassCSVFormat(csvText) {
+    return validateCSVFormat(csvText, offlineClassCSVStruct)
+}
+
+function validateCSVFormat(csvText, structure) {
+    return new Promise((resolve, reject) => {
+        // Convert csvText to array of arrays
+        let arrayedCSV = convertCSVTextToArray(csvText);
+
+        if (arrayedCSV.length < 2) {
+            logAndThrowError("No rows found in CSV apart from the header row");
+        }
+
+        // test first row (header) length eq struct length (width)
+        if (arrayedCSV[0].length != Object.keys(structure).length) {
+            logAndThrowError("Header row is " + arrayedCSV[0].length + " columns, it should be " + Object.keys(structure).length);
+        }
+
+        // validate first row (header) contents eq struct
+        arrayedCSV[0].forEach((csvTitle, index) => {
+            if (arrayedCSV[0][index].toUpperCase() != structure[(index + 1) + ""].title.toUpperCase()) {
+                logAndThrowError("Header row " + arrayedCSV[0] + " is not identical (including order) to the structure column titles");
+            }
+        });
+
+        // TODO fix up error handling
+
+        // Test if all rows have the same number of columns (as the header row)
+        if (!arrayedCSV.every((currentEntry) => {
+            return arrayedCSV[0].length === currentEntry.length;
+        })) {
+            logAndThrowError("Not all rows have the correct number of columns (" + arrayedCSV[0].length + ")");
+        }
+
+        // Validate each cell entry after first row for type
+        // types: date, name, email, bool
+        let orderedTypes = Array.from(Array(arrayedCSV[0].length).keys())
+        Object.keys(offlineClassCSVStruct).forEach((key) => {
+            orderedTypes[parseInt(key) - 1] = offlineClassCSVStruct[key].type;
+        });
+
+        arrayedCSV.every((row, rowIndex) => {
+            if (rowIndex !== 0) {
+                return row.every((entry, colIndex) => {
+                    return validateEntryType(entry, orderedTypes[colIndex], rowIndex, colIndex)
+                });
+            }
+
+            return true;
+        });
+
+        resolve(arrayedCSV);
+    })
+        .catch( (error) => {
+            throw error;
+        })
+}
+
+// On success returns the text of the (intended CSV) file
+function fetchFileFromMediaManager(fileName) {
+    return mediaManager.getFileUrl(fileName).then((url) => {
+        return fetch(url).then((theFile) => {
+            return theFile.text().then((theText) => {
+                return(theText);
+            });
+        });
+    })
+        .catch((error) => {
+            return(error);
+        });
+}
+
+// Extends the struct with the "Supports <each region name>" members
+function seedOfflineClassCSVStruct() {
+    return wixData.query("Badging-Regions")
+        .ascending("title")
+        .find()
+        .then( (results) => {
+            if (results.length > 0) {
+                regions = results.items.map(region => region.title);
+
+                let originalOfflineClassCSVStructLength = Object.keys(offlineClassCSVStruct).length;
+                let nextElementIndex = originalOfflineClassCSVStructLength + 1;
+
+                results.items.forEach(region => {
+                    offlineClassCSVStruct[nextElementIndex] = {
+                        "title": MAGIC_SUPPORTS_WORD + " " + region.title,
+                        "type": "bool",
+                    };
+                    nextElementIndex++;
+                });
+                offlineClassCSVStructSeeded = true;
+            } else {
+                logAndThrowError("No regions found!");
+            }
+        });
+}
+
+function logAndThrowError(message) {
+    console.log(message);
+    throw(Error(message));
+}
+
+function validateEntryType(entry, type, rowIndex, colIndex) {
+    function failedValidation(entry, type, rowIndex, colIndex) {
+        logAndThrowError("Entry \"" + entry + "\" in 1-based row " + (rowIndex + 1) + " and 1-based column " + (colIndex + 1) + " is not of type " + type);
+        return false;
+    }
+
+    switch (type) {
+        case "bool":
+            if (!["Yes","No","YES","NO","yes","no","Y","N","y","n", ""].includes(entry))
+                return failedValidation(entry, type, rowIndex, colIndex)
+            break;
+
+        case "name":
+            if (entry.length < 3)
+                return failedValidation(entry, type, rowIndex, colIndex)
+            break;
+
+        case "email":
+            if (entry.length < 3)
+                return failedValidation(entry, type, rowIndex, colIndex)
+            if (entry.match(/[\w+-_~.]{1,}@[\w+-_~]{1,}\.[\w+-_~]{1,}/) === null)
+                return failedValidation(entry, type, rowIndex, colIndex)
+            break;
+
+        case "awardedDate":
+        case "expiryDate":
+            // Example: "7/1/2021"
+            if (entry.match("\\d{1,2}/\\d{1,2}/\\d{4}") === null)
+                failedValidation(entry, type, rowIndex, colIndex)
+            break;
+
+        default:
+            logAndThrowError("Unknown type requested for validation: " + type)
+            return false;
+    }
+    return true;
+}
+
+function createUserDict(csvArray, structure, badgeRef) {
+    return new Promise((resolve, reject) => {
+        // Extract key: user names
+        // TODO update to hash of username and email
+        let userDict = {};
+
+        function getCSVColumn(type) {
+            let columnDict = Object.entries(structure).find(element => element[1].type === type);
+            let oneIndexedResult = Number(columnDict[0]);
+            return oneIndexedResult - 1;
+        }
+
+        let awardedDateColumn = getCSVColumn("awardedDate");
+        let expiryDateColumn = getCSVColumn("expiryDate");
+        let nameColumn = getCSVColumn("name");
+        let emailColumn = getCSVColumn("email");
+
+        // Skip header row [0]
+        let firstIndexOfSupportedRegion = Object.keys(structure).length - regions.length;
+        for (let rowIndex = 1; rowIndex < csvArray.length; rowIndex++) {
+            let name = csvArray[rowIndex][nameColumn];
+            userDict[name] = {
+                'pii': {
+                    'email': csvArray[rowIndex][emailColumn],
+                },
+                'award': {
+                    'badgeRef': badgeRef,
+                    'awardedDate': csvArray[rowIndex][awardedDateColumn],
+                    'expiryDate': csvArray[rowIndex][expiryDateColumn],
+                },
+                'supportsRegions': {}
+            };
+
+            regions.forEach((region, index) => {
+                let regionColIndexInCSV = firstIndexOfSupportedRegion + index;
+                let csvEntry = csvArray[rowIndex][regionColIndexInCSV];
+                userDict[name]['supportsRegions'][region] = boolStringToBool(csvEntry);
+            })
+
+        }
+
+        resolve(userDict);
+    })
+        .catch( (error) => {
+            throw error;
+        })
+
+}
+
+function boolStringToBool(target) {
+    return ["Yes","YES","yes","Y","y"].includes(target);
+}
+
+function convertCSVTextToArray(csvText) {
+    let linedCSV = csvText.split("\n");
+    let arrayedCSV = [];
+    linedCSV.forEach(element => {
+        arrayedCSV.push(element.replace(/[\n\r]+/g, '').trim().split(","))
+    });
+    return arrayedCSV;
+}
