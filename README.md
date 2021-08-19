@@ -49,7 +49,7 @@ ID is a system-generated unique ID. This is leveraged to make search result entr
 * ID: _id: Text
 * userRef: userRef: Reference -> Badging-Users
 * badgeRef: badgeRef: Reference -> Badging-BadgesBrief
-* issueDate: issueDate: Date and Time
+* awardedDate: awardedDate: Date and Time
 * expiryDate: expiryDate: Date and Time
 
 ## Repository Structure
@@ -110,7 +110,8 @@ As (to this author's knowledge) Wix does not interact "well" with git/GitHub, th
     + <del>Utilize in filter to hide not yet issued, and expired, awarded badges
 + <del>Add Support for home region and multiple supported regions
 + <del>Add progress spinners when loading data
-+ Add analytics (GA?)
++ <del> Remove Home Region
++ Add analytics (Wix)
   * See if DB setup/description/instantiation can be programmatic instead of manual
 + Contact learner capability
     + <del>Add "Contact" button
@@ -123,6 +124,7 @@ As (to this author's knowledge) Wix does not interact "well" with git/GitHub, th
     + <del>Add CAPTCHA to dialog
     + <del>Create JS email provider account
     + <del>Send email from backend
+    + Add hashed unique value to User DB from email address and user name, to use as unique ID
     + Catch error conditions on email send
     + New DB to track transactions (issue unique token for each contact button instance, revoke when used)
     + Revoke unique token when email sent
@@ -132,7 +134,7 @@ As (to this author's knowledge) Wix does not interact "well" with git/GitHub, th
 + Data import
     + <del>Validate that GSheets supports templates: [*It does, click here to learn  more.*](https://support.google.com/docs/answer/148833?co=GENIE.Platform%3DDesktop&hl=en#zippy=%2Csubmit-a-template)
     + <del>Validate whether GSheets supports list/entry validation from a master file: [*Yes, it does*](https://stackoverflow.com/questions/24839267/google-docs-create-drop-down-list-using-data-from-another-spreadsheet)
-    + Create GSheet template for manual (non-GClassroom) user/course entry, with validated email addresses and region selection
+    + <del> Create GSheet template for manual (non-GClassroom) user/course entry, with validated email addresses and region selection
     + Make test folder in git
     + Save sample GClassroom data import files
     + Architect import system
@@ -145,7 +147,7 @@ As (to this author's knowledge) Wix does not interact "well" with git/GitHub, th
         + DB management
           + Badge CRUD
           + GClassroom CSV awarded badges (and user validation and creation) import
-          + GSheets CSV (and user validation and creation) import
+          + <del> GSheets CSV (and user validation and creation) import
           + Manual User CRUD
           + Manual AwardedBadge CRUD
             + Awarded badge Read showing issue and expiry dates

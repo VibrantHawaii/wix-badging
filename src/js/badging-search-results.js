@@ -39,7 +39,6 @@ $w.onReady(function () {
 
     $w("#learnersRepeater").onItemReady(($item, itemData, index) => {
         $item("#name").text = itemData.name;
-        $item("#homeRegion").text = "Home: " + itemData.homeRegion;
         $item("#supportedRegions").text = "Supporting: " + itemData.supportedRegions;
 
         // Configure badges table
@@ -101,7 +100,7 @@ $w.onReady(function () {
     }
 
     operatingUserQuery
-        .include("title", "_id", "homeRegionRef", "supportedRegionsRef")
+        .include("title", "_id", "supportedRegionsRef")
         .ascending("title")
         .find()
         .then( (userResults) => {
@@ -126,7 +125,7 @@ $w.onReady(function () {
             let now = new Date();
 
             operatingAwardedBadgesQuery
-                .lt("issueDate", now)
+                .lt("awardedDate", now)
                 // .gt("expiryDate", now)
                 .ascending("userName")
                 .find()
@@ -166,7 +165,6 @@ $w.onReady(function () {
                         return {
                             "_id":user._id,
                             "name":user.title,
-                            "homeRegion":user.homeRegionRef.title,
                             "supportedRegions": supportedRegionString,
                             "awardedBadges":userBadgeMap[user._id]
                         };
