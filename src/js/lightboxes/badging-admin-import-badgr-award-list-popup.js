@@ -1,5 +1,5 @@
 import wixData from 'wix-data';
-import {importOfflineClassCSV} from 'backend/badging-import-csv';
+import {importBadgrAwardListCSV} from 'backend/badging-import-csv';
 
 $w.onReady(function () {
     wixData.query("Badging-BadgesBrief")
@@ -29,7 +29,7 @@ $w.onReady(function () {
                         $w("#importPopupStatus").text = "File uploaded, starting analysis";
                         let badgeRef = $w("#badgeTypeDropdown").value;
 
-                        importOfflineClassCSV(uploadedFile.fileName, badgeRef).then(() => {
+                        importBadgrAwardListCSV(uploadedFile.fileName, badgeRef).then(() => {
                             console.log("CSV imported successfully");
                             $w("#importPopupStatus").text = "CSV imported successfully";
                         })

@@ -111,6 +111,17 @@ As (to this author's knowledge) Wix does not interact "well" with git/GitHub, th
 + <del>Add Support for home region and multiple supported regions
 + <del>Add progress spinners when loading data
 + <del> Remove Home Region
++ Override supported regions with latest info on user import from any source
++ Badgr-style user import/enrollment
++ Page: List of all badges
++ Categorize badges contributor vs curious
++ Change Badging Badge page to use id only not title
++ Make clicking on any badge in search results, including text, go to badge details page
++ Enroll user flow
+    + If Google URL in badge record show enroll button
+    + Popup to get user name and email
+    + If not in system then prompt for supported regions and checkbutton acknowledgement of EULA
+    + If user now in system then enable "Enroll in Google Classroom" button
 + Add analytics (Wix)
   * See if DB setup/description/instantiation can be programmatic instead of manual
 + Contact learner capability
@@ -146,7 +157,7 @@ As (to this author's knowledge) Wix does not interact "well" with git/GitHub, th
         + Set permissions to [only subsets of Wix account roles](https://support.wix.com/en/article/limiting-pages-on-your-site-to-specific-member-roles) (currently any logged in user can see the admin page)
         + DB management
           + Badge CRUD
-          + GClassroom CSV awarded badges (and user validation and creation) import
+          + Badgr CSV awarded badges (and user validation and creation) import
           + <del> GSheets CSV (and user validation and creation) import
           + Manual User CRUD
           + Manual AwardedBadge CRUD

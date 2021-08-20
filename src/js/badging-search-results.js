@@ -100,7 +100,8 @@ $w.onReady(function () {
     }
 
     operatingUserQuery
-        .include("title", "_id", "supportedRegionsRef")
+        // .include("title", "_id", "supportedRegionsRef")
+        .include("supportedRegionsRef")
         .ascending("title")
         .find()
         .then( (userResults) => {
