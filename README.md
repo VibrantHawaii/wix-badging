@@ -101,7 +101,6 @@ As (to this author's knowledge) Wix does not interact "well" with git/GitHub, th
 + Categorize badges contributor vs curious
 + Change Badging Badge page to use id only not title, remove badgesdetailed title
 + Make clicking on any badge in search results, including text, go to badge details page
-+ Disable import button after import completed - both badgr and classroom CSV import popups
 + Enroll user flow
     + If Google URL in badge record show enroll button
     + Popup to get user name and email

@@ -197,8 +197,15 @@ function validateAndImportCSVFileOfAwardedBadges(fileName, badgeRef, CSVStruct, 
             })
         })
         .then(badgeIssuance => Promise.all(badgeIssuance))
+        .then(() => {
+            return {success: true};
+        })
         .catch((error) => {
             console.error(error);
+            return {
+                "success": false,
+                "errorMsg": error.toString()
+            };
         });
 }
 
@@ -247,13 +254,13 @@ function validateCSVFormat(csvText, structure) {
 
         // test first row (header) length eq struct length (width)
         if (arrayedCSV[0].length != Object.keys(structure).length) {
-            logAndThrowError("Header row is " + arrayedCSV[0].length + " columns, it should be " + Object.keys(structure).length);
+            logAndThrowError("CSV Validation Error: Header row is " + arrayedCSV[0].length + " columns, it should be " + Object.keys(structure).length);
         }
 
         // validate first row (header) contents eq struct
         arrayedCSV[0].forEach((csvTitle, index) => {
             if (arrayedCSV[0][index].toUpperCase() != structure[(index + 1) + ""].title.toUpperCase()) {
-                logAndThrowError("Header row " + arrayedCSV[0] + " is not identical (including order) to the structure column titles");
+                logAndThrowError("CSV Validation Error: Header row " + arrayedCSV[0] + " is not identical (including order) to the structure column titles");
             }
         });
 
@@ -263,7 +270,7 @@ function validateCSVFormat(csvText, structure) {
         if (!arrayedCSV.every((currentEntry) => {
             return arrayedCSV[0].length === currentEntry.length;
         })) {
-            logAndThrowError("Not all rows have the correct number of columns (" + arrayedCSV[0].length + ")");
+            logAndThrowError("CSV Validation Error: Not all rows have the correct number of columns (" + arrayedCSV[0].length + ")");
         }
 
         // Validate each cell entry after first row for type
@@ -319,7 +326,7 @@ function seedRegions() {
                         return 1;
                 });
             } else {
-                logAndThrowError("No regions found!");
+                logAndThrowError("Database Error: No regions found!");
             }
         });
 }
@@ -382,7 +389,7 @@ function validateEntryType(entry, type, rowIndex, colIndex) {
             break;
 
         default:
-            logAndThrowError("Unknown type requested for validation: " + type)
+            logAndThrowError("CSV Validation Error: Unknown type requested for validation: " + type)
             return false;
     }
     return true;
