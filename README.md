@@ -92,7 +92,6 @@ As (to this author's knowledge) Wix does not interact "well" with git/GitHub, th
 
 ## ToDos
 + VH site and UI
-  + <del>Migrate code to VH Preview site
   + Prettify landing page
   + Prettify search results list page
   + Prettify badge page
@@ -111,7 +110,6 @@ As (to this author's knowledge) Wix does not interact "well" with git/GitHub, th
 + Add analytics (Wix)
   * See if DB setup/description/instantiation can be programmatic instead of manual
 + Contact learner capability
-    + Add hashed unique value to User DB from email address and user name, to use as unique ID
     + Catch error conditions on email send
     + New DB to track transactions (issue unique token for each contact button instance, revoke when used)
     + Revoke unique token when email sent
