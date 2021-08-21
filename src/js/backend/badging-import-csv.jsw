@@ -1,6 +1,7 @@
 import { mediaManager } from 'wix-media-backend';
 import wixData from 'wix-data';
 import {fetch} from 'wix-fetch';
+import {generateUserToken} from 'backend/badging-utils'
 
 const HST_TO_UTC_OFFSET = 10*60*60*1000;
 const MAGIC_SUPPORTS_WORD = "Supports";
@@ -49,7 +50,6 @@ let badgrAwardListCSVStruct = {
         "title": "Expiration Date (optional)",
         "type": "expiryDate"
     }
-    // IMPORTANT All other additional columns are supported regions with type bool
 };
 let regions = [];
 
@@ -67,35 +67,28 @@ function validateAndImportCSVFileOfAwardedBadges(fileName, badgeRef, CSVStruct, 
             awardedUserDict = awardedUserDictResult;
             // Fetch list of all existing users
             return wixData.query("Badging-Users")
-                .ascending("title")
                 .find();
         })
         .then( existingUserResultsResult => {
             existingUserResults = existingUserResultsResult;
             // Tag each awarded user dict entry as to whether they exist in the User collection yet.
-            // TODO change to using name and email hash
             return existingUserResults.items.map((existingUser) => {
-                return existingUser.title;
+                return existingUser.userToken;
             });
         })
         .then(allExistingUsers => {
             return Object.entries(awardedUserDict).map(([id, awardedUser]) => {
                 return new Promise((resolve, reject) => {
-                    // TODO change to using name and email hash
-
-                    if ((allExistingUsers.includes(awardedUser.name))) {
-                        // TODO use hash
-                        let existingUser = existingUserResults.items.find(user => user.title == awardedUser.name);
-                        // TODO use hash
-                        awardedUserDict[awardedUser.name]._id = existingUser._id;
+                    if ((allExistingUsers.includes(awardedUser.userToken))) {
+                        let existingUser = existingUserResults.items.find(user => user.userToken == awardedUser.userToken);
+                        awardedUserDict[awardedUser.userToken]._id = existingUser._id;
                         resolve();
                     }
                     else {
-                        // TODO generate hash
-
                         // Add new user
                         let newUser = {
                             "title": awardedUser.name,
+                            "userToken": awardedUser.userToken
                         };
 
                         let newUserEntry = {};
@@ -103,14 +96,12 @@ function validateAndImportCSVFileOfAwardedBadges(fileName, badgeRef, CSVStruct, 
                         return wixData.insert("Badging-Users", newUser)
                             .then( (newUserEntryResult) => {
                                 newUserEntry = newUserEntryResult;
-                                awardedUserDict[awardedUser.name]._id = newUserEntry._id;
-
-                                // TODO use hash
+                                awardedUserDict[awardedUser.userToken]._id = newUserEntry._id;
                                 return wixData.insertReference("Badging-Users", "supportedRegionsRef", newUserEntry._id, awardedUser.supportsRegions);
                             })
                             .then( () => {
                                 let newUserPII = {
-                                    "title": awardedUser.pii.email,
+                                    "title": awardedUser.userToken,
                                     "email": awardedUser.pii.email,
                                     "userRef": newUserEntry._id
                                 };
@@ -172,8 +163,11 @@ function validateAndImportCSVFileOfAwardedBadges(fileName, badgeRef, CSVStruct, 
                                         newBadgeAward.expiryDate = fixUpDateForHST(newBadgeAward.expiryDate);
                                     }
 
+                                    const sequenceID = Date.now().toString() + newAwardedBadgeID.toString() + newBadgeAward.userRef.toString();
+
                                     // Add award entry
                                     let newAward = {
+                                        "title": sequenceID, // sequenceID
                                         "badgeRef": newAwardedBadgeID,
                                         "userRef": newBadgeAward.userRef,
                                         "awardedDate": new Date(newBadgeAward.awardedDate),
@@ -396,7 +390,6 @@ function validateEntryType(entry, type, rowIndex, colIndex) {
 
 function createUserDict(csvArray, structure, badgeRef, forceAllRegionsSupported) {
     // Extract key: user names
-    // TODO update to hash of username and email
     let userDict = {};
 
     function getCSVColumn(type) {
@@ -432,17 +425,14 @@ function createUserDict(csvArray, structure, badgeRef, forceAllRegionsSupported)
             return region._id;
         })
 
-        console.log("forceAllRegionsSupported");
-        console.log(forceAllRegionsSupported);
-        console.log("supportedRegions");
-        console.log(supportedRegions);
-        console.log("supportedRegionIDs");
-        console.log(supportedRegionIDs);
+        const email = csvArray[rowIndex][emailColumn];
+        const userToken = generateUserToken(name, email);
 
-        userDict[name] = {
+        userDict[userToken] = {
             'name': name,
+            'userToken': userToken,
             'pii': {
-                'email': csvArray[rowIndex][emailColumn],
+                'email': email,
             },
             'award': {
                 'badgeRef': badgeRef,

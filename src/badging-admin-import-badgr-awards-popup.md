@@ -1,9 +1,9 @@
-# Badging Admin Import Badgr Award List Popup
+# Badging Admin Import Badgr Awards Popup
 Lightroom popup to initiate import of CSV for an award list exported from Badgr
 
 ## Required Elements
 Name:
-> Badging Admin Import Badger Award List Popup
+> Badging Admin Import Badger Awards Popup
 
 | Type                 | Name                                       | Parent Element    | Attributes                                        |
 |----------------------|--------------------------------------------|-------------------|--------------------------------|
