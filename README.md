@@ -91,32 +91,18 @@ As (to this author's knowledge) Wix does not interact "well" with git/GitHub, th
 > emailJS_service_ID
 
 ## ToDos
-+ <del>Set up github repository
-+ <del>Prune/hide learner personal pages
 + VH site and UI
   + <del>Migrate code to VH Preview site
   + Prettify landing page
   + Prettify search results list page
   + Prettify badge page
-+ <del>Search results page - show badges as repeater
 * investigate if badge images should be images instead of media galleries
-+ <del>Change DBs (esp awardedbadges) to use references instead of text names
-+ <del>Standardize DB field names
-+ <del>Selecting badge in searchResults should go to Badge info page
-+ <del>Prefix page names with badging-
-+ <del>Document page path name requirements
-+ <del>Add issue date and expiration date for awarded badges
-    + <del>Add to DB
-    + <del>Utilize in filter to hide not yet issued, and expired, awarded badges
-+ <del>Add Support for home region and multiple supported regions
-+ <del>Add progress spinners when loading data
-+ <del> Remove Home Region
 + Override supported regions with latest info on user import from any source
-+ Badgr-style user import/enrollment
 + Page: List of all badges
 + Categorize badges contributor vs curious
-+ Change Badging Badge page to use id only not title
++ Change Badging Badge page to use id only not title, remove badgesdetailed title
 + Make clicking on any badge in search results, including text, go to badge details page
++ Disable import button after import completed - both badgr and classroom CSV import popups
 + Enroll user flow
     + If Google URL in badge record show enroll button
     + Popup to get user name and email
@@ -125,16 +111,6 @@ As (to this author's knowledge) Wix does not interact "well" with git/GitHub, th
 + Add analytics (Wix)
   * See if DB setup/description/instantiation can be programmatic instead of manual
 + Contact learner capability
-    + <del>Add "Contact" button
-    + <del>Investigate [emailJS](https://www.emailjs.com/)
-    + <del>Set up backend JS
-    + <del>Create and document User-PII DB
-    + <del>Ensure PII user DB is separate and only accessible by backend
-    + <del>Contact Learner dialog
-    + <del>Complete error handling and input validation for Contact Learner dialog
-    + <del>Add CAPTCHA to dialog
-    + <del>Create JS email provider account
-    + <del>Send email from backend
     + Add hashed unique value to User DB from email address and user name, to use as unique ID
     + Catch error conditions on email send
     + New DB to track transactions (issue unique token for each contact button instance, revoke when used)
@@ -144,8 +120,6 @@ As (to this author's knowledge) Wix does not interact "well" with git/GitHub, th
     + Cookie tracking of sender (to catch abuse?) - would need Cookie permission interstitial...
 + Data import
     + <del>Validate that GSheets supports templates: [*It does, click here to learn  more.*](https://support.google.com/docs/answer/148833?co=GENIE.Platform%3DDesktop&hl=en#zippy=%2Csubmit-a-template)
-    + <del>Validate whether GSheets supports list/entry validation from a master file: [*Yes, it does*](https://stackoverflow.com/questions/24839267/google-docs-create-drop-down-list-using-data-from-another-spreadsheet)
-    + <del> Create GSheet template for manual (non-GClassroom) user/course entry, with validated email addresses and region selection
     + Make test folder in git
     + Save sample GClassroom data import files
     + Architect import system
@@ -153,14 +127,12 @@ As (to this author's knowledge) Wix does not interact "well" with git/GitHub, th
         + Courses
         + Awarded badges
     + Create admin-only viewable administration interface
-        + <DEL>Admin only page
         + Set permissions to [only subsets of Wix account roles](https://support.wix.com/en/article/limiting-pages-on-your-site-to-specific-member-roles) (currently any logged in user can see the admin page)
         + DB management
           + Badge CRUD
-          + Badgr CSV awarded badges (and user validation and creation) import
-          + <del> GSheets CSV (and user validation and creation) import
-          + Manual User CRUD
-          + Manual AwardedBadge CRUD
+          + Badgr-style user import/enrollment 
+          + Manual User CRUD           
+          + Manual AwardedBadge CRUD           
             + Awarded badge Read showing issue and expiry dates
 + Data Recovery
    + Add transaction logging DBs to all DB import paths to allow recovery of state on an import fail or corruption. 
