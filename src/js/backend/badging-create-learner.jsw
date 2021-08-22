@@ -1,0 +1,35 @@
+import wixData from 'wix-data';
+import {generateUserToken} from 'backend/badging-utils'
+
+export function createLearner(name, email, supportsRegions) {
+    let newUserEntry = {};
+    const userToken = generateUserToken(name, email);
+    let newUser = {
+        "title": name,
+        "userToken": userToken
+    };
+
+    return new Promise((resolve) => {
+        resolve(wixData.insert("Badging-Users", newUser));
+    })
+    .then( newUserEntryResult => {
+        newUserEntry = newUserEntryResult;
+        return wixData.insertReference("Badging-Users", "supportedRegionsRef", newUserEntry._id, supportsRegions);
+    })
+    .then( () => {
+        let newUserPII = {
+            "title": userToken,
+            "email": email,
+            "userRef": newUserEntry._id
+        };
+
+        return wixData.insert("Badging-Users-PII", newUserPII);
+    })
+    .then( () => {
+        return {success: true}
+    })
+    .catch((error) => {
+        console.error(error);
+        return {success: false, errorMsg: error}
+    });
+}

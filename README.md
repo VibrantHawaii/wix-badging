@@ -20,7 +20,7 @@ Perform de-duplication and validation to identify data import errors before the 
 
 ## Databases
 ### Badging-Users
-* title: title: Text (primary)
+* userToken: title: Text (primary): has of user name and email address. Used for uniqueness verification. See badging-utils.js->generateUserToken()
 * homeRegionRef: homeRegionRef: Reference -> Badging-Regions
 * supportedRegionsRef: supportedRegionsRef: Reference -> Badging-Regions (multiple)
 
@@ -51,6 +51,10 @@ ID is a system-generated unique ID. This is leveraged to make search result entr
 * badgeRef: badgeRef: Reference -> Badging-BadgesBrief
 * awardedDate: awardedDate: Date and Time
 * expiryDate: expiryDate: Date and Time
+
+### Badging-Enrollment
+* userRef: userRef: Reference -> Badging-Users
+* badgeRef: badgeRef: Reference -> Badging-BadgesBrief
 
 ## Repository Structure
 As (to this author's knowledge) Wix does not interact "well" with git/GitHub, the Wix content is represented in GitHub as follows:
@@ -99,13 +103,10 @@ As (to this author's knowledge) Wix does not interact "well" with git/GitHub, th
 + Override supported regions with latest info on user import from any source
 + Page: List of all badges
 + Categorize badges contributor vs curious
-+ Change Badging Badge page to use id only not title, remove badgesdetailed title
++ Remove badgesdetailed title
 + Make clicking on any badge in search results, including text, go to badge details page
 + Enroll user flow
-    + If Google URL in badge record show enroll button
-    + Popup to get user name and email
     + If not in system then prompt for supported regions and checkbutton acknowledgement of EULA
-    + If user now in system then enable "Enroll in Google Classroom" button
 + Add analytics (Wix)
   * See if DB setup/description/instantiation can be programmatic instead of manual
 + Contact learner capability

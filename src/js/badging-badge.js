@@ -1,25 +1,25 @@
 import wixData from 'wix-data';
 import wixLocation from 'wix-location';
+import wixWindow from 'wix-window';
+
+let badgeId = "";
+let badgeUrl = "";
 
 $w.onReady(function () {
+    $w("#enrollBtn").onClick(() => {
+        const popupContext = {
+            "badgeId": badgeId,
+            "badgeUrl": badgeUrl
+        };
+        wixWindow.openLightbox("Badging Enroll Learner Popup", popupContext);
+    })
+
     let params = (new URL(wixLocation.url)).searchParams;
 
-    let briefQuery = wixData.query("Badging-BadgesBrief");
-
-    let name = "";
-    let badgeId = "";
-
-    if (params.has("name")) {
-        name = decodeURIComponent(params.get("name"));
-        briefQuery = briefQuery.contains("title", name);
-    }
     if (params.has("id")) {
         badgeId = decodeURIComponent(params.get("id"));
-        briefQuery = briefQuery.contains("_id", badgeId);
-    }
-
-    if (name || badgeId) {
-        briefQuery
+        wixData.query("Badging-BadgesBrief")
+            .contains("_id", badgeId)
             .find()
             .then( (results) => {
                 if (results.length == 0) {
@@ -35,6 +35,8 @@ $w.onReady(function () {
                 }
 
                 let badge = results.items[0];
+                badgeUrl = badge.enrollUrl;
+
                 $w("#name").text = badge.title;
                 $w("#badgeImg").src = badge.imageUrl[0].src;
 
@@ -47,6 +49,9 @@ $w.onReady(function () {
                             return;
                         }
 
+                        if (badgeUrl !== undefined)
+                            $w("#enrollBtn").show();
+
                         $w("#longDescription").text = badgeResults.items[0].detailedDescription;
                         $w("#name").show();
                         $w("#badgeImg").show();
@@ -54,6 +59,6 @@ $w.onReady(function () {
                     });
             });
     } else {
-        console.error("ERROR - NO BADGE NAME OR ID SUPPLIED IN QUERY PARAMS")
+        console.error("ERROR - NO BADGE ID SUPPLIED IN QUERY PARAMS")
     }
 });

@@ -1,0 +1,65 @@
+import wixData from 'wix-data';
+import wixCaptcha from 'wix-captcha-backend';
+import {generateUserToken} from 'backend/badging-utils'
+
+export function verifyAndEnrollKnownLearnerWithCapcha(name, email, badgeId, token) {
+    return wixCaptcha.authorize(token)
+    .then(() => verifyAndEnrollLearner(name, email, badgeId));
+}
+
+export function verifyAndEnrollKnownLearner(name, email, badgeId) {
+    return verifyAndEnrollLearner(name, email, badgeId);
+}
+
+function verifyAndEnrollLearner(name, email, badgeId) {
+    const hash = generateUserToken(name, email);
+
+    return wixData.query("Badging-Users")
+    .eq("userToken", hash)
+    .find()
+    .then( (learner_results) => {
+        if (learner_results.length === 0) {
+            // Retreive list of regions
+            return wixData.query("Badging-Regions")
+                .ascending("title")
+                .find()
+                .then( (results) => {
+                    if (results.length > 0) {
+                        return results.items;
+                    } else {
+                        const error = "NO REGIONS FOUND";
+                        console.error(error);
+                        throw (error);
+                    }
+                })
+                .then(regions => {
+                    return {
+                        "success": true,
+                        "userFound": false,
+                        "regions": regions
+                    };
+                });
+        } else {
+            // Log user enrollment (intent)
+            const enrollment = {
+                userRef: learner_results.items[0]._id,
+                badgeRef: badgeId
+            };
+            return wixData.insert("Badging-Enrollment", enrollment)
+                .then(() => {
+                    return {
+                        "success": true,
+                        "userFound": true,
+                    };
+                })
+        }
+    })
+
+    .catch(error => {
+        console.log(error);
+        return {
+            "success": false,
+            "errorMsg": error
+        };
+    })
+}
