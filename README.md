@@ -11,7 +11,7 @@ This system is designed to meet Vibrant Hawaii's specific requirements:
 <strong style="color: red;">NOTE: this architecture requires Wix APIs that are NOT available if Editor X is enabled for the Wix site.</strong>
 
 ## Assumptions
-Learners awarded badges must supply a first and last name, email address, and region (and give permission for VH to use those)
+Learners awarded badges must supply a first and last name, email address, and supported regions (and give permission for VH to use those)
 
 ## Design Philosophy
 Simple and clear administrative interfaces.
@@ -56,14 +56,20 @@ ID is a system-generated unique ID. This is leveraged to make search result entr
 * userRef: userRef: Reference -> Badging-Users
 * badgeRef: badgeRef: Reference -> Badging-BadgesBrief
 
+### Badging-EULA
+This stores versions of the (rich text) EULA that Learner agree to
+* hash: title: Text
+* text: text: Rich text
+
 ## Repository Structure
 As (to this author's knowledge) Wix does not interact "well" with git/GitHub, the Wix content is represented in GitHub as follows:
-* Wix page content is described under *src/[page name].md*
+* Wix page and lghtbox content is described under *src/[page name].md*
 * JS for pages is described under *src/js/[page name].js*
+* JS for lightboxes (popups) is described under *src/lightboxes/[page name].md*
 * JS for backend modules is described under *src/js/backend/[module name].jsw*
 
 ## Installation
-+ Create pages in Wix reflecting each page described in this repository (under */src/[page name].md*)
++ Create pages in Wix reflecting each page and ligthbox described in this repository (under */src/[page name].md*)
 + Copy the JS for each page into Wix
 * [Create the backend module files in Wix](https://www.wix.com/velo/forum/coding-with-velo/creating-backend-modules-and-learn-how-to-use-them) and copy the jsw code into Wix
 * Copy the images for the badges into the Media Gallery
@@ -95,10 +101,7 @@ As (to this author's knowledge) Wix does not interact "well" with git/GitHub, th
 > emailJS_service_ID
 
 ## ToDos
-+ VH site and UI
-  + Prettify landing page
-  + Prettify search results list page
-  + Prettify badge page
+* change user->learner everywhere
 * investigate if badge images should be images instead of media galleries
 + Override supported regions with latest info on user import from any source
 + Page: List of all badges
@@ -106,7 +109,7 @@ As (to this author's knowledge) Wix does not interact "well" with git/GitHub, th
 + Remove badgesdetailed title
 + Make clicking on any badge in search results, including text, go to badge details page
 + Enroll user flow
-    + If not in system then prompt for supported regions and checkbutton acknowledgement of EULA
+    + If EULA record not in system then prompt for checkbutton acknowledgement of EULA
 + Add analytics (Wix)
   * See if DB setup/description/instantiation can be programmatic instead of manual
 + Contact learner capability
@@ -120,10 +123,6 @@ As (to this author's knowledge) Wix does not interact "well" with git/GitHub, th
     + <del>Validate that GSheets supports templates: [*It does, click here to learn  more.*](https://support.google.com/docs/answer/148833?co=GENIE.Platform%3DDesktop&hl=en#zippy=%2Csubmit-a-template)
     + Make test folder in git
     + Save sample GClassroom data import files
-    + Architect import system
-        + Users (need to de-dup)
-        + Courses
-        + Awarded badges
     + Create admin-only viewable administration interface
         + Set permissions to [only subsets of Wix account roles](https://support.wix.com/en/article/limiting-pages-on-your-site-to-specific-member-roles) (currently any logged in user can see the admin page)
         + DB management
