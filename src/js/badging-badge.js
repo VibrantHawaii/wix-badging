@@ -52,7 +52,7 @@ $w.onReady(function () {
                         if (badgeUrl !== undefined)
                             $w("#enrollBtn").show();
 
-                        $w("#longDescription").text = badgeResults.items[0].detailedDescription;
+                        $w("#longDescription").html = badgeResults.items[0].detailedDescription;
                         $w("#name").show();
                         $w("#badgeImg").show();
                         $w("#longDescription").show();

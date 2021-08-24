@@ -40,7 +40,7 @@ Perform de-duplication and validation to identify data import errors before the 
 
 ### Badging-BadgesDetailed
 * title: title: Text (primary) _this is only needed as a primary key, and is otherwise ignored_
-* detailedDescription: detailedDescription: Text
+* detailedDescription: detailedDescription: Rich text
 * badgeRef: badgeRef: Reference -> Badging-BadgesBrief
 
 ### Badging-AwardedBadges
