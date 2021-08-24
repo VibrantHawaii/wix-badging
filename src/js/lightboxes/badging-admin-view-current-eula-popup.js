@@ -1,4 +1,4 @@
-import {getLatestEULA} from 'public/badging-utils';
+import {getLatestEULA, shortDateString} from 'public/badging-utils';
 
 $w.onReady(function () {
     getLatestEULA()
@@ -6,7 +6,7 @@ $w.onReady(function () {
             if (results != {}) {
                 let basePrompt = $w("#prompt").text;
                 const previousCreatedDate = results._createdDate;
-                $w("#prompt").text = basePrompt + " " + previousCreatedDate.getMonth() + "-" + previousCreatedDate.getDate() + "-" + previousCreatedDate.getFullYear();
+                $w("#prompt").text = basePrompt + " " + shortDateString(previousCreatedDate);
 
                 $w("#eulaText").html = results.text;
             } else {
@@ -14,6 +14,6 @@ $w.onReady(function () {
             }
         })
         .catch(error => {
-            $w("#prompt").text = "No current EULA found";
+            $w("#prompt").text = error;
         });
 })

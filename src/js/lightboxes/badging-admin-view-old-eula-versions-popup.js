@@ -1,4 +1,5 @@
 import wixData from 'wix-data';
+import {shortDateString} from 'public/badging-utils';
 
 $w.onReady(function () {
     let eulas = [];
@@ -14,7 +15,7 @@ $w.onReady(function () {
             }
 
             var dateOptions = results.items.map((eula) => {
-                const label = eula._createdDate.toString();
+                const label = shortDateString(eula._createdDate);
                 return {"label":label, "value":eula._id}
             });
             $w("#selectDate").options = dateOptions;

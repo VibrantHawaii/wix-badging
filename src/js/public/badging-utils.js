@@ -25,3 +25,15 @@ export function getLatestEULA() {
             return results.items[0];
         })
 }
+
+export function shortDateString(date) {
+    // Format: MM-DD-YYYY hh:mmAMPM
+    let hour = date.getHours();
+    let AMPM = false;
+    if (hour > 11) {
+        AMPM = true;
+        hour -= 12;
+    }
+    const AMPMstring = AMPM ? "AM" : "PM";
+    return date.getMonth() + "-" + date.getDate() + "-" + date.getFullYear() + " " + hour + ":" + date.getMinutes() + AMPMstring;
+}
