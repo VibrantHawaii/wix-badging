@@ -128,7 +128,7 @@ As (to this author's knowledge) Wix does not interact "well" with git/GitHub, th
         + DB management
           + Badge CRUD
           + Badgr-style user import/enrollment 
-          + Manual User CRUD           
+          + Manual Learner RUD           
           + Manual AwardedBadge CRUD           
             + Awarded badge Read showing issue and expiry dates
 + Data Recovery
