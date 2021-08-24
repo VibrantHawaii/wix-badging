@@ -1,7 +1,7 @@
 import { mediaManager } from 'wix-media-backend';
 import wixData from 'wix-data';
 import {fetch} from 'wix-fetch';
-import {generateUserToken} from 'backend/badging-utils'
+import {generateUserToken} from 'public/badging-utils'
 import {createLearner} from "backend/badging-create-learner";
 
 const HST_TO_UTC_OFFSET = 10*60*60*1000;
@@ -62,135 +62,135 @@ function validateAndImportCSVFileOfAwardedBadges(fileName, badgeRef, CSVStruct, 
     return new Promise((resolve) => {
         resolve(fetchFileFromMediaManager(fileName));
     })
-    .then(fileText => validateCSVFormat(fileText, CSVStruct))
-    .then(arrayedCSV => createUserDict(arrayedCSV, CSVStruct, badgeRef, forceAllRegionsSupported))
-    .then(awardedUserDictResult => {
-        awardedUserDict = awardedUserDictResult;
-        // Fetch list of all existing users
-        return wixData.query("Badging-Users")
-        .find();
-    })
-    .then( existingUserResultsResult => {
-        existingUserResults = existingUserResultsResult;
-        // Tag each awarded user dict entry as to whether they exist in the User collection yet.
-        return existingUserResults.items.map((existingUser) => {
-            return existingUser.userToken;
-        });
-    })
-    .then(allExistingUsers => {
-        return Object.entries(awardedUserDict).map(([id, awardedUser]) => {
-            return new Promise((resolve, reject) => {
-                if ((allExistingUsers.includes(awardedUser.userToken))) {
-                    let existingUser = existingUserResults.items.find(user => user.userToken == awardedUser.userToken);
-                    awardedUserDict[awardedUser.userToken]._id = existingUser._id;
-                    resolve();
-                }
-                else
-                    return createLearner(awardedUser.name,  awardedUser.pii.email, awardedUser.supportsRegions);
-            })
+        .then(fileText => validateCSVFormat(fileText, CSVStruct))
+        .then(arrayedCSV => createUserDict(arrayedCSV, CSVStruct, badgeRef, forceAllRegionsSupported))
+        .then(awardedUserDictResult => {
+            awardedUserDict = awardedUserDictResult;
+            // Fetch list of all existing users
+            return wixData.query("Badging-Users")
+                .find();
         })
-    })
-    .then(newUserCreation => Promise.all(newUserCreation))
-    .then(() => mapAdawdedUserstoAwardedBadgesDict(awardedUserDict))
-    .then((newAwardedBadgesDictResults) => {
-        awardedBadgesDict = newAwardedBadgesDictResults;
-
-        return Object.entries(awardedBadgesDict).map(([newAwardedBadgeID, newBadgeAwards]) => {
-            // For each badge type awarded
-            return new Promise((resolve, reject) => {
-                // Query for existing awards
-                return wixData.query("Badging-AwardedBadges")
-                .contains("badgeRef", newAwardedBadgeID)
-                .find()
-                .then(existingBadgeAwards => {
-                    const existingAwardedUsers = existingBadgeAwards.items.map(existingAwardedUser => {
-                        return existingAwardedUser.userRef;
-                    });
-
-                    return newBadgeAwards.map((newBadgeAward) => {
-                        // For each badge awarded
-                        return new Promise((resolve, reject) => {
-                            // For each user newly awarded the badge
-                            let deleteOldAward = undefined;
-                            if (existingAwardedUsers.find(existingBadgeID => {
-                                return newBadgeAward.userRef == existingBadgeID;
-                            })) {
-                                // Consolodate existing awards for matching userRefs
-                                // Ruleset: use first awardedDate and newest expiryDate (if any)
-                                const originalAward = existingBadgeAwards.items.find(existingBadge => {
-                                    return existingBadge.userRef === newBadgeAward.userRef;
-                                })
-
-                                const originalAwardedDate = new Date(originalAward.awardedDate);
-                                // Fixups to translate input dates/times (assumed to be HST) to UTC
-                                const newAwardedDate = new Date(newBadgeAward.awardedDate);
-                                newBadgeAward.awardedDate = originalAwardedDate.getTime() < (new Date(fixUpDateForHST(newAwardedDate))).getTime() ? originalAward.awardedDate :  fixUpDateForHST(newBadgeAward.awardedDate);
-
-                                deleteOldAward = originalAward._id;
-                            }
-                            else
-                                // Not a match
-                                newBadgeAward.awardedDate = fixUpDateForHST(newBadgeAward.awardedDate);
-
-                            if (newBadgeAward.expiryDate !== undefined) {
-                                newBadgeAward.expiryDate = fixUpDateForHST(newBadgeAward.expiryDate);
-                            }
-
-                            const sequenceID = Date.now().toString() + newAwardedBadgeID.toString() + newBadgeAward.userRef.toString();
-
-                            // Add award entry
-                            let newAward = {
-                                "title": sequenceID, // sequenceID
-                                "badgeRef": newAwardedBadgeID,
-                                "userRef": newBadgeAward.userRef,
-                                "awardedDate": new Date(newBadgeAward.awardedDate),
-                                "expiryDate": newBadgeAward.expiryDate
-                            };
-
-                            return wixData.insert("Badging-AwardedBadges", newAward)
-                            .then( () => {
-                                if (deleteOldAward) {
-                                    // delete old badge in DB
-                                    return wixData.remove("Badging-AwardedBadges", deleteOldAward)
-                                        .then(() => resolve())
-                                }
-                                else
-                                    resolve();
-                            })
-                        });
-                    })
+        .then( existingUserResultsResult => {
+            existingUserResults = existingUserResultsResult;
+            // Tag each awarded user dict entry as to whether they exist in the User collection yet.
+            return existingUserResults.items.map((existingUser) => {
+                return existingUser.userToken;
+            });
+        })
+        .then(allExistingUsers => {
+            return Object.entries(awardedUserDict).map(([id, awardedUser]) => {
+                return new Promise((resolve, reject) => {
+                    if ((allExistingUsers.includes(awardedUser.userToken))) {
+                        let existingUser = existingUserResults.items.find(user => user.userToken == awardedUser.userToken);
+                        awardedUserDict[awardedUser.userToken]._id = existingUser._id;
+                        resolve();
+                    }
+                    else
+                        return createLearner(awardedUser.name,  awardedUser.pii.email, awardedUser.supportsRegions);
                 })
-                .then(badgeIssuance => Promise.all(badgeIssuance))
-                .then(() => resolve())
-                .catch((error) => {
-                    console.error(error);
-                    reject(error);
-                });
             })
         })
-    })
-    .then(badgeIssuance => Promise.all(badgeIssuance))
-    .then(() => {
-        return {success: true};
-    })
-    .catch((error) => {
-        console.error(error);
-        return {
-            "success": false,
-            "errorMsg": error.toString()
-        };
-    });
+        .then(newUserCreation => Promise.all(newUserCreation))
+        .then(() => mapAdawdedUserstoAwardedBadgesDict(awardedUserDict))
+        .then((newAwardedBadgesDictResults) => {
+            awardedBadgesDict = newAwardedBadgesDictResults;
+
+            return Object.entries(awardedBadgesDict).map(([newAwardedBadgeID, newBadgeAwards]) => {
+                // For each badge type awarded
+                return new Promise((resolve, reject) => {
+                    // Query for existing awards
+                    return wixData.query("Badging-AwardedBadges")
+                        .contains("badgeRef", newAwardedBadgeID)
+                        .find()
+                        .then(existingBadgeAwards => {
+                            const existingAwardedUsers = existingBadgeAwards.items.map(existingAwardedUser => {
+                                return existingAwardedUser.userRef;
+                            });
+
+                            return newBadgeAwards.map((newBadgeAward) => {
+                                // For each badge awarded
+                                return new Promise((resolve, reject) => {
+                                    // For each user newly awarded the badge
+                                    let deleteOldAward = undefined;
+                                    if (existingAwardedUsers.find(existingBadgeID => {
+                                        return newBadgeAward.userRef == existingBadgeID;
+                                    })) {
+                                        // Consolodate existing awards for matching userRefs
+                                        // Ruleset: use first awardedDate and newest expiryDate (if any)
+                                        const originalAward = existingBadgeAwards.items.find(existingBadge => {
+                                            return existingBadge.userRef === newBadgeAward.userRef;
+                                        })
+
+                                        const originalAwardedDate = new Date(originalAward.awardedDate);
+                                        // Fixups to translate input dates/times (assumed to be HST) to UTC
+                                        const newAwardedDate = new Date(newBadgeAward.awardedDate);
+                                        newBadgeAward.awardedDate = originalAwardedDate.getTime() < (new Date(fixUpDateForHST(newAwardedDate))).getTime() ? originalAward.awardedDate :  fixUpDateForHST(newBadgeAward.awardedDate);
+
+                                        deleteOldAward = originalAward._id;
+                                    }
+                                    else
+                                        // Not a match
+                                        newBadgeAward.awardedDate = fixUpDateForHST(newBadgeAward.awardedDate);
+
+                                    if (newBadgeAward.expiryDate !== undefined) {
+                                        newBadgeAward.expiryDate = fixUpDateForHST(newBadgeAward.expiryDate);
+                                    }
+
+                                    const sequenceID = Date.now().toString() + newAwardedBadgeID.toString() + newBadgeAward.userRef.toString();
+
+                                    // Add award entry
+                                    let newAward = {
+                                        "title": sequenceID, // sequenceID
+                                        "badgeRef": newAwardedBadgeID,
+                                        "userRef": newBadgeAward.userRef,
+                                        "awardedDate": new Date(newBadgeAward.awardedDate),
+                                        "expiryDate": newBadgeAward.expiryDate
+                                    };
+
+                                    return wixData.insert("Badging-AwardedBadges", newAward)
+                                        .then( () => {
+                                            if (deleteOldAward) {
+                                                // delete old badge in DB
+                                                return wixData.remove("Badging-AwardedBadges", deleteOldAward)
+                                                    .then(() => resolve())
+                                            }
+                                            else
+                                                resolve();
+                                        })
+                                });
+                            })
+                        })
+                        .then(badgeIssuance => Promise.all(badgeIssuance))
+                        .then(() => resolve())
+                        .catch((error) => {
+                            console.error(error);
+                            reject(error);
+                        });
+                })
+            })
+        })
+        .then(badgeIssuance => Promise.all(badgeIssuance))
+        .then(() => {
+            return {success: true};
+        })
+        .catch((error) => {
+            console.error(error);
+            return {
+                "success": false,
+                "errorMsg": error.toString()
+            };
+        });
 }
 
 export function importOfflineClassCSV(fileName, badgeRef) {
     return seedRegions()
-    .then(() => seedOfflineClassCSVStruct())
-    .then(() => { return validateAndImportCSVFileOfAwardedBadges(fileName, badgeRef, offlineClassCSVStruct, false)});
+        .then(() => seedOfflineClassCSVStruct())
+        .then(() => { return validateAndImportCSVFileOfAwardedBadges(fileName, badgeRef, offlineClassCSVStruct, false)});
 }
 
 export function importBadgrAwardListCSV(fileName, badgeRef) {
     return seedRegions()
-    .then(() => validateAndImportCSVFileOfAwardedBadges(fileName, badgeRef, badgrAwardListCSVStruct, true));
+        .then(() => validateAndImportCSVFileOfAwardedBadges(fileName, badgeRef, badgrAwardListCSVStruct, true));
 }
 
 function fixUpDateForHST(originalDate) {
@@ -265,9 +265,9 @@ function validateCSVFormat(csvText, structure) {
 
         resolve(arrayedCSV);
     })
-    .catch( (error) => {
-        throw error;
-    })
+        .catch( (error) => {
+            throw error;
+        })
 }
 
 // On success returns the text of the (intended CSV) file
@@ -279,29 +279,29 @@ function fetchFileFromMediaManager(fileName) {
             });
         });
     })
-    .catch((error) => {
-        return(error);
-    });
+        .catch((error) => {
+            return(error);
+        });
 }
 
 // Extends the struct with the "Supports <each region name>" members
 function seedRegions() {
     return wixData.query("Badging-Regions")
-    .ascending("title")
-    .find()
-    .then( (results) => {
-        if (results.length > 0) {
-            regions = results.items;
-            regions.sort((firstEl, secondEl) => {
-                if ((firstEl.title == "Hāmākua") && (secondEl.title == "Hilo"))
-                    return -1;
-                else
-                    return 1;
-            });
-        } else {
-            logAndThrowError("Database Error: No regions found!");
-        }
-    });
+        .ascending("title")
+        .find()
+        .then( (results) => {
+            if (results.length > 0) {
+                regions = results.items;
+                regions.sort((firstEl, secondEl) => {
+                    if ((firstEl.title == "Hāmākua") && (secondEl.title == "Hilo"))
+                        return -1;
+                    else
+                        return 1;
+                });
+            } else {
+                logAndThrowError("Database Error: No regions found!");
+            }
+        });
 }
 
 // Extends the struct with the "Supports <each region name>" members
@@ -392,7 +392,8 @@ function createUserDict(csvArray, structure, badgeRef, forceAllRegionsSupported)
         if (forceAllRegionsSupported) {
             // Force support for all regions
             supportedRegions = regions;
-        } else {
+        }
+        else {
             supportedRegions = regions.filter((region, index) => {
                 let regionColIndexInCSV = firstIndexOfSupportedRegion + index;
                 let csvEntry = csvArray[rowIndex][regionColIndexInCSV];

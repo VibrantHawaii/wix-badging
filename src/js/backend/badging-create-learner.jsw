@@ -1,5 +1,5 @@
 import wixData from 'wix-data';
-import {generateUserToken} from 'backend/badging-utils'
+import {generateUserToken} from 'public/badging-utils'
 
 export function createLearner(name, email, supportsRegions) {
     let newUserEntry = {};

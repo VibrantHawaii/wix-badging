@@ -1,6 +1,6 @@
 import wixData from 'wix-data';
 import wixCaptcha from 'wix-captcha-backend';
-import {generateUserToken} from 'backend/badging-utils'
+import {generateUserToken} from 'public/badging-utils'
 
 export function verifyAndEnrollKnownLearnerWithCapcha(name, email, badgeId, token) {
     return wixCaptcha.authorize(token)
