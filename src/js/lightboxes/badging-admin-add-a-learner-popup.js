@@ -29,24 +29,24 @@ $w.onReady(function () {
     ];
 
     wixData.query("Badging-Regions")
-    .ascending("title")
-    .find()
-    .then( (results) => {
-        if (results.length > 0) {
-            $w("#regionsTable").rows = results.items.map(region => {
-                return {
-                    "supported": true,
-                    "regionName": region.title,
-                    "regionId": region._id
-                };
-            });
-        } else {
-            showStatusAndResetPopup ("NO REGIONS FOUND");
-        }
-    })
-    .catch(error => {
-        showStatusAndResetPopup(error);
-    });
+        .ascending("title")
+        .find()
+        .then( (results) => {
+            if (results.items.length > 0) {
+                $w("#regionsTable").rows = results.items.map(region => {
+                    return {
+                        "supported": true,
+                        "regionName": region.title,
+                        "regionId": region._id
+                    };
+                });
+            } else {
+                showStatusAndResetPopup ("NO REGIONS FOUND");
+            }
+        })
+        .catch(error => {
+            showStatusAndResetPopup(error);
+        });
 
     $w("#regionsTable").onRowSelect(event => {
         let newRowData = event.rowData;
@@ -86,15 +86,15 @@ $w.onReady(function () {
         $w("#submitBtn").label = "Please wait...";
 
         createLearner(name, email, regionIDs)
-        .then(response => {
-            if (response.success !== true) {
-                showStatusAndResetPopup(response.errorMsg);
-                return;
-            }
+            .then(response => {
+                if (response.success !== true) {
+                    showStatusAndResetPopup(response.errorMsg);
+                    return;
+                }
 
-            $w("#status").text = ("Learner created. You can close this popup");
-            $w("#status").show();
-        })
+                $w("#status").text = ("Learner created. You can close this popup");
+                $w("#status").show();
+            })
     })
 
     $w("#learnerNameInput").onKeyPress(() => testAllInputs())
@@ -117,7 +117,7 @@ function showStatusAndResetPopup(statusText) {
 
     $w("#status").text = statusText;
     $w("#status").show()
-    .then(() => {
-        $w("#status").hide("fade", {"delay": 10000});
-    });
+        .then(() => {
+            $w("#status").hide("fade", {"delay": 10000});
+        });
 }
