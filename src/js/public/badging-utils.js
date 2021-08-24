@@ -1,3 +1,5 @@
+import wixData from 'wix-data';
+
 export function generateUserToken(userName, email) {
     const normalizedUserName = (userName + "").replace(/\s/g, "").trim().toLowerCase();
     const normalizedEmail = email.trim().toLowerCase();
@@ -10,4 +12,16 @@ export function generateUserToken(userName, email) {
         hash |= 0; // Convert to 32bit integer
     }
     return hash.toString();
+}
+
+export function getLatestEULA() {
+    return wixData.query("Badging-EULA")
+        .descending("_createdDate")
+        .limit(1)
+        .find()
+        .then( (results) => {
+            if (results.items.length != 1)
+                return {};
+            return results.items[0];
+        })
 }
