@@ -1,4 +1,5 @@
 import wixData from 'wix-data';
+import {shortDateString} from 'public/badging-utils';
 
 let previousEulaText;
 
@@ -12,14 +13,13 @@ $w.onReady(function () {
                 previousEulaText = results.items[0].text;
                 $w("#EulaRichTextBox").value = previousEulaText;
                 let basePrompt = $w("#prompt").text;
-                const previousCreatedDate = results.items[0]._createdDate;
-                $w("#prompt").text = basePrompt + " " + previousCreatedDate.toString();
+                $w("#prompt").text = basePrompt + " " + shortDateString(results.items[0]._createdDate);
             } else {
                 $w("#prompt").text = "No previous EULA found";
             }
         })
         .catch(error => {
-            showStatusAndResetPopup(error);
+            showStatus(error);
         });
 
     $w("#saveBtn").onClick(() => {
