@@ -13,7 +13,7 @@ $w.onReady(function () {
                 $w("#EulaRichTextBox").value = previousEulaText;
                 let basePrompt = $w("#prompt").text;
                 const previousCreatedDate = results.items[0]._createdDate;
-                $w("#prompt").text = basePrompt + " " + previousCreatedDate.getMonth() + "-" + previousCreatedDate.getDate() + "-" + previousCreatedDate.getFullYear();
+                $w("#prompt").text = basePrompt + " " + previousCreatedDate.toString();
             } else {
                 $w("#prompt").text = "No previous EULA found";
             }
