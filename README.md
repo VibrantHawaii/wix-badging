@@ -21,8 +21,8 @@ Perform de-duplication and validation to identify data import errors before the 
 ## Databases
 ### Badging-Users
 * userToken: title: Text (primary): has of user name and email address. Used for uniqueness verification. See badging-utils.js->generateUserToken()
-* homeRegionRef: homeRegionRef: Reference -> Badging-Regions
 * supportedRegionsRef: supportedRegionsRef: Reference -> Badging-Regions (multiple)
+* eulaRef: eulaRef: Reference -> Badging-EULA
 
 ### Badging-Users-PII
 **IMPORTANT: Set the collection use as _Private Data_**
@@ -58,7 +58,7 @@ ID is a system-generated unique ID. This is leveraged to make search result entr
 
 ### Badging-EULA
 This stores versions of the (rich text) EULA that Learner agree to
-* hash: title: Text
+* title: title: Text (primary)
 * text: text: Rich text
 
 ## Repository Structure
@@ -101,8 +101,10 @@ As (to this author's knowledge) Wix does not interact "well" with git/GitHub, th
 > emailJS_service_ID
 
 ## ToDos
-* change user->learner everywhere
-* investigate if badge images should be images instead of media galleries
++ change user->learner everywhere
++ Add EULA acceptance and version to bulk imports
++ Add EULA acceptance and version to enroll learner popup
++ investigate if badge images should be images instead of media galleries
 + Override supported regions with latest info on user import from any source
 + Page: List of all badges
 + Categorize badges contributor vs curious

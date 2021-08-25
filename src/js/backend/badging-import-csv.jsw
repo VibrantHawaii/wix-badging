@@ -86,7 +86,7 @@ function validateAndImportCSVFileOfAwardedBadges(fileName, badgeRef, CSVStruct, 
                         resolve();
                     }
                     else
-                        return createLearner(awardedUser.name,  awardedUser.pii.email, awardedUser.supportsRegions);
+                        return createLearner(awardedUser.name,  awardedUser.pii.email, awardedUser.supportsRegions, undefined);
                 })
             })
         })

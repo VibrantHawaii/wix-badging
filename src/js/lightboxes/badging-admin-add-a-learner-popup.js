@@ -1,5 +1,8 @@
 import wixData from 'wix-data';
 import {createLearner} from "backend/badging-create-learner";
+import {shortDateString} from 'public/badging-utils';
+
+let eulaVersionChanged = false;
 
 $w.onReady(function () {
     // Configure regions table
@@ -54,6 +57,26 @@ $w.onReady(function () {
         $w("#regionsTable").updateRow(event.rowIndex, newRowData);
     })
 
+    wixData.query("Badging-EULA")
+        .descending("_createdDate")
+        .find()
+        .then( (results) => {
+            let eulas = results.items;
+            if (eulas.length === 0) {
+                showStatusAndResetPopup("No current EULA found");
+                return;
+            }
+
+            var dateOptions = results.items.map((eula) => {
+                const label = shortDateString(eula._createdDate);
+                return {"label":label, "value":eula._id}
+            });
+            $w("#eulaVersionDate").options = dateOptions;
+        })
+        .catch(error => {
+            showStatusAndResetPopup(error);
+        });
+
     $w("#submitBtn").onClick(() => {
         $w("#submitBtn").disable();
 
@@ -82,10 +105,20 @@ $w.onReady(function () {
         })
         const regionIDs = selectedRegions.map(region => region.regionId);
 
+        let eulaId = undefined;
+        if ($w("#eulaAcceptedCheckbox").checked === true) {
+            if (eulaVersionChanged !== true) {
+                showStatusAndResetPopup("Please select a User Agreement version (date)");
+                return;
+            }
+
+            eulaId = $w("#eulaVersionDate").value;
+        }
+
         $w("#submitBtn").disable();
         $w("#submitBtn").label = "Please wait...";
 
-        createLearner(name, email, regionIDs)
+        createLearner(name, email, regionIDs, eulaId)
             .then(response => {
                 if (response.success !== true) {
                     showStatusAndResetPopup(response.errorMsg);
@@ -99,6 +132,8 @@ $w.onReady(function () {
 
     $w("#learnerNameInput").onKeyPress(() => testAllInputs())
     $w("#learnerEmailInput").onKeyPress(() => testAllInputs())
+    $w("#eulaAcceptedCheckbox").onChange(() => eulaCheckboxChanged());
+    $w("#eulaVersionDate").onChange(() => eulaVersionDateChanged());
 })
 
 function testAllInputs() {
@@ -110,14 +145,30 @@ function testAllInputs() {
     }
 }
 
+function eulaCheckboxChanged() {
+    if ($w("#eulaAcceptedCheckbox").checked === true) {
+        $w("#eulaVersionPrompt").show();
+        $w("#eulaVersionDate").show();
+    } else {
+        $w("#eulaVersionPrompt").hide();
+        $w("#eulaVersionDate").hide();
+    }
+}
+
+function eulaVersionDateChanged() {
+    eulaVersionChanged = true;
+    testAllInputs();
+};
+
 function showStatusAndResetPopup(statusText) {
     $w("#submitBtn").disable();
     $w("#learnerNameInput").enable();
     $w("#learnerEmailInput").enable();
+    eulaCheckboxChanged();
 
     $w("#status").text = statusText;
     $w("#status").show()
         .then(() => {
-            $w("#status").hide("fade", {"delay": 10000});
+            $w("#status").hide("fade", {"delay": 4000});
         });
 }
