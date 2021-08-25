@@ -29,11 +29,16 @@ export function getLatestEULA() {
 export function shortDateString(date) {
     // Format: MM-DD-YYYY hh:mmAMPM
     let hour = date.getHours();
-    let AMPM = false;
+    let PM = false;
     if (hour > 11) {
-        AMPM = true;
+        PM = true;
         hour -= 12;
     }
-    const AMPMstring = AMPM ? "AM" : "PM";
-    return date.getMonth() + "-" + date.getDate() + "-" + date.getFullYear() + " " + hour + ":" + date.getMinutes() + AMPMstring;
+    const AMPMstring = PM ? "PM" : "AM";
+
+    let minutes = "" + date.getMinutes();
+    if (minutes.length < 2)
+        minutes = "0" + minutes;
+
+    return date.getMonth() + "-" + date.getDate() + "-" + date.getFullYear() + " " + hour + ":" + minutes + AMPMstring;
 }
