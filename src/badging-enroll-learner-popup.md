@@ -17,4 +17,8 @@ Name:
 | reCAPTCHA            | enrollUserCaptcha          | box1              | Hidden: true, Collapsed: false       |
 | Text                 | supportedRegionsPrompt     | box1              | Text: "Please tell us which regions of the island you can provide support for (click to de-select):", Hidden: true, Collapsed: false |
 | Table                | enrollUserRegionsTable     | box1              | Columns: ("Supported:supported, "Region":region), Clicking selects: Rows, Resize Table Height: Automatically, Show Header Row: off, 
+| Text                 | eulaTitle                  | box1              | Text: "User Agreement", Hidden: true, Collapsed: false |
+| ContainerBox         | eulaBox                    | box1              | Hidden: true, Collapsed: false |
+| Text                 | eualText                   | eulaBox           | Text: "", Hidden: true, Collapsed: false |
+| Checkbox             | eulaAcceptedCheckbox       | box1              | Text: "I agree to the terms of the user agreement", Hidden: true, Collapsed: false. Enabled: true |
 | Button               | enrollUserEnrollBtn        | box1              | Text: "Enroll", Hidden: true, Collapsed: false, Enabled: false |

@@ -26,6 +26,26 @@ export function getLatestEULA() {
         })
 }
 
+export function getRegions() {
+    return wixData.query("Badging-Regions")
+        .ascending("title")
+        .find()
+        .then( (results) => {
+            if (results.length > 0) {
+                let regions = results.items;
+                regions.sort((firstEl, secondEl) => {
+                    if ((firstEl.title == "Hāmākua") && (secondEl.title == "Hilo"))
+                        return -1;
+                    else
+                        return 1;
+                });
+                return regions;
+            } else {
+                return [];
+            }
+        });
+}
+
 export function shortDateString(date) {
     // Format: MM-DD-YYYY hh:mmAMPM
     let hour = date.getHours();

@@ -2,9 +2,11 @@ import wixLocation from 'wix-location';
 import wixWindow from 'wix-window';
 import {verifyAndEnrollKnownLearnerWithCapcha, verifyAndEnrollKnownLearner} from 'backend/badging-enroll-learner';
 import {createLearner} from "backend/badging-create-learner";
+import {getLatestEULA, getRegions} from "public/badging-utils";
 
 let badgeId = "";
 let badgeUrl = "";
+let eulaID = "";
 
 $w.onReady(function () {
     let context = wixWindow.lightbox.getContext();
@@ -46,50 +48,12 @@ $w.onReady(function () {
                 $w("#enrollUserCaptcha").hide();
                 $w("#enrollUserSubmitBtn").hide();
                 $w("#supportedRegionsPrompt").show();
-                $w("#enrollUserEnrollBtn").show();
-
-                // Configure regions table
-                $w("#enrollUserRegionsTable").columns = [
-                    {
-                        "id": "supported",
-                        "dataPath": "supported",
-                        "label": "supported",
-                        "type": "bool",
-                        "width": 80
-                    },
-                    {
-                        "id": "regionName",
-                        "dataPath": "regionName",
-                        "label": "regionName",
-                        "type": "string",
-                        "width": 210
-                    },
-                    {
-                        "id": "regionId",
-                        "dataPath": "regionId",
-                        "label": "regionId",
-                        "type": "string",
-                        "width": 0,
-                        "visible": false
-                    },
-                ];
-
-                $w("#enrollUserRegionsTable").rows = verifyCallResponse.regions.map(region => {
-                    return {
-                        "supported": true,
-                        "regionName": region.title,
-                        "regionId": region._id
-                    };
-                });
-
-                $w("#enrollUserRegionsTable").onRowSelect(event => {
-                    let newRowData = event.rowData;
-                    newRowData.supported = !event.rowData.supported;
-                    $w("#enrollUserRegionsTable").updateRow(event.rowIndex, newRowData);
-                })
-
                 $w("#enrollUserRegionsTable").show();
-                $w("#enrollUserEnrollBtn").enable();
+                $w("#eulaTitle").show();
+                $w("#eulaBox").show();
+                $w("#eulaText").show();
+                $w("#eulaAcceptedCheckbox").show();
+                $w("#enrollUserEnrollBtn").show();
             })
             .catch(error => {
                 showStatusAndResetPopup(error);
@@ -99,6 +63,7 @@ $w.onReady(function () {
     $w("#enrollUserNameInput").onKeyPress(() => testAllInputs())
     $w("#enrollUserEmailInput").onKeyPress(() => testAllInputs())
     $w("#enrollUserEnrollBtn").onClick(() => enrollBtnHandler());
+    $w("#eulaAcceptedCheckbox").onChange(() => eulaAcceptedCheckboxHandler());
 
     $w("#enrollUserCaptcha").onError(() => {
         $w("#enrollUserStatus").text = "The reCAPTCHA element lost connection with the CAPTCHA provider. Please try again later.";
@@ -106,8 +71,66 @@ $w.onReady(function () {
             .then(() => {
                 $w("#enrollUserStatus").hide("fade", {"delay": 10000});
             } );
+    });
+
+    getLatestEULA()
+        .then(result => {
+            if (result !== {}) {
+                $w("#eulaText").html = result.text;
+                eulaID = result._id;
+            }
+        });
+
+    // Configure regions table
+    $w("#enrollUserRegionsTable").columns = [
+        {
+            "id": "supported",
+            "dataPath": "supported",
+            "label": "supported",
+            "type": "bool",
+            "width": 80
+        },
+        {
+            "id": "regionName",
+            "dataPath": "regionName",
+            "label": "regionName",
+            "type": "string",
+            "width": 210
+        },
+        {
+            "id": "regionId",
+            "dataPath": "regionId",
+            "label": "regionId",
+            "type": "string",
+            "width": 0,
+            "visible": false
+        },
+    ];
+
+    getRegions()
+        .then(regions => {
+            if (regions.length > 0) {
+                $w("#enrollUserRegionsTable").rows = regions.map(region => {
+                    return {
+                        "supported": true,
+                        "regionName": region.title,
+                        "regionId": region._id
+                    };
+                });
+            }
+        });
+
+    $w("#enrollUserRegionsTable").onRowSelect(event => {
+        let newRowData = event.rowData;
+        newRowData.supported = !event.rowData.supported;
+        $w("#enrollUserRegionsTable").updateRow(event.rowIndex, newRowData);
     })
 });
+
+function eulaAcceptedCheckboxHandler() {
+    if ($w("#eulaAcceptedCheckbox").checked)
+        $w("#enrollUserEnrollBtn").enable();
+}
 
 function enrollBtnHandler() {
     const name = $w("#enrollUserNameInput").value;
@@ -121,7 +144,7 @@ function enrollBtnHandler() {
     $w("#enrollUserEnrollBtn").disable();
     $w("#enrollUserEnrollBtn").label = "Please wait...";
 
-    createLearner(name, email, regionIDs)
+    createLearner(name, email, regionIDs, eulaID)
         .then(response => {
             if (response.success !== true) {
                 throw(response.errorMsg);
@@ -134,6 +157,7 @@ function enrollBtnHandler() {
                 throw(response.errorMsg);
             }
 
+            $w("#enrollUserEnrollBtn").label = "Enrollment Successful";
             console.log("Learner created and enrolled. Opening URL: ", badgeUrl);
             wixLocation.to(badgeUrl);
         })
@@ -161,12 +185,16 @@ function showStatusAndResetPopup(statusText) {
     $w("#enrollUserEnrollBtn").label = "Enroll";
     $w("#enrollUserCaptcha").reset();
     $w("#enrollUserSubmitBtn").disable();
+    $w("#enrollUserSubmitBtn").hide();
     $w("#enrollUserNameInput").enable();
     $w("#enrollUserEmailInput").enable();
     $w("#supportedRegionsPrompt").hide();
     $w("#enrollUserEnrollBtn").hide();
     $w("#enrollUserCaptcha").hide();
-    $w("#enrollUserSubmitBtn").hide();
+    $w("#eulaAcceptedCheckbox").hide();
+    $w("#eulaBox").hide();
+    $w("#eulaTitle").hide();
+    $w("#eulaText").hide();
 
     $w("#enrollUserStatus").text = statusText;
     $w("#enrollUserStatus").show()

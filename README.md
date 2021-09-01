@@ -103,7 +103,6 @@ As (to this author's knowledge) Wix does not interact "well" with git/GitHub, th
 ## ToDos
 + change user->learner everywhere
 + Add EULA acceptance and version to bulk imports
-+ Add EULA acceptance and version to enroll learner popup
 + investigate if badge images should be images instead of media galleries
 + Override supported regions with latest info on user import from any source
 + Page: List of all badges
