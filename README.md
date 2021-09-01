@@ -103,14 +103,22 @@ As (to this author's knowledge) Wix does not interact "well" with git/GitHub, th
 ## ToDos
 + change user->learner everywhere
 + Add EULA acceptance and version to bulk imports
++ Add status animation after submit and enroll to Enroll Learner popup
 + investigate if badge images should be images instead of media galleries
 + Override supported regions with latest info on user import from any source
-+ Page: List of all badges
++ Public page: List of all badges
 + Categorize badges contributor vs curious
 + Remove badgesdetailed title
 + Make clicking on any badge in search results, including text, go to badge details page
 + Enroll user flow
     + If EULA record not in system then prompt for checkbutton acknowledgement of EULA
++ DB management
+    + Badge CRUD
+    + Manual Learner RUD
+    + Manual AwardedBadge CRUD
+        + Awarded badge Read showing issue and expiry dates
+    + Admin View Enrollments page - filter and sort capability
++ Automatically creating users based on teachable sign-up
 + Add analytics (Wix)
   * See if DB setup/description/instantiation can be programmatic instead of manual
 + Contact learner capability
@@ -123,15 +131,8 @@ As (to this author's knowledge) Wix does not interact "well" with git/GitHub, th
 + Data import
     + <del>Validate that GSheets supports templates: [*It does, click here to learn  more.*](https://support.google.com/docs/answer/148833?co=GENIE.Platform%3DDesktop&hl=en#zippy=%2Csubmit-a-template)
     + Make test folder in git
-    + Save sample GClassroom data import files
-    + Create admin-only viewable administration interface
-        + Set permissions to [only subsets of Wix account roles](https://support.wix.com/en/article/limiting-pages-on-your-site-to-specific-member-roles) (currently any logged in user can see the admin page)
-        + DB management
-          + Badge CRUD
-          + Badgr-style user import/enrollment 
-          + Manual Learner RUD           
-          + Manual AwardedBadge CRUD           
-            + Awarded badge Read showing issue and expiry dates
+    + Set admin interface permissions to [only subsets of Wix account roles](https://support.wix.com/en/article/limiting-pages-on-your-site-to-specific-member-roles) (currently any logged in user can see the admin page)
 + Data Recovery
    + Add transaction logging DBs to all DB import paths to allow recovery of state on an import fail or corruption. 
-  
++ Error advertisement
+  + Email badging@vibranthawaii.org (pull from secret) on some errors?
