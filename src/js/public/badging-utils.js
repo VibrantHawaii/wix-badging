@@ -1,9 +1,9 @@
 import wixData from 'wix-data';
 
-export function generateUserToken(userName, email) {
-    const normalizedUserName = (userName + "").replace(/\s/g, "").trim().toLowerCase();
+export function generateLearnerToken(LearnerName, email) {
+    const normalizedLearnerName = (LearnerName + "").replace(/\s/g, "").trim().toLowerCase();
     const normalizedEmail = email.trim().toLowerCase();
-    const seed = normalizedUserName + normalizedEmail;
+    const seed = normalizedLearnerName + normalizedEmail;
     var hash = 0, i, chr;
     if (seed.length === 0) return hash;
     for (i = 0; i < seed.length; i++) {

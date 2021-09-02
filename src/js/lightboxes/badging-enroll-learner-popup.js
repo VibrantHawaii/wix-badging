@@ -13,16 +13,16 @@ $w.onReady(function () {
     badgeId = context.badgeId;
     badgeUrl = context.badgeUrl;
 
-    $w("#enrollUserSubmitBtn").onClick(() => {
-        $w("#enrollUserSubmitBtn").disable();
+    $w("#enrollLearnerSubmitBtn").onClick(() => {
+        $w("#enrollLearnerSubmitBtn").disable();
 
         try {
             // Validate name input
-            if (!$w("#enrollUserNameInput").valid)
+            if (!$w("#enrollLearnerNameInput").valid)
                 throw("Enter your name")
 
             // Email input is assumed validated due to the required flag and email type
-            if (!$w("#enrollUserEmailInput").value.match(/[\w.+-_~]+\@[\w.+-_~]+\.[\w.+-_~]+\.*[\w.+-_~]*/))
+            if (!$w("#enrollLearnerEmailInput").value.match(/[\w.+-_~]+\@[\w.+-_~]+\.[\w.+-_~]+\.*[\w.+-_~]*/))
                 throw("Valid email required")
         }
         catch (err) {
@@ -30,46 +30,47 @@ $w.onReady(function () {
             return;
         }
 
-        $w("#enrollUserNameInput").disable();
-        $w("#enrollUserEmailInput").disable();
-        let token = $w("#enrollUserCaptcha").token;
-        verifyAndEnrollKnownLearnerWithCapcha($w("#enrollUserNameInput").value, $w("#enrollUserEmailInput").value, badgeId, token)
+        $w("#enrollLearnerNameInput").disable();
+        $w("#enrollLearnerEmailInput").disable();
+        let token = $w("#enrollLearnerCaptcha").token;
+        verifyAndEnrollKnownLearnerWithCapcha($w("#enrollLearnerNameInput").value, $w("#enrollLearnerEmailInput").value, badgeId, token)
             .then(verifyCallResponse => {
                 if (verifyCallResponse.success === false)
                     throw (verifyCallResponse.errorMsg);
 
-                if (verifyCallResponse.userFound) {
+                if (verifyCallResponse.LearnerFound) {
                     console.log("Opening URL: ", badgeUrl);
                     wixLocation.to(badgeUrl);
                     return;
                 }
 
-                // No match, prompt for region info for new user
-                $w("#enrollUserCaptcha").hide();
-                $w("#enrollUserSubmitBtn").hide();
+                // No match, prompt for region info for new Learner
+                $w("#enrollLearnerCaptcha").hide();
+                $w("#enrollLearnerSubmitBtn").hide();
                 $w("#supportedRegionsPrompt").show();
-                $w("#enrollUserRegionsTable").show();
+                $w("#enrollLearnerRegionsTable").show();
                 $w("#eulaTitle").show();
                 $w("#eulaBox").show();
                 $w("#eulaText").show();
                 $w("#eulaAcceptedCheckbox").show();
-                $w("#enrollUserEnrollBtn").show();
+                $w("#enrollLearnerEnrollBtn").show();
             })
             .catch(error => {
                 showStatusAndResetPopup(error);
             });
     });
 
-    $w("#enrollUserNameInput").onKeyPress(() => testAllInputs())
-    $w("#enrollUserEmailInput").onKeyPress(() => testAllInputs())
-    $w("#enrollUserEnrollBtn").onClick(() => enrollBtnHandler());
+    $w("#enrollLearnerNameInput").onKeyPress(() => testAllInputs())
+    $w("#enrollLearnerEmailInput").onKeyPress(() => testAllInputs())
+    $w("#enrollLearnerEnrollBtn").onClick(() => enrollBtnHandler());
     $w("#eulaAcceptedCheckbox").onChange(() => eulaAcceptedCheckboxHandler());
+    $w("#enrollLearnerCaptcha").onVerified(() => enrollLearnerCaptcha_verified());
 
-    $w("#enrollUserCaptcha").onError(() => {
-        $w("#enrollUserStatus").text = "The reCAPTCHA element lost connection with the CAPTCHA provider. Please try again later.";
-        $w("#enrollUserStatus").show()
+    $w("#enrollLearnerCaptcha").onError(() => {
+        $w("#enrollLearnerStatus").text = "The reCAPTCHA element lost connection with the CAPTCHA provider. Please try again later.";
+        $w("#enrollLearnerStatus").show()
             .then(() => {
-                $w("#enrollUserStatus").hide("fade", {"delay": 10000});
+                $w("#enrollLearnerStatus").hide("fade", {"delay": 10000});
             } );
     });
 
@@ -82,7 +83,7 @@ $w.onReady(function () {
         });
 
     // Configure regions table
-    $w("#enrollUserRegionsTable").columns = [
+    $w("#enrollLearnerRegionsTable").columns = [
         {
             "id": "supported",
             "dataPath": "supported",
@@ -110,7 +111,7 @@ $w.onReady(function () {
     getRegions()
         .then(regions => {
             if (regions.length > 0) {
-                $w("#enrollUserRegionsTable").rows = regions.map(region => {
+                $w("#enrollLearnerRegionsTable").rows = regions.map(region => {
                     return {
                         "supported": true,
                         "regionName": region.title,
@@ -120,29 +121,29 @@ $w.onReady(function () {
             }
         });
 
-    $w("#enrollUserRegionsTable").onRowSelect(event => {
+    $w("#enrollLearnerRegionsTable").onRowSelect(event => {
         let newRowData = event.rowData;
         newRowData.supported = !event.rowData.supported;
-        $w("#enrollUserRegionsTable").updateRow(event.rowIndex, newRowData);
+        $w("#enrollLearnerRegionsTable").updateRow(event.rowIndex, newRowData);
     })
 });
 
 function eulaAcceptedCheckboxHandler() {
     if ($w("#eulaAcceptedCheckbox").checked)
-        $w("#enrollUserEnrollBtn").enable();
+        $w("#enrollLearnerEnrollBtn").enable();
 }
 
 function enrollBtnHandler() {
-    const name = $w("#enrollUserNameInput").value;
-    const email = $w("#enrollUserEmailInput").value;
-    const regionsTableRows = $w("#enrollUserRegionsTable").rows;
+    const name = $w("#enrollLearnerNameInput").value;
+    const email = $w("#enrollLearnerEmailInput").value;
+    const regionsTableRows = $w("#enrollLearnerRegionsTable").rows;
     const selectedRegions = regionsTableRows.filter(rowData => {
         return rowData.supported;
     })
     const regionIDs = selectedRegions.map(region => region.regionId);
 
-    $w("#enrollUserEnrollBtn").disable();
-    $w("#enrollUserEnrollBtn").label = "Please wait...";
+    $w("#enrollLearnerEnrollBtn").disable();
+    $w("#enrollLearnerEnrollBtn").label = "Please wait...";
 
     createLearner(name, email, regionIDs, eulaID)
         .then(response => {
@@ -157,7 +158,7 @@ function enrollBtnHandler() {
                 throw(response.errorMsg);
             }
 
-            $w("#enrollUserEnrollBtn").label = "Enrollment Successful";
+            $w("#enrollLearnerEnrollBtn").label = "Enrollment Successful";
             console.log("Learner created and enrolled. Opening URL: ", badgeUrl);
             wixLocation.to(badgeUrl);
         })
@@ -166,39 +167,39 @@ function enrollBtnHandler() {
 
 function testAllInputs() {
     // Validate name input
-    if (($w("#enrollUserNameInput").value.length > 3) &&
-        ($w("#enrollUserEmailInput").value.match(/[\w.+-_~]+\@[\w.+-_~]+\.[\w.+-_~]+\.*[\w.+-_~]*/)))
+    if (($w("#enrollLearnerNameInput").value.length > 3) &&
+        ($w("#enrollLearnerEmailInput").value.match(/[\w.+-_~]+\@[\w.+-_~]+\.[\w.+-_~]+\.*[\w.+-_~]*/)))
     {
-        $w("#enrollUserCaptcha").show();
-        $w("#enrollUserSubmitBtn").show();
+        $w("#enrollLearnerCaptcha").show();
+        $w("#enrollLearnerSubmitBtn").show();
     }
 }
 
 // Because of a bug in the Wix editor, this needs to be an export rather than bound in onReady
-export function enrollUserPopupCaptcha_verified() {
-    $w("#enrollUserStatus").hide();
-    $w("#enrollUserSubmitBtn").enable();
+export function enrollLearnerCaptcha_verified() {
+    $w("#enrollLearnerStatus").hide();
+    $w("#enrollLearnerSubmitBtn").enable();
 }
 
 function showStatusAndResetPopup(statusText) {
-    $w("#enrollUserEnrollBtn").enable();
-    $w("#enrollUserEnrollBtn").label = "Enroll";
-    $w("#enrollUserCaptcha").reset();
-    $w("#enrollUserSubmitBtn").disable();
-    $w("#enrollUserSubmitBtn").hide();
-    $w("#enrollUserNameInput").enable();
-    $w("#enrollUserEmailInput").enable();
+    $w("#enrollLearnerEnrollBtn").enable();
+    $w("#enrollLearnerEnrollBtn").label = "Enroll";
+    $w("#enrollLearnerCaptcha").reset();
+    $w("#enrollLearnerSubmitBtn").disable();
+    $w("#enrollLearnerSubmitBtn").hide();
+    $w("#enrollLearnerNameInput").enable();
+    $w("#enrollLearnerEmailInput").enable();
     $w("#supportedRegionsPrompt").hide();
-    $w("#enrollUserEnrollBtn").hide();
-    $w("#enrollUserCaptcha").hide();
+    $w("#enrollLearnerEnrollBtn").hide();
+    $w("#enrollLearnerCaptcha").hide();
     $w("#eulaAcceptedCheckbox").hide();
     $w("#eulaBox").hide();
     $w("#eulaTitle").hide();
     $w("#eulaText").hide();
 
-    $w("#enrollUserStatus").text = statusText;
-    $w("#enrollUserStatus").show()
+    $w("#enrollLearnerStatus").text = statusText;
+    $w("#enrollLearnerStatus").show()
         .then(() => {
-            $w("#enrollUserStatus").hide("fade", {"delay": 10000});
+            $w("#enrollLearnerStatus").hide("fade", {"delay": 10000});
         } );
 }

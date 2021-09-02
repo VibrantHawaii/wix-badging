@@ -43,7 +43,7 @@ $w.onReady(function () {
 
         // Configure badges table
         let awardedBadgeCount = itemData.awardedBadges.length;
-        //console.log("user " + itemData.name + " has " + awardedBadgeCount + " badges awarded");
+        //console.log("Learner " + itemData.name + " has " + awardedBadgeCount + " badges awarded");
         $item("#badgesTable").columns = [
             {
                 "id": "badgeImg",
@@ -94,41 +94,38 @@ $w.onReady(function () {
         $item("#badgesTable").show();
     });
 
-    let operatingUserQuery = wixData.query("Badging-Users");
+    let operatingLearnerQuery = wixData.query("Badging-Learners");
     if (regions != "All") {
-        operatingUserQuery = operatingUserQuery.hasSome("supportedRegionsRef", regions);
+        operatingLearnerQuery = operatingLearnerQuery.hasSome("supportedRegionsRef", regions);
     }
 
-    operatingUserQuery
-        // .include("title", "_id", "supportedRegionsRef")
+    operatingLearnerQuery
         .include("supportedRegionsRef")
         .ascending("title")
         .find()
-        .then( (userResults) => {
-            if (userResults.length == 0) {
+        .then( (learnerResults) => {
+            if (learnerResults.length == 0) {
                 $w("#statusText").show();
                 $w("#loadingAnimationText").hide();
                 $w("#learnersRepeater").hide();
                 return;
             }
 
-            let learnerNames = userResults.items.map( (user) => {
-                return user._id;
+            let learnerIDs = learnerResults.items.map( (learner) => {
+                return learner._id;
             });
 
             let operatingAwardedBadgesQuery = wixData.query("Badging-AwardedBadges");
             if (badges != "All") {
-                // Do not filter out for only awarded badge matches here, as the entire list of awarded badges is required to show all badges for the matching users
-                // operatingAwardedBadgesQuery = operatingAwardedBadgesQuery.contains("badgeRef", badges)
-                operatingAwardedBadgesQuery = operatingAwardedBadgesQuery.hasSome("userRef", learnerNames)
+                // Do not filter out for only awarded badge matches here, as the entire list of awarded badges is required to show all badges for the matching Learners
+                operatingAwardedBadgesQuery = operatingAwardedBadgesQuery.hasSome("learnerRef", learnerIDs)
             }
 
             let now = new Date();
 
             operatingAwardedBadgesQuery
                 .lt("awardedDate", now)
-                // .gt("expiryDate", now)
-                .ascending("userName")
+                // .ascending("learnerName")
                 .find()
                 .then( (awardedBadgeResults) => {
                     let matchingAwardedBadgeResults = awardedBadgeResults.items.filter((award) => {
@@ -149,25 +146,25 @@ $w.onReady(function () {
 
                     $w("#statusText").hide();
 
-                    let userBadgeMap = {};
-                    let filteredUsers = userResults.items.filter( user => {
-                        let allAwardedBadgeMatches = matchingAwardedBadgeResults.filter( (awardedBadge) => user._id == awardedBadge.userRef);
-                        userBadgeMap[user._id] = allAwardedBadgeMatches.map((award) => award.badgeRef);
+                    let LearnerBadgeMap = {};
+                    let filteredLearners = learnerResults.items.filter( learner => {
+                        let allAwardedBadgeMatches = matchingAwardedBadgeResults.filter( (awardedBadge) => learner._id == awardedBadge.learnerRef);
+                        LearnerBadgeMap[learner._id] = allAwardedBadgeMatches.map((award) => award.badgeRef);
 
-                        return matchingAwardedBadgeResults.some( (awardedBadge) => user._id == awardedBadge.userRef);
+                        return matchingAwardedBadgeResults.some( (awardedBadge) => learner._id == awardedBadge.learnerRef);
                     });
 
-                    let dataArray = filteredUsers.map((user) => {
-                        let supportedRegionsTitleArray = user.supportedRegionsRef.map(regionData => {
+                    let dataArray = filteredLearners.map((Learner) => {
+                        let supportedRegionsTitleArray = Learner.supportedRegionsRef.map(regionData => {
                             return regionData.title;
                         });
                         let supportedRegionString = supportedRegionsTitleArray.join(", ");
 
                         return {
-                            "_id":user._id,
-                            "name":user.title,
+                            "_id":Learner._id,
+                            "name":Learner.title,
                             "supportedRegions": supportedRegionString,
-                            "awardedBadges":userBadgeMap[user._id]
+                            "awardedBadges":LearnerBadgeMap[Learner._id]
                         };
                     })
 

@@ -19,15 +19,16 @@ Simple and clear administrative interfaces.
 Perform de-duplication and validation to identify data import errors before the data is introduced into the system.
 
 ## Databases
-### Badging-Users
-* userToken: title: Text (primary): has of user name and email address. Used for uniqueness verification. See badging-utils.js->generateUserToken()
-* supportedRegionsRef: supportedRegionsRef: Reference -> Badging-Regions (multiple)
+### Badging-Learners
+* name: title : Text (primary): Learner Name
+* learnerToken: learnerToken: Text: hash of learner name and email address. Used for uniqueness verification. See badging-utils.js->generateLearnerToken()
+* supportedRegionsRef: supportedRegionsRef: Multi-Reference -> Badging-Regions (multiple)
 * eulaRef: eulaRef: Reference -> Badging-EULA
 
-### Badging-Users-PII
+### Badging-Learners-PII
 **IMPORTANT: Set the collection use as _Private Data_**
 * sequenceID: title: Text (primary)
-* userRef: userRef: Reference -> Badging-Users
+* learnerRef: learnerRef: Reference -> Badging-Learners
 * email: email: Text (mark as PII and thus encrypted)
 
 ### Badging-Regions
@@ -47,13 +48,13 @@ Perform de-duplication and validation to identify data import errors before the 
 ID is a system-generated unique ID. This is leveraged to make search result entries unique. SequenceID is needed as a primary key for this table (as ID can't be set as the primary key, for some reason...).
 * sequenceID: title: Text (primary)
 * ID: _id: Text
-* userRef: userRef: Reference -> Badging-Users
+* learnerRef: learnerRef: Reference -> Badging-Learners
 * badgeRef: badgeRef: Reference -> Badging-BadgesBrief
 * awardedDate: awardedDate: Date and Time
 * expiryDate: expiryDate: Date and Time
 
 ### Badging-Enrollment
-* userRef: userRef: Reference -> Badging-Users
+* userRef: userRef: Reference -> Badging-Learners
 * badgeRef: badgeRef: Reference -> Badging-BadgesBrief
 
 ### Badging-EULA
@@ -101,7 +102,6 @@ As (to this author's knowledge) Wix does not interact "well" with git/GitHub, th
 > emailJS_service_ID
 
 ## ToDos
-+ change user->learner everywhere
 + Add status animation after submit and enroll to Enroll Learner popup
 + investigate if badge images should be images instead of media galleries
 + Override supported regions with latest info on user import from any source

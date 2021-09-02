@@ -39,7 +39,7 @@ $w.onReady(function () {
     if (params.has("name")) {
         let name = decodeURIComponent(params.get("name"));
 
-        wixData.query("Badging-Users")
+        wixData.query("Badging-Learners")
             .contains("title", params.get("name"))
             .find()
             .then( (results) => {
@@ -61,7 +61,7 @@ $w.onReady(function () {
                 });
 
                 wixData.query("Badging-AwardedBadges")
-                    .contains("userName", learner.title)
+                    .contains("learnerName", learner.title)
                     .find()
                     .then( (badgeResults) => {
                         if (badgeResults.length == 0) {
