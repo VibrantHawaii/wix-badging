@@ -107,6 +107,7 @@ As (to this author's knowledge) Wix does not interact "well" with git/GitHub, th
 + Override supported regions with latest info on user import from any source
 + Public page: List of all badges
 + Categorize badges contributor vs curious
++ Use collapsed state to smoth appearance of popup sections especially Enroll Learner
 + Remove badgesdetailed title
 + Make clicking on any badge in search results, including text, OBVIOUSLY go to badge details page (mouse hover change?)
 + Enroll user flow
