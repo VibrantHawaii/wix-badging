@@ -3,7 +3,15 @@
 import wixWindow from 'wix-window';
 
 $w.onReady(function () {
+    $w("#importTeachableCourseBtn").onClick((event) => {
+        wixWindow.openLightbox("Badging Admin Import CSV Popup Factory", {"popupType": "teachableCourse"});
+    });
+
     $w("#importOfflineClassBtn").onClick((event) => {
-        wixWindow.openLightbox("Badging Admin Import Offline Class Popup", {popupType: "offlineClass"});
+        wixWindow.openLightbox("Badging Admin Import CSV Popup Factory", {"popupType": "offlineClass"});
+    });
+
+    $w("#importBadgrCVSBtn").onClick((event) => {
+        wixWindow.openLightbox("Badging Admin Import CSV Popup Factory", {"popupType": "badgrAward"});
     });
 });

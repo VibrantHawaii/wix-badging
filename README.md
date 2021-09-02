@@ -102,14 +102,13 @@ As (to this author's knowledge) Wix does not interact "well" with git/GitHub, th
 
 ## ToDos
 + change user->learner everywhere
-+ Add EULA acceptance and version to bulk imports
 + Add status animation after submit and enroll to Enroll Learner popup
 + investigate if badge images should be images instead of media galleries
 + Override supported regions with latest info on user import from any source
 + Public page: List of all badges
 + Categorize badges contributor vs curious
 + Remove badgesdetailed title
-+ Make clicking on any badge in search results, including text, go to badge details page
++ Make clicking on any badge in search results, including text, OBVIOUSLY go to badge details page (mouse hover change?)
 + Enroll user flow
     + If EULA record not in system then prompt for checkbutton acknowledgement of EULA
 + DB management
@@ -118,7 +117,8 @@ As (to this author's knowledge) Wix does not interact "well" with git/GitHub, th
     + Manual AwardedBadge CRUD
         + Awarded badge Read showing issue and expiry dates
     + Admin View Enrollments page - filter and sort capability
-+ Automatically creating users based on teachable sign-up
++ Flag for supported regions in userDB if default to all, and ask for confirmation in enroll popup
++ Ask for EULA in enroll popup if not accepted yet by existing user
 + Add analytics (Wix)
   * See if DB setup/description/instantiation can be programmatic instead of manual
 + Contact learner capability

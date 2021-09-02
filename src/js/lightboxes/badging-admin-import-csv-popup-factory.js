@@ -1,17 +1,37 @@
 import wixData from 'wix-data';
 import wixWindow from 'wix-window';
-import {importOfflineClassCSV} from 'backend/badging-import-csv';
+import {importBadgrAwardListCSV, importOfflineClassCSV, importTeachableCourseCSV} from 'backend/badging-import-csv';
+import {shortDateString} from 'public/badging-utils';
 
 const popupTypes = {
+    "teachableCourse": {
+        "title": "IMPORT TEACHABLE COURSE",
+        "importFunction": importTeachableCourseCSV
+    },
     "offlineClass": {
         "title": "IMPORT OFFLINE CLASS",
         "importFunction": importOfflineClassCSV
+    },
+    "badgrAward": {
+        "title": "IMPORT BADGR AWARD LIST",
+        "importFunction": importBadgrAwardListCSV
     }
 }
 
+let eulaVersionChanged = false;
+
 $w.onReady(function () {
-    try {
-        let context = wixWindow.lightbox.getContext();
+    function importError(text) {
+        console.error(text);
+        $w("#importPopupStatus").show();
+        $w("#importPopupStatus").text = text;
+    }
+
+    $w("#eulaAcceptedCheckbox").onChange(() => eulaCheckboxChanged());
+    $w("#eulaVersionDate").onChange(() => eulaVersionDateChanged());
+
+    let context = wixWindow.lightbox.getContext();
+    if (context) {
         let popupType = popupTypes[context.popupType];
 
         $w("#importPopupTitle").text = popupType.title;
@@ -31,6 +51,26 @@ $w.onReady(function () {
                 }
             });
 
+        wixData.query("Badging-EULA")
+            .descending("_createdDate")
+            .find()
+            .then( (results) => {
+                let eulas = results.items;
+                if (eulas.length === 0) {
+                    importError("No current EULA found");
+                    return;
+                }
+
+                var dateOptions = results.items.map((eula) => {
+                    const label = shortDateString(eula._createdDate);
+                    return {"label":label, "value":eula._id}
+                });
+                $w("#eulaVersionDate").options = dateOptions;
+            })
+            .catch(error => {
+                importError(error);
+            });
+
         $w("#uploadFileBtn").onChange(() => {
             $w("#importPopupImportBtn").enable();
         })
@@ -42,13 +82,24 @@ $w.onReady(function () {
                 $w("#uploadFileBtn").disable();
                 $w("#importPopupStatus").text = "Uploading file";
                 $w("#importPopupStatus").show();
+
+                let eulaId = undefined;
+                if ($w("#eulaAcceptedCheckbox").checked === true) {
+                    if (eulaVersionChanged !== true) {
+                        importError("Please select a User Agreement version (date)");
+                        return;
+                    }
+
+                    eulaId = $w("#eulaVersionDate").value;
+                }
+
                 $w("#uploadFileBtn").uploadFiles()
                     .then( (uploadedFiles) => {
                         uploadedFiles.forEach(uploadedFile => {
                             $w("#importPopupStatus").text = "File uploaded, starting analysis";
                             let badgeRef = $w("#badgeTypeDropdown").value;
 
-                            popupType.importFunction(uploadedFile.fileName, badgeRef)
+                            popupType.importFunction(uploadedFile.fileName, badgeRef, eulaId)
                                 .then((response) => {
                                     if (response.success === true) {
                                         console.log("CSV imported successfully");
@@ -70,13 +121,20 @@ $w.onReady(function () {
                 importError("No upload files found")
             }
         });
-    } catch (error) {
-        importError(error)
     }
 });
 
-function importError(text) {
-    console.error(text);
-    $w("#importPopupStatus").show();
-    $w("#importPopupStatus").text = text;
+function eulaCheckboxChanged() {
+    if ($w("#eulaAcceptedCheckbox").checked === true) {
+        $w("#eulaVersionPrompt").show();
+        $w("#eulaVersionDate").show();
+    } else {
+        $w("#eulaVersionPrompt").hide();
+        $w("#eulaVersionDate").hide();
+    }
 }
+
+function eulaVersionDateChanged() {
+    eulaVersionChanged = true;
+};
+

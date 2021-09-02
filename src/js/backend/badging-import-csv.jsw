@@ -6,6 +6,94 @@ import {createLearner} from "backend/badging-create-learner";
 
 const HST_TO_UTC_OFFSET = 10*60*60*1000;
 const MAGIC_SUPPORTS_WORD = "Supports";
+
+let teachableCourseCSVStruct = {
+    "1": {
+        "title": "userid",
+        "type": undefined
+    },
+    "2": {
+        "title": "fullname",
+        "type": "name"
+    },
+    "3": {
+        "title": "email",
+        "type": "email"
+    },
+    "4": {
+        "title": "lastlogin",
+        "type": undefined
+    },
+    "5": {
+        "title": "joined_at",
+        "type": undefined
+    },
+    "6": {
+        "title": "course_count",
+        "type": undefined
+    },
+    "7": {
+        "title": "src",
+        "type": undefined
+    },
+    "8": {
+        "title": "country",
+        "type": undefined
+    },
+    "9": {
+        "title": "sign_in_count",
+        "type": undefined
+    },
+    "10": {
+        "title": "unsubscribe_from_marketing_emails",
+        "type": undefined
+    },
+    "11": {
+        "title": "affiliate_code",
+        "type": undefined
+    },
+    "12": {
+        "title": "billing_address_line",
+        "type": undefined
+    },
+    "13": {
+        "title": "billing_address_city",
+        "type": undefined
+    },
+    "14": {
+        "title": "billing_address_region",
+        "type": undefined
+    },
+    "15": {
+        "title": "billing_address_zipcode",
+        "type": undefined
+    },
+    "16": {
+        "title": "billing_address_country",
+        "type": undefined
+    },
+    "17": {
+        "title": "delivery_address_line",
+        "type": undefined
+    },
+    "18": {
+        "title": "delivery_address_city",
+        "type": undefined
+    },
+    "19": {
+        "title": "delivery_address_region",
+        "type": undefined
+    },
+    "20": {
+        "title": "delivery_address_zipcode",
+        "type": undefined
+    },
+    "21": {
+        "title": "delivery_address_country",
+        "type": undefined
+    }
+};
+
 let offlineClassCSVStruct = {
     "1": {
         "title": "Badge Awarded Date",
@@ -54,7 +142,7 @@ let badgrAwardListCSVStruct = {
 };
 let regions = [];
 
-function validateAndImportCSVFileOfAwardedBadges(fileName, badgeRef, CSVStruct, forceAllRegionsSupported) {
+function validateAndImportCSVFileOfAwardedBadges(fileName, badgeRef, CSVStruct, forceAllRegionsSupported, eulaId) {
     let awardedUserDict = {};
     let awardedBadgesDict = {};
     let existingUserResults = {};
@@ -86,7 +174,7 @@ function validateAndImportCSVFileOfAwardedBadges(fileName, badgeRef, CSVStruct, 
                         resolve();
                     }
                     else
-                        return createLearner(awardedUser.name,  awardedUser.pii.email, awardedUser.supportsRegions, undefined);
+                        return createLearner(awardedUser.name,  awardedUser.pii.email, awardedUser.supportsRegions, eulaId);
                 })
             })
         })
@@ -182,15 +270,20 @@ function validateAndImportCSVFileOfAwardedBadges(fileName, badgeRef, CSVStruct, 
         });
 }
 
-export function importOfflineClassCSV(fileName, badgeRef) {
+export function importTeachableCourseCSV(fileName, badgeRef, eulaId) {
     return seedRegions()
-        .then(() => seedOfflineClassCSVStruct())
-        .then(() => { return validateAndImportCSVFileOfAwardedBadges(fileName, badgeRef, offlineClassCSVStruct, false)});
+        .then(() => { return validateAndImportCSVFileOfAwardedBadges(fileName, badgeRef, teachableCourseCSVStruct, true, eulaId)});
 }
 
-export function importBadgrAwardListCSV(fileName, badgeRef) {
+export function importOfflineClassCSV(fileName, badgeRef, eulaId) {
     return seedRegions()
-        .then(() => validateAndImportCSVFileOfAwardedBadges(fileName, badgeRef, badgrAwardListCSVStruct, true));
+        .then(() => seedOfflineClassCSVStruct())
+        .then(() => { return validateAndImportCSVFileOfAwardedBadges(fileName, badgeRef, offlineClassCSVStruct, false, eulaId)});
+}
+
+export function importBadgrAwardListCSV(fileName, badgeRef, eulaId) {
+    return seedRegions()
+        .then(() => validateAndImportCSVFileOfAwardedBadges(fileName, badgeRef, badgrAwardListCSVStruct, true, eulaId));
 }
 
 function fixUpDateForHST(originalDate) {
@@ -238,6 +331,11 @@ function validateCSVFormat(csvText, structure) {
         });
 
         // TODO fix up error handling
+
+        // Delete empty rows
+        arrayedCSV = arrayedCSV.filter(currentEntry => {
+            return currentEntry.length > 1;
+        })
 
         // Test if all rows have the same number of columns (as the header row)
         if (!arrayedCSV.every((currentEntry) => {
@@ -374,6 +472,9 @@ function createUserDict(csvArray, structure, badgeRef, forceAllRegionsSupported)
 
     function getCSVColumn(type) {
         let columnDict = Object.entries(structure).find(element => element[1].type === type);
+        if (columnDict === undefined)
+            return undefined;
+
         let oneIndexedResult = Number(columnDict[0]);
         return oneIndexedResult - 1;
     }
@@ -407,6 +508,16 @@ function createUserDict(csvArray, structure, badgeRef, forceAllRegionsSupported)
 
         const email = csvArray[rowIndex][emailColumn];
         const userToken = generateUserToken(name, email);
+        const now = new Date();
+        const nowString = now.toDateString();
+
+        let awardedDate = nowString;
+        if (awardedDateColumn != undefined)
+            awardedDate = csvArray[rowIndex][awardedDateColumn];
+
+        let expiryDate = nowString;
+        if (expiryDateColumn != undefined)
+            csvArray[rowIndex][expiryDateColumn];
 
         userDict[userToken] = {
             'name': name,
@@ -416,8 +527,8 @@ function createUserDict(csvArray, structure, badgeRef, forceAllRegionsSupported)
             },
             'award': {
                 'badgeRef': badgeRef,
-                'awardedDate': csvArray[rowIndex][awardedDateColumn],
-                'expiryDate': csvArray[rowIndex][expiryDateColumn],
+                'awardedDate': awardedDate,
+                'expiryDate': expiryDate,
             },
             'supportsRegions': supportedRegionIDs
         };
