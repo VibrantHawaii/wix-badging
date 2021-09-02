@@ -1,37 +1,38 @@
 import wixData from 'wix-data';
-import {generateUserToken} from 'public/badging-utils'
+import {generateLearnerToken} from 'public/badging-utils'
 
 export function createLearner(name, email, supportsRegions, eulaId) {
     let eula = eulaId === undefined ? "" : eulaId;
-    let newUserEntry = {};
-    const userToken = generateUserToken(name, email);
-    let newUser = {
+    let newLearnerEntry = {};
+    const learnerToken = generateLearnerToken(name, email);
+    let newLearner = {
         "title": name,
-        "userToken": userToken,
+        "learnerToken": learnerToken,
         "eulaRef": eula
     };
 
-    return new Promise((resolve) => {
-        resolve(wixData.insert("Badging-Users", newUser));
-    })
-    .then( newUserEntryResult => {
-        newUserEntry = newUserEntryResult;
-        return wixData.insertReference("Badging-Users", "supportedRegionsRef", newUserEntry._id, supportsRegions);
-    })
-    .then( () => {
-        let newUserPII = {
-            "title": userToken,
-            "email": email,
-            "userRef": newUserEntry._id
-        };
+    return wixData.insert("Badging-Learners", newLearner)
+        .then( newLearnerEntryResult => {
+            newLearnerEntry = newLearnerEntryResult;
 
-        return wixData.insert("Badging-Users-PII", newUserPII);
-    })
-    .then( () => {
-        return {success: true}
-    })
-    .catch((error) => {
-        console.error(error);
-        return {success: false, errorMsg: error}
-    });
+            return wixData.insertReference("Badging-Learners", "supportedRegionsRef", newLearnerEntry._id, supportsRegions);
+        })
+        .then( () => {
+            let newLearnerPII = {
+                "title": learnerToken,
+                "email": email,
+                "learnerRef": newLearnerEntry._id
+            };
+
+            return wixData.insert("Badging-Learners-PII", newLearnerPII);
+        })
+        .then( () => {
+            return {
+                success: true,
+                learner: newLearnerEntry
+            }
+        })
+        .catch((error) => {
+            return {success: false, errorMsg: error}
+        });
 }

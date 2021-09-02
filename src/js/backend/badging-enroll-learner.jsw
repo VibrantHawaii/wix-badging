@@ -1,10 +1,10 @@
 import wixData from 'wix-data';
 import wixCaptcha from 'wix-captcha-backend';
-import {generateUserToken} from 'public/badging-utils'
+import {generateLearnerToken} from 'public/badging-utils'
 
 export function verifyAndEnrollKnownLearnerWithCapcha(name, email, badgeId, token) {
     return wixCaptcha.authorize(token)
-    .then(() => verifyAndEnrollLearner(name, email, badgeId));
+        .then(() => verifyAndEnrollLearner(name, email, badgeId));
 }
 
 export function verifyAndEnrollKnownLearner(name, email, badgeId) {
@@ -12,10 +12,10 @@ export function verifyAndEnrollKnownLearner(name, email, badgeId) {
 }
 
 function verifyAndEnrollLearner(name, email, badgeId) {
-    const hash = generateUserToken(name, email);
+    const hash = generateLearnerToken(name, email);
 
-    return wixData.query("Badging-Users")
-    .eq("userToken", hash)
+    return wixData.query("Badging-Learners")
+    .eq("learnerToken", hash)
     .find()
     .then( (learner_results) => {
         if (learner_results.length === 0) {
@@ -35,21 +35,21 @@ function verifyAndEnrollLearner(name, email, badgeId) {
                 .then(regions => {
                     return {
                         "success": true,
-                        "userFound": false,
+                        "LearnerFound": false,
                         "regions": regions
                     };
                 });
         } else {
-            // Log user enrollment (intent)
+            // Log Learner enrollment (intent)
             const enrollment = {
-                userRef: learner_results.items[0]._id,
+                LearnerRef: learner_results.items[0]._id,
                 badgeRef: badgeId
             };
             return wixData.insert("Badging-Enrollment", enrollment)
                 .then(() => {
                     return {
                         "success": true,
-                        "userFound": true,
+                        "LearnerFound": true,
                     };
                 })
         }
