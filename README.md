@@ -107,7 +107,6 @@ As (to this author's knowledge) Wix does not interact "well" with git/GitHub, th
 + Override supported regions with latest info on user import from any source
 + Public page: List of all badges
 + Categorize badges contributor vs curious
-+ Use collapsed state to smoth appearance of popup sections especially Enroll Learner
 + Remove badgesdetailed title
 + Make clicking on any badge in search results, including text, OBVIOUSLY go to badge details page (mouse hover change?)
 + Enroll user flow
@@ -121,7 +120,6 @@ As (to this author's knowledge) Wix does not interact "well" with git/GitHub, th
 + Flag for supported regions in userDB if default to all, and ask for confirmation in enroll popup
 + Ask for EULA in enroll popup if not accepted yet by existing user
 + Add analytics (Wix)
-  * See if DB setup/description/instantiation can be programmatic instead of manual
 + Contact learner capability
     + Catch error conditions on email send
     + New DB to track transactions (issue unique token for each contact button instance, revoke when used)

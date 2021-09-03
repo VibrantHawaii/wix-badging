@@ -7,6 +7,7 @@ import {getLatestEULA, getRegions} from "public/badging-utils";
 let badgeId = "";
 let badgeUrl = "";
 let eulaID = "";
+let captchaVerified = false;
 
 $w.onReady(function () {
     let context = wixWindow.lightbox.getContext();
@@ -47,12 +48,24 @@ $w.onReady(function () {
                 // No match, prompt for region info for new Learner
                 $w("#enrollLearnerCaptcha").hide();
                 $w("#enrollLearnerSubmitBtn").hide();
-                $w("#supportedRegionsPrompt").show();
-                $w("#enrollLearnerRegionsTable").show();
-                $w("#eulaTitle").show();
-                $w("#eulaBox").show();
-                $w("#eulaText").show();
+                $w("#supportedRegionsPrompt").expand();
+                // $w("#supportedRegionsPrompt").show();
+                $w("#enrollLearnerRegionsTable").expand();
+                // $w("#enrollLearnerRegionsTable").show();
+                $w("#regionBox").expand();
+                $w("#regionBox").show();
+                $w("#eulaTitle").expand();
+                // $w("#eulaTitle").show();
+                $w("#eulaBox").expand();
+                // $w("#eulaBox").show();
+                // $w("#eulaText").show();
+                $w("#eulaContainerBox").expand();
+                $w("#eulaContainerBox").show();
+                $w("#eulaAcceptedCheckbox").expand();
                 $w("#eulaAcceptedCheckbox").show();
+                $w("#enrollBtnContainerBox").expand();
+                $w("#enrollBtnContainerBox").show();
+                $w("#enrollLearnerEnrollBtn").expand();
                 $w("#enrollLearnerEnrollBtn").show();
             })
             .catch(error => {
@@ -168,25 +181,31 @@ function enrollBtnHandler() {
 function testAllInputs() {
     // Validate name input
     if (($w("#enrollLearnerNameInput").value.length > 3) &&
-        ($w("#enrollLearnerEmailInput").value.match(/[\w.+-_~]+\@[\w.+-_~]+\.[\w.+-_~]+\.*[\w.+-_~]*/)))
+        ($w("#enrollLearnerEmailInput").value.match(/[\w.+-_~]+\@[\w.+-_~]+\.[\w.+-_~]+\.*[\w.+-_~]*/)) &&
+        captchaVerified)
     {
-        $w("#enrollLearnerCaptcha").show();
-        $w("#enrollLearnerSubmitBtn").show();
+        $w("#enrollLearnerStatus").hide();
+        $w("#enrollLearnerSubmitBtn").enable();
     }
 }
 
 // Because of a bug in the Wix editor, this needs to be an export rather than bound in onReady
 export function enrollLearnerCaptcha_verified() {
-    $w("#enrollLearnerStatus").hide();
-    $w("#enrollLearnerSubmitBtn").enable();
+    captchaVerified = true;
+
+    // Validate name input
+    if (($w("#enrollLearnerNameInput").value.length > 3) &&
+        ($w("#enrollLearnerEmailInput").value.match(/[\w.+-_~]+\@[\w.+-_~]+\.[\w.+-_~]+\.*[\w.+-_~]*/)))
+    {
+        $w("#enrollLearnerStatus").hide();
+        $w("#enrollLearnerSubmitBtn").enable();
+    }
 }
 
 function showStatusAndResetPopup(statusText) {
-    $w("#enrollLearnerEnrollBtn").enable();
-    $w("#enrollLearnerEnrollBtn").label = "Enroll";
     $w("#enrollLearnerCaptcha").reset();
+    captchaVerified = false;
     $w("#enrollLearnerSubmitBtn").disable();
-    $w("#enrollLearnerSubmitBtn").hide();
     $w("#enrollLearnerNameInput").enable();
     $w("#enrollLearnerEmailInput").enable();
     $w("#supportedRegionsPrompt").hide();
@@ -196,6 +215,8 @@ function showStatusAndResetPopup(statusText) {
     $w("#eulaBox").hide();
     $w("#eulaTitle").hide();
     $w("#eulaText").hide();
+    $w("#enrollLearnerEnrollBtn").disable();
+    $w("#enrollLearnerEnrollBtn").label = "Enroll";
 
     $w("#enrollLearnerStatus").text = statusText;
     $w("#enrollLearnerStatus").show()
