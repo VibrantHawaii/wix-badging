@@ -106,11 +106,15 @@ As (to this author's knowledge) Wix does not interact "well" with git/GitHub, th
 + Ask for EULA in enroll popup if not accepted yet by existing user
 + Enroll user flow - If EULA record not in system then prompt for checkbutton acknowledgement of EULA
 + Flag for supported regions in userDB if default to all, and ask for confirmation in enroll popup
+  + If new users from Teachable import then send email to collect region info?
++ Wishlist
+  + Investigate Zapier to Wix interface for Teachable enrollment -> Wix
+  + If not, Wix instructor site to upload learner CSVs
++ Categorize badges contributor vs curious. hide curious
 + Add status animation after submit and enroll to Enroll Learner popup
 + Make clicking on any badge in search results, including text, OBVIOUSLY go to badge details page (mouse hover change?)
 + investigate if badge images should be images instead of media galleries
 + Public page: List of all badges
-+ Categorize badges contributor vs curious
 + Remove badgesdetailed title
 + DB management
     + Badge CRUD
@@ -132,4 +136,4 @@ As (to this author's knowledge) Wix does not interact "well" with git/GitHub, th
     + Set admin interface permissions to [only subsets of Wix account roles](https://support.wix.com/en/article/limiting-pages-on-your-site-to-specific-member-roles) (currently any logged in user can see the admin page)
 + Data Recovery
    + Add transaction logging DBs to all DB import paths to allow recovery of state on an import fail or corruption. 
-+ Error notification -  Email badging@vibranthawaii.org (pull from secret) on some errors?
++ Error notification -  Email badging_error_notification_email (secret) on some errors
