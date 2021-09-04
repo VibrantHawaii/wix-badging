@@ -107,9 +107,13 @@ As (to this author's knowledge) Wix does not interact "well" with git/GitHub, th
 + Enroll user flow - If EULA record not in system then prompt for checkbutton acknowledgement of EULA
 + Flag for supported regions in userDB if default to all, and ask for confirmation in enroll popup
   + If new users from Teachable import then send email to collect region info?
-+ Wishlist
-  + Investigate Zapier to Wix interface for Teachable enrollment -> Wix
-  + If not, Wix instructor site to upload learner CSVs
++ Teachable webhook receivers
+  + courseCompleted
+    + generalize CSV import use comparison, creation, and badge awarding
+    + test CSV import paths
+    + courseCompleted webhook path
+  + newUser
++ ? Email new users with customized link to supported region setting page
 + Categorize badges contributor vs curious. hide curious
 + Add status animation after submit and enroll to Enroll Learner popup
 + Make clicking on any badge in search results, including text, OBVIOUSLY go to badge details page (mouse hover change?)
