@@ -1,10 +1,9 @@
 import { mediaManager } from 'wix-media-backend';
 import wixData from 'wix-data';
 import {fetch} from 'wix-fetch';
-import {generateLearnerToken} from 'public/badging-utils'
-import {createLearner} from "backend/badging-create-learner";
+import {generateLearnerToken, logAndThrowError} from 'public/badging-utils'
+import {awardToLearners} from "backend/badging-award-to-learners";
 
-const HST_TO_UTC_OFFSET = 10*60*60*1000;
 const MAGIC_SUPPORTS_WORD = "Supports";
 
 let teachableCourseCSVStruct = {
@@ -143,133 +142,13 @@ let badgrAwardListCSVStruct = {
 let regions = [];
 
 function validateAndImportCSVFileOfAwardedBadges(fileName, badgeRef, CSVStruct, forceAllRegionsSupported, eulaId) {
-    let awardedUserDict = {};
-    let awardedBadgesDict = {};
-    let existingUserResults = {};
-
     return new Promise((resolve) => {
         resolve(fetchFileFromMediaManager(fileName));
     })
         .then(fileText => validateCSVFormat(fileText, CSVStruct))
         .then(arrayedCSV => createUserDict(arrayedCSV, CSVStruct, badgeRef, forceAllRegionsSupported))
         .then(awardedUserDictResult => {
-            awardedUserDict = awardedUserDictResult;
-            // Fetch list of all existing learners
-            return wixData.query("Badging-Learners")
-                .find();
-        })
-        .then( existingUserResultsResult => {
-            existingUserResults = existingUserResultsResult;
-            // Tag each awarded learner dict entry as to whether they exist in the User collection yet.
-            return existingUserResults.items.map((existingUser) => {
-                return existingUser.learnerToken;
-            });
-        })
-        .then(allExistingUsers => {
-            return Object.entries(awardedUserDict).map(([id, awardedUser]) => {
-                return new Promise((resolve, reject) => {
-                    if ((allExistingUsers.includes(awardedUser.learnerToken))) {
-                        let existingUser = existingUserResults.items.find(learner => learner.learnerToken == awardedUser.learnerToken);
-                        awardedUserDict[awardedUser.learnerToken]._id = existingUser._id;
-                        resolve();
-                    }
-                    else
-                    {
-                        return createLearner(awardedUser.name,  awardedUser.pii.email, awardedUser.supportsRegions, eulaId)
-                            .then(newLearner => {
-                                awardedUserDict[awardedUser.learnerToken]._id = newLearner.learner._id;
-                                resolve()
-                            })
-                    }
-                })
-            })
-        })
-        .then(newUserCreation => Promise.all(newUserCreation))
-        .then(() => mapAwardedUserstoAwardedBadgesDict(awardedUserDict))
-        .then((newAwardedBadgesDictResults) => {
-            awardedBadgesDict = newAwardedBadgesDictResults;
-
-            return Object.entries(awardedBadgesDict).map(([newAwardedBadgeID, newBadgeAwards]) => {
-                // For each badge type awarded
-                return new Promise((resolveAward, rejectAward) => {
-
-                    // Query for existing awards
-                    return wixData.query("Badging-AwardedBadges")
-                        .contains("badgeRef", newAwardedBadgeID)
-                        .find()
-                        .then(existingBadgeAwards => {
-                            const existingAwardedUsers = existingBadgeAwards.items.map(existingAwardedUser => {
-                                return existingAwardedUser.learnerRef;
-                            });
-
-                            return newBadgeAwards.map((newBadgeAward) => {
-                                // For each badge awarded
-                                return new Promise((resolve, reject) => {
-                                    // For each learner newly awarded the badge
-                                    let deleteOldAward = undefined;
-                                    if (existingAwardedUsers.find(existingBadgeID => {
-                                        return newBadgeAward.learnerRef == existingBadgeID;
-                                    })) {
-                                        // Consolodate existing awards for matching learnerRefs
-                                        // Ruleset: use first awardedDate and newest expiryDate (if any)
-                                        const originalAward = existingBadgeAwards.items.find(existingBadge => {
-                                            return existingBadge.learnerRef === newBadgeAward.learnerRef;
-                                        })
-
-                                        const originalAwardedDate = new Date(originalAward.awardedDate);
-                                        // Fixups to translate input dates/times (assumed to be HST) to UTC
-                                        const newAwardedDate = new Date(newBadgeAward.awardedDate);
-                                        newBadgeAward.awardedDate = originalAwardedDate.getTime() < (new Date(fixUpDateForHST(newAwardedDate))).getTime() ? originalAward.awardedDate :  fixUpDateForHST(newBadgeAward.awardedDate);
-
-                                        deleteOldAward = originalAward._id;
-                                    }
-                                    else
-                                        // Not a match
-                                        newBadgeAward.awardedDate = fixUpDateForHST(newBadgeAward.awardedDate);
-
-                                    if (newBadgeAward.expiryDate !== undefined) {
-                                        newBadgeAward.expiryDate = fixUpDateForHST(newBadgeAward.expiryDate);
-                                    }
-
-                                    const sequenceID = Date.now().toString() + ":" + newAwardedBadgeID.toString() + ":" + newBadgeAward.learnerRef.toString();
-
-                                    // Add award entry
-                                    let newAward = {
-                                        "title": sequenceID,
-                                        "badgeRef": newAwardedBadgeID,
-                                        "learnerRef": newBadgeAward.learnerRef,
-                                        "awardedDate": new Date(newBadgeAward.awardedDate),
-                                        "expiryDate": newBadgeAward.expiryDate
-                                    };
-
-                                    return wixData.insert("Badging-AwardedBadges", newAward)
-                                        .then( newAward => {
-                                            if (deleteOldAward) {
-                                                // delete old badge in DB
-                                                return wixData.remove("Badging-AwardedBadges", deleteOldAward)
-                                                    .then(() => resolve())
-                                            }
-                                            else
-                                                resolve();
-                                        })
-                                        .catch((error) => {
-                                            reject(error);
-                                        });
-                                });
-                            })
-                        })
-                        .then(badgeIssuance => Promise.all(badgeIssuance))
-                        .then(() => resolveAward())
-                        .catch((error) => {
-                            console.error(error);
-                            rejectAward(error);
-                        });
-                })
-            })
-        })
-        .then(badgeIssuance => Promise.all(badgeIssuance))
-        .then(() => {
-            return {success: true};
+            return awardToLearners(awardedUserDictResult, eulaId);
         })
         .catch((error) => {
             console.error(error);
@@ -294,30 +173,6 @@ export function importOfflineClassCSV(fileName, badgeRef, eulaId) {
 export function importBadgrAwardListCSV(fileName, badgeRef, eulaId) {
     return seedRegions()
         .then(() => validateAndImportCSVFileOfAwardedBadges(fileName, badgeRef, badgrAwardListCSVStruct, true, eulaId));
-}
-
-function fixUpDateForHST(originalDate) {
-    let unfixedDate = new Date(originalDate);
-    const fixedDateinMS = unfixedDate.getTime() + (HST_TO_UTC_OFFSET);
-    return new Date(fixedDateinMS);
-}
-
-function mapAwardedUserstoAwardedBadgesDict (awardedUsersDict) {
-    let awardedBadgesDict = {};
-    Object.entries(awardedUsersDict).map(([id, learnerEntry]) => {
-        if (awardedBadgesDict[learnerEntry.award.badgeRef] === undefined)
-            awardedBadgesDict[learnerEntry.award.badgeRef] = [];
-
-        awardedBadgesDict[learnerEntry.award.badgeRef].push(
-            {
-                "foobar": "barfoo",
-                "learnerRef": learnerEntry._id,
-                "awardedDate": learnerEntry.award.awardedDate,
-                "expiryDate": learnerEntry.award.expiryDate
-            }
-        );
-    })
-    return awardedBadgesDict;
 }
 
 function validateCSVFormat(csvText, structure) {
@@ -365,7 +220,7 @@ function validateCSVFormat(csvText, structure) {
         arrayedCSV.every((row, rowIndex) => {
             if (rowIndex !== 0) {
                 return row.every((entry, colIndex) => {
-                    return validateEntryType(entry, orderedTypes[colIndex], rowIndex, colIndex)
+                    return validateCSVEntryType(entry, orderedTypes[colIndex], rowIndex, colIndex)
                 });
             }
 
@@ -375,7 +230,7 @@ function validateCSVFormat(csvText, structure) {
         resolve(arrayedCSV);
     })
         .catch( (error) => {
-            throw error;
+            logAndThrowError(error);
         })
 }
 
@@ -389,7 +244,7 @@ function fetchFileFromMediaManager(fileName) {
         });
     })
         .catch((error) => {
-            return(error);
+            logAndThrowError(error);
         });
 }
 
@@ -430,12 +285,7 @@ function seedOfflineClassCSVStruct() {
     });
 }
 
-function logAndThrowError(message) {
-    console.error(message);
-    throw(Error(message));
-}
-
-function validateEntryType(entry, type, rowIndex, colIndex) {
+function validateCSVEntryType(entry, type, rowIndex, colIndex) {
     function failedValidation(entry, type, rowIndex, colIndex) {
         logAndThrowError("Entry \"" + entry + "\" in 1-based row " + (rowIndex + 1) + " and 1-based column " + (colIndex + 1) + " is not of type " + type);
         return false;

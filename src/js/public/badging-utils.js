@@ -62,3 +62,15 @@ export function shortDateString(date) {
 
     return date.getMonth() + "-" + date.getDate() + "-" + date.getFullYear() + " " + hour + ":" + minutes + AMPMstring;
 }
+
+const HST_TO_UTC_OFFSET = 10*60*60*1000;
+export function fixUpDateForHST(originalDate) {
+    let unfixedDate = new Date(originalDate);
+    const fixedDateinMS = unfixedDate.getTime() + (HST_TO_UTC_OFFSET);
+    return new Date(fixedDateinMS);
+}
+
+export function logAndThrowError(message) {
+    console.error(message);
+    throw(Error(message));
+}
