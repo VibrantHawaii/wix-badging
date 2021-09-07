@@ -70,6 +70,11 @@ export function fixUpDateForHST(originalDate) {
     return new Date(fixedDateinMS);
 }
 
+export function reverseFixUpDateForHST(originalDate) {
+    let unfixedDate = new Date(originalDate);
+    const fixedDateinMS = unfixedDate.getTime() - (HST_TO_UTC_OFFSET);
+    return new Date(fixedDateinMS);
+}
 export function logAndThrowError(message) {
     console.error(message);
     throw(Error(message));

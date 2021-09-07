@@ -13,9 +13,9 @@ import {createLearner} from "backend/badging-create-learner";
 //         'awardedDate': awardedDate,
 //         'expiryDate': expiryDate,
 //     },
-//     'supportsRegions': supportedRegionIDs
+//     'supportsRegions': supportedRegionIDs // undefined to not update
 // };
-export function awardToLearners(awardedUserDict, eulaId) {
+export function awardToLearners(awardedUserDict, eulaId) { // eulaId undefined to not update
     let awardedBadgesDict = {};
     let existingUserResults = {};
 
@@ -39,10 +39,10 @@ export function awardToLearners(awardedUserDict, eulaId) {
                     }
                     else
                     {
-                        return createLearner(awardedUser.name,  awardedUser.pii.email, awardedUser.supportsRegions, eulaId)
+                        return createLearner(awardedUser.name,  awardedUser.pii.email, awardedUser.supportsRegions, eulaId, awardedUser.teachableInferredEulaDate)
                             .then(newLearner => {
                                 awardedUserDict[awardedUser.learnerToken]._id = newLearner.learner._id;
-                                resolve()
+                                resolve();
                             })
                     }
                 })

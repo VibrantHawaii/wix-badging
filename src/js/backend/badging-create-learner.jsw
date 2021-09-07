@@ -10,12 +10,13 @@ export function createLearner(name, email, supportsRegions, eulaId) {
         "learnerToken": learnerToken,
         "eulaRef": eula
     };
-
-    return wixData.insert("Badging-Learners", newLearner)
+    return wixData.insert("Badging-Learners", newLearner, {suppressAuth: true})
         .then( newLearnerEntryResult => {
             newLearnerEntry = newLearnerEntryResult;
-
-            return wixData.insertReference("Badging-Learners", "supportedRegionsRef", newLearnerEntry._id, supportsRegions);
+            if (supportsRegions)
+                return wixData.insertReference("Badging-Learners", "supportedRegionsRef", newLearnerEntry._id, supportsRegions);
+            else
+                return Promise.resolve();
         })
         .then( () => {
             let newLearnerPII = {
@@ -32,7 +33,8 @@ export function createLearner(name, email, supportsRegions, eulaId) {
                 learner: newLearnerEntry
             }
         })
-        .catch((error) => {
+        .catch(error => {
+            console.log(error);
             return {success: false, errorMsg: error}
         });
 }
