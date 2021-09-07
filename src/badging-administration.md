@@ -2,7 +2,7 @@
 Page to perform administration of badging.
 
 ## Hide from menu (in Page Settings -> Page Info)
-False
+True
 
 ## Page URL Slug (in Page Settings -> SEO -> Search (Google))
 badging-administration
