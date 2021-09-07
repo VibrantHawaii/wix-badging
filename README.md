@@ -20,13 +20,15 @@ Perform de-duplication and validation to identify data import errors before the 
 
 ## Databases
 ### Badging-Learners
+Permissions - Custom: Read: Anyone, Write: Anyone, Update: Admin, Delete: Admin
 * name: title : Text (primary): Learner Name
 * learnerToken: learnerToken: Text: hash of learner name and email address. Used for uniqueness verification. See badging-utils.js->generateLearnerToken()
 * supportedRegionsRef: supportedRegionsRef: Multi-Reference -> Badging-Regions (multiple)
 * eulaRef: eulaRef: Reference -> Badging-EULA
+* teachableInferredEulaDate: teachableInferredEulaDate: Text: Teachable user created date
 
 ### Badging-Learners-PII
-**IMPORTANT: Set the collection use as _Private Data_**
+Permissions - Custom: Read: Admin, Write: Anyone, Update: Admin, Delete: Admin
 * sequenceID: title: Text (primary)
 * learnerRef: learnerRef: Reference -> Badging-Learners
 * email: email: Text (mark as PII and thus encrypted)
@@ -38,6 +40,8 @@ Perform de-duplication and validation to identify data import errors before the 
 * title: title: Text (primary)
 * ShortDescription: shortDescription: Text
 * imageUrl: imageUrl: Media Gallery entry
+* expiryRule: expiryRule: number of months from award until expiry, empty string to never expire
+* teachableCourseId: teachableCourseId: Text: ID from Teachable.com course information URL slug
 
 ### Badging-BadgesDetailed
 * title: title: Text (primary) _this is only needed as a primary key, and is otherwise ignored_
@@ -46,6 +50,7 @@ Perform de-duplication and validation to identify data import errors before the 
 
 ### Badging-AwardedBadges
 ID is a system-generated unique ID. This is leveraged to make search result entries unique. SequenceID is needed as a primary key for this table (as ID can't be set as the primary key, for some reason...).
+Permissions - Custom: Read: Anyone, Write: Anyone, Update: Admin, Delete: Admin
 * sequenceID: title: Text (primary)
 * ID: _id: Text
 * learnerRef: learnerRef: Reference -> Badging-Learners
@@ -101,18 +106,21 @@ As (to this author's knowledge) Wix does not interact "well" with git/GitHub, th
 * Save the emailJS service ID to user for sending emails to Learners in the Wix Secrets Manager (under Wix site->Settings->Advanced) with the name:
 > emailJS_service_ID
 
+
+* In Teachable, go to Webhooks->New Webhook
+  * Select the "Enrollment Completed" event trigger
+  * For development use the test site URL e.g. https://www.vibranthawaii.org/_functions-dev/teachableEnrollmentCompleted/?siteRevision=774
+  * For production use: https://www.vibranthawaii.org/_functions/teachableEnrollmentCompleted
+  * Send at least one event to test
+
 ## ToDos
++ New user - if no regions or EULA then email and point to custom page to enter
 + Override supported regions with latest info on user import from any source
 + Ask for EULA in enroll popup if not accepted yet by existing user
 + Enroll user flow - If EULA record not in system then prompt for checkbutton acknowledgement of EULA
 + Flag for supported regions in userDB if default to all, and ask for confirmation in enroll popup
   + If new users from Teachable import then send email to collect region info?
-+ Teachable webhook receivers
-  + courseCompleted
-    + generalize CSV import use comparison, creation, and badge awarding
-    + test CSV import paths
-    + courseCompleted webhook path
-  + newUser
++ Create consoleDB.log
 + ? Email new users with customized link to supported region setting page
 + Categorize badges contributor vs curious. hide curious
 + Add status animation after submit and enroll to Enroll Learner popup
