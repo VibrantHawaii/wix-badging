@@ -91,7 +91,7 @@ As (to this author's knowledge) Wix does not interact "well" with git/GitHub, th
 * Manually create the databases in Wix
   * Set the badge images to refer to the correct badge image as a new Media Gallery for each badge image, containing one badge image per media gallery
 * Create an account for [emailJS](https://www.emailjs.com/)
-* Create a emailJS template:
+* Create an emailJS template for contacting a learner:
     * Template ID: _badging_contact_learner_
     * Reply To: _{{enquirer_email}}_
     * Subject: _Vibrant Hawaii: New message from {{enquirer_name}}: {{enquirer_email}}_
@@ -123,14 +123,15 @@ As (to this author's knowledge) Wix does not interact "well" with git/GitHub, th
   * Send at least one event to test
 
 ## ToDos
++ Fix broken EULARef from Teachable badge award webhook created users
 + New user - if no regions or EULA then email and point to custom page to enter
 + Override supported regions with latest info on user import from any source
 + Ask for EULA in enroll popup if not accepted yet by existing user
 + Enroll user flow - If EULA record not in system then prompt for checkbutton acknowledgement of EULA
 + Flag for supported regions in userDB if default to all, and ask for confirmation in enroll popup
   + If new users from Teachable import then send email to collect region info?
-+ Create consoleDB.log
-+ ? Email new users with customized link to supported region setting page
++ Email new users with customized link to supported region setting page
+  + Add landing page for users to update missing profile information (supported regions, EULA)
 + Add status animation after submit and enroll to Enroll Learner popup
 + Make clicking on any badge in search results, including text, OBVIOUSLY go to badge details page (mouse hover change?)
 + investigate if badge images should be images instead of media galleries
