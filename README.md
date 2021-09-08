@@ -39,6 +39,7 @@ Permissions - Custom: Read: Admin, Write: Anyone, Update: Admin, Delete: Admin
 ### Badging-BadgesBrief
 * title: title: Text (primary)
 * ShortDescription: shortDescription: Text
+* badgeCategoryRef: Reference -> Badging-BadgeCategories
 * imageUrl: imageUrl: Media Gallery entry
 * expiryRule: expiryRule: number of months from award until expiry, empty string to never expire
 * teachableCourseId: teachableCourseId: Text: ID from Teachable.com course information URL slug
@@ -47,6 +48,14 @@ Permissions - Custom: Read: Admin, Write: Anyone, Update: Admin, Delete: Admin
 * title: title: Text (primary) _this is only needed as a primary key, and is otherwise ignored_
 * detailedDescription: detailedDescription: Rich text
 * badgeRef: badgeRef: Reference -> Badging-BadgesBrief
+
+### Badging-BadgeCategories
+* category: category: Text (primary): Category type
+
+| Entries (case sensitive) |
+|---|
+| Curious | 
+| Contributor |
 
 ### Badging-AwardedBadges
 ID is a system-generated unique ID. This is leveraged to make search result entries unique. SequenceID is needed as a primary key for this table (as ID can't be set as the primary key, for some reason...).
@@ -122,7 +131,6 @@ As (to this author's knowledge) Wix does not interact "well" with git/GitHub, th
   + If new users from Teachable import then send email to collect region info?
 + Create consoleDB.log
 + ? Email new users with customized link to supported region setting page
-+ Categorize badges contributor vs curious. hide curious
 + Add status animation after submit and enroll to Enroll Learner popup
 + Make clicking on any badge in search results, including text, OBVIOUSLY go to badge details page (mouse hover change?)
 + investigate if badge images should be images instead of media galleries

@@ -10,6 +10,7 @@ $w.onReady(function () {
     let badges = "All";
     let regions = "All";
     let badgeMap = [];
+    let learnerResults = {};
 
     loadingPageDataAnimation();
 
@@ -22,6 +23,7 @@ $w.onReady(function () {
     }
 
     wixData.query("Badging-BadgesBrief")
+        .include("badgeCategoryRef")
         .find()
         .then( (badgeResults) => {
             if (badgeResults.length == 0) {
@@ -33,8 +35,98 @@ $w.onReady(function () {
                 badgeMap[badgeItem._id] = {
                     "img": badgeItem.imageUrl[0].src,
                     "title": badgeItem.title,
+                    "category": badgeItem.badgeCategoryRef.category
                 };
             });
+        })
+        .then(() => {
+            let operatingLearnerQuery = wixData.query("Badging-Learners");
+            if (regions != "All") {
+                operatingLearnerQuery = operatingLearnerQuery.hasSome("supportedRegionsRef", regions);
+            }
+
+            return operatingLearnerQuery
+                .include("supportedRegionsRef")
+                .ascending("title")
+                .find()
+        })
+        .then( (result) => {
+            learnerResults = result;
+            if (learnerResults.length == 0) {
+                $w("#statusText").show();
+                $w("#loadingAnimationText").hide();
+                $w("#learnersRepeater").hide();
+                return;
+            }
+
+            let learnerIDs = learnerResults.items.map( (learner) => {
+                return learner._id;
+            });
+
+            let operatingAwardedBadgesQuery = wixData.query("Badging-AwardedBadges");
+            if (badges != "All") {
+                // Do not filter out for only awarded badge matches here, as the entire list of awarded badges is required to show all badges for the matching Learners
+                operatingAwardedBadgesQuery = operatingAwardedBadgesQuery.hasSome("learnerRef", learnerIDs)
+            }
+
+            let now = new Date();
+
+            return operatingAwardedBadgesQuery
+                .lt("awardedDate", now)
+                .find()
+        })
+        .then( (awardedBadgeResults) => {
+            let now = new Date();
+            let matchingAwardedBadgeResults = awardedBadgeResults.items.filter((award) => {
+                if (!award.expiryDate)
+                    return true;
+                return (award.expiryDate.getTime() > now.getTime());
+            });
+
+            // Only show contributor badges
+            matchingAwardedBadgeResults = matchingAwardedBadgeResults.filter((award) => {
+                return badgeMap[award.badgeRef].category === "Contributor";
+            });
+
+            if (badges != "All") {
+                matchingAwardedBadgeResults = matchingAwardedBadgeResults.filter((award) => badges.includes(award.badgeRef));
+            };
+
+            if (matchingAwardedBadgeResults.length == 0) {
+                $w("#statusText").show();
+                $w("#loadingAnimationText").hide();
+                $w("#learnersRepeater").hide();
+                return;
+            }
+
+            $w("#statusText").hide();
+
+            let LearnerBadgeMap = {};
+            let filteredLearners = learnerResults.items.filter( learner => {
+                let allAwardedBadgeMatches = matchingAwardedBadgeResults.filter( (awardedBadge) => learner._id == awardedBadge.learnerRef);
+                LearnerBadgeMap[learner._id] = allAwardedBadgeMatches.map((award) => award.badgeRef);
+
+                return matchingAwardedBadgeResults.some( (awardedBadge) => learner._id == awardedBadge.learnerRef);
+            });
+
+            let dataArray = filteredLearners.map((Learner) => {
+                let supportedRegionsTitleArray = Learner.supportedRegionsRef.map(regionData => {
+                    return regionData.title;
+                });
+                let supportedRegionString = supportedRegionsTitleArray.join(", ");
+
+                return {
+                    "_id":Learner._id,
+                    "name":Learner.title,
+                    "supportedRegions": supportedRegionString,
+                    "awardedBadges":LearnerBadgeMap[Learner._id]
+                };
+            })
+
+            $w("#learnersRepeater").data = dataArray;
+            $w("#loadingAnimationText").hide();
+            stillLoadingPageData = false;
+            $w("#learnersRepeater").show();
         });
 
     $w("#learnersRepeater").onItemReady(($item, itemData, index) => {
@@ -94,86 +186,7 @@ $w.onReady(function () {
         $item("#badgesTable").show();
     });
 
-    let operatingLearnerQuery = wixData.query("Badging-Learners");
-    if (regions != "All") {
-        operatingLearnerQuery = operatingLearnerQuery.hasSome("supportedRegionsRef", regions);
-    }
 
-    operatingLearnerQuery
-        .include("supportedRegionsRef")
-        .ascending("title")
-        .find()
-        .then( (learnerResults) => {
-            if (learnerResults.length == 0) {
-                $w("#statusText").show();
-                $w("#loadingAnimationText").hide();
-                $w("#learnersRepeater").hide();
-                return;
-            }
-
-            let learnerIDs = learnerResults.items.map( (learner) => {
-                return learner._id;
-            });
-
-            let operatingAwardedBadgesQuery = wixData.query("Badging-AwardedBadges");
-            if (badges != "All") {
-                // Do not filter out for only awarded badge matches here, as the entire list of awarded badges is required to show all badges for the matching Learners
-                operatingAwardedBadgesQuery = operatingAwardedBadgesQuery.hasSome("learnerRef", learnerIDs)
-            }
-
-            let now = new Date();
-
-            operatingAwardedBadgesQuery
-                .lt("awardedDate", now)
-                // .ascending("learnerName")
-                .find()
-                .then( (awardedBadgeResults) => {
-                    let matchingAwardedBadgeResults = awardedBadgeResults.items.filter((award) => {
-                        if (award.expiryDate === undefined)
-                            return true;
-                        return (award.expiryDate.getTime() > now.getTime());
-                    });
-                    if (badges != "All") {
-                        matchingAwardedBadgeResults = matchingAwardedBadgeResults.filter((award) => award.badgeRef == badges);
-                    };
-
-                    if (matchingAwardedBadgeResults.length == 0) {
-                        $w("#statusText").show();
-                        $w("#loadingAnimationText").hide();
-                        $w("#learnersRepeater").hide();
-                        return;
-                    }
-
-                    $w("#statusText").hide();
-
-                    let LearnerBadgeMap = {};
-                    let filteredLearners = learnerResults.items.filter( learner => {
-                        let allAwardedBadgeMatches = matchingAwardedBadgeResults.filter( (awardedBadge) => learner._id == awardedBadge.learnerRef);
-                        LearnerBadgeMap[learner._id] = allAwardedBadgeMatches.map((award) => award.badgeRef);
-
-                        return matchingAwardedBadgeResults.some( (awardedBadge) => learner._id == awardedBadge.learnerRef);
-                    });
-
-                    let dataArray = filteredLearners.map((Learner) => {
-                        let supportedRegionsTitleArray = Learner.supportedRegionsRef.map(regionData => {
-                            return regionData.title;
-                        });
-                        let supportedRegionString = supportedRegionsTitleArray.join(", ");
-
-                        return {
-                            "_id":Learner._id,
-                            "name":Learner.title,
-                            "supportedRegions": supportedRegionString,
-                            "awardedBadges":LearnerBadgeMap[Learner._id]
-                        };
-                    })
-
-                    $w("#learnersRepeater").data = dataArray;
-                    $w("#loadingAnimationText").hide();
-                    stillLoadingPageData = false;
-                    $w("#learnersRepeater").show();
-                });
-        });
 });
 
 function loadingPageDataAnimation() {
