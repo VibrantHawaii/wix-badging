@@ -131,7 +131,6 @@ As (to this author's knowledge) Wix does not interact "well" with git/GitHub, th
 + Flag for supported regions in userDB if default to all, and ask for confirmation in enroll popup
   + If new users from Teachable import then send email to collect region info?
 + Email new users with customized link to supported region setting page
-  + Add landing page for users to update missing profile information (supported regions, EULA)
 + Add status animation after submit and enroll to Enroll Learner popup
 + Make clicking on any badge in search results, including text, OBVIOUSLY go to badge details page (mouse hover change?)
 + investigate if badge images should be images instead of media galleries

@@ -1,0 +1,40 @@
+import wixData from 'wix-data';
+
+export function updateLearner(learnerToken, regionIDs, eulaRef) {
+    let learner = {};
+
+    return wixData.query("Badging-Learners")
+        .contains("learnerToken", learnerToken)
+        .include("supportedRegionsRef", "eulaRef")
+        .find()
+        .then( (learnerResults) => {
+            if (learnerResults.items.length == 0)
+                return errorResponse("No learner with token " + learnerToken + " was found");
+
+            if (learnerResults.items.length > 1)
+                return errorResponse("More than one (" + learnerResults.length + ") learners with token " + learnerToken + " were found");
+
+            learner = learnerResults.items[0];
+
+            if (!learner.eulaRef)
+                learner.eulaRef = eulaRef;
+
+            return wixData.update("Badging-Learners", learner);
+        })
+        .then(() => {
+            return wixData.insertReference("Badging-Learners", "supportedRegionsRef", learner._id, regionIDs, {suppressAuth: true});
+        })
+        .then(() => {
+            return {success: true};
+        })
+        .catch(error => {
+            return errorResponse(error);
+        })
+}
+
+function errorResponse(errorMsg) {
+    return {
+        success: false,
+        errorMsg: errorMsg
+    }
+}

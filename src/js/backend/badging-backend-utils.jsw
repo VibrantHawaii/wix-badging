@@ -1,0 +1,5 @@
+import wixCaptcha from 'wix-captcha-backend';
+
+export function verifyCapcha(token) {
+    return wixCaptcha.authorize(token);
+}
