@@ -1,0 +1,39 @@
+import wixSecretsBackend from 'wix-secrets-backend';
+import {fetch} from 'wix-fetch';
+
+export function emailJsSend(template_id, template_params) {
+    let params = {
+        template_id: template_id,
+        template_params: template_params
+    };
+
+    return wixSecretsBackend.getSecret("emailJS_user_ID")
+        .then((emailJS_user_ID) => {
+            params.user_id = emailJS_user_ID;
+            return wixSecretsBackend.getSecret("emailJS_service_ID")
+        })
+        .then((emailJS_service_ID) => {
+            params.service_id = emailJS_service_ID;
+            return wixSecretsBackend.getSecret("emailJS_accessToken");
+        })
+        .then((emailJS_accessToken) => {
+            params.accessToken = emailJS_accessToken;
+
+            let headers = {
+                'Content-type': 'application/json'
+            };
+
+            let options = {
+                method: 'POST',
+                headers: headers,
+                body: JSON.stringify(params)
+            };
+
+            return fetch('https://api.emailjs.com/api/v1.0/email/send', options);
+        })
+        .catch((error) => {
+            console.error("Error sending email");
+            console.error(error);
+            throw(error);
+        });
+}
