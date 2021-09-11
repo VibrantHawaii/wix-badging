@@ -38,7 +38,7 @@ function emailJsSend(template_id, template_params) {
         });
 }
 
-export function email_contact_learner(learner_name, learner_email, enquirer_name, enquirer_email, message) {
+export function emailContactLearner(learner_name, learner_email, enquirer_name, enquirer_email, message) {
     let template_id = 'badging_contact_learner';
     let template_params = {
         'learner_name': learner_name,
@@ -61,3 +61,4 @@ export function email_contact_learner(learner_name, learner_email, enquirer_name
             }
         })
 }
+

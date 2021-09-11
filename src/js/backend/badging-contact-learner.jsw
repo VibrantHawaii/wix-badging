@@ -1,6 +1,6 @@
 import wixData from 'wix-data';
 import wixCaptcha from 'wix-captcha-backend';
-import {email_contact_learner} from "backend/badging-email-utils"
+import {emailContactLearner} from "backend/badging-email-utils"
 
 export function contactLearner(learner_ref, enquirer_name, enquirer_email, message, token) {
     return wixCaptcha.authorize(token)
@@ -30,7 +30,7 @@ export function contactLearner(learner_ref, enquirer_name, enquirer_email, messa
                             let learner_name = learner.title;
                             console.log("Learner info and PII found: " + learner_name + ", email: " + learner_pii_results.items[0].email)
 
-                            return email_contact_learner(learner_name, learner_pii_results.items[0].email, enquirer_name, enquirer_email, message);
+                            return emailContactLearner(learner_name, learner_pii_results.items[0].email, enquirer_name, enquirer_email, message);
                         });
                 });
         });
