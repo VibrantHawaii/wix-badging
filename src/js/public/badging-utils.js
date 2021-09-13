@@ -46,6 +46,10 @@ export function getRegions() {
         });
 }
 
+export function isLearnerProfileComplete(learner) {
+    return ((learner.supportedRegionsRef && (learner.supportedRegionsRef.length > 0)) && ((learner.eulaRef)|| (learner.teachableInferredEulaDate)));
+}
+
 export function shortDateString(date) {
     // Format: MM-DD-YYYY hh:mmAMPM
     let hour = date.getHours();

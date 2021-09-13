@@ -22,7 +22,7 @@ $w.onReady(function () {
     let params = (new URL(wixLocation.url)).searchParams;
     if (!params.has("token")) {
         console.error("NO (REQUIRED) token PARAM SPECIFIED");
-        showGenericErrorAndReturnToHomepage();
+        showGenericErrorAndReturnToHomepage("");
         return;
     }
     else {
@@ -35,22 +35,22 @@ $w.onReady(function () {
             .then( (learnerResults) => {
                 if (learnerResults.length == 0) {
                     console.error("LEARNER TOKEN WITH ID \"" + learnerToken + "\" WAS NOT FOUND")
-                    showGenericErrorAndReturnToHomepage();
+                    showGenericErrorAndReturnToHomepage("");
                     return;
                 }
                 if (learnerResults.length > 1) {
                     console.error(learnerResults.length + " LEARNER TOKENS FOUND WITH THE ID \"" + learnerToken + "\"");
-                    showGenericErrorAndReturnToHomepage();
+                    showGenericErrorAndReturnToHomepage("");
                     return;
                 }
 
                 learner = learnerResults.items[0];
+                $w("#title").text = $w("#title").text + " " + learner.title.toUpperCase();
+
                 if ((learner.supportedRegionsRef && (learner.supportedRegionsRef.length > 0)) && ((learner.eulaRef)|| (learner.teachableInferredEulaDate))) {
-                    showGenericErrorAndReturnToHomepage();
+                    showGenericErrorAndReturnToHomepage("Your profile is already complete.  Taking you back to the VibrantHawaii homepage in 5 seconds...");
                     return;
                 }
-
-                $w("#title").text = $w("#title").text + " " + learner.title.toUpperCase();
 
                 $w("#eulaAcceptedCheckbox").onChange(() => eulaAcceptedCheckboxHandler());
                 $w("#captcha").onVerified(() => captcha_verified());
@@ -141,11 +141,14 @@ $w.onReady(function () {
     }
 });
 
-function showGenericErrorAndReturnToHomepage() {
+function showGenericErrorAndReturnToHomepage(customPrompt) {
     stillLoadingPageData = false;
     $w("#loadingAnimationText").hide();
     $w("#promptContainerBox").show();
-    $w("#prompt").text = "Sorry, an error has occurred. Taking you back to the VibrantHawaii homepage in 5 seconds...";
+    if (customPrompt !== "")
+        $w("#prompt").text = customPrompt;
+    else
+        $w("#prompt").text = "Sorry, an error has occurred. Taking you back to the VibrantHawaii homepage in 5 seconds...";
     $w("#captcha").collapse();
     $w("#submitBtn").collapse();
     $w("#status").collapse();

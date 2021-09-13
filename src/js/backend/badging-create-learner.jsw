@@ -2,7 +2,7 @@ import wixData from 'wix-data';
 import {generateLearnerToken} from 'public/badging-utils'
 
 export function createLearner(name, email, supportsRegions, eulaId) {
-    let eula = eulaId === undefined ? "" : eulaId;
+    let eula = eulaId === null ? "" : eulaId;
     let newLearnerEntry = {};
     const learnerToken = generateLearnerToken(name, email);
     let newLearner = {
@@ -14,7 +14,7 @@ export function createLearner(name, email, supportsRegions, eulaId) {
         .then( newLearnerEntryResult => {
             newLearnerEntry = newLearnerEntryResult;
             if (supportsRegions)
-                return wixData.insertReference("Badging-Learners", "supportedRegionsRef", newLearnerEntry._id, supportsRegions);
+                return wixData.insertReference("Badging-Learners", "supportedRegionsRef", newLearnerEntry._id, supportsRegions, {suppressAuth: true});
             else
                 return Promise.resolve();
         })
@@ -24,8 +24,7 @@ export function createLearner(name, email, supportsRegions, eulaId) {
                 "email": email,
                 "learnerRef": newLearnerEntry._id
             };
-
-            return wixData.insert("Badging-Learners-PII", newLearnerPII);
+            return wixData.insert("Badging-Learners-PII", newLearnerPII, {suppressAuth: true});
         })
         .then( () => {
             return {

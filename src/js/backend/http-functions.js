@@ -1,7 +1,8 @@
 import wixData from 'wix-data';
 import {created, badRequest} from 'wix-http-functions';
 import {awardToLearners} from "backend/badging-award-to-learners"
-import {reverseFixUpDateForHST, generateLearnerToken} from "public/badging-utils"
+import {reverseFixUpDateForHST, generateLearnerToken, isLearnerProfileComplete} from "public/badging-utils"
+import {requestProfileUpdate} from "backend/badging-request-profile-update"
 
 // URL to call this HTTP function from your published site looks like:
 // https://www.vibranthawaii.org/_functions/example/multiply?leftOperand=3&rightOperand=4
@@ -27,6 +28,7 @@ export function post_teachableEnrollmentCompleted(request) {
     let type = "";
     let name = "";
     let email = "";
+    let badge = {};
     let teachableCourseId = "";
     let teachableInferredEulaDate = "";
     let learnerToken = "";
@@ -67,7 +69,7 @@ export function post_teachableEnrollmentCompleted(request) {
             if (matchingBadges.items.length != 1)
                 throw "More than one badge found with Teachable Course ID: " + teachableCourseId;
 
-            const badge = matchingBadges.items[0];
+            badge = matchingBadges.items[0];
             let expiryDate = "";
             if (badge.expiryRule !== undefined) {
                 let months = badge.expiryRule;
@@ -96,7 +98,22 @@ export function post_teachableEnrollmentCompleted(request) {
                 'teachableInferredEulaDate': teachableInferredEulaDate
             }
 
-            return awardToLearners(awardedUserDict, undefined);
+            return awardToLearners(awardedUserDict, null);
+        })
+        .then(() => {
+            return wixData.query("Badging-Learners")
+                .contains("learnerToken", learnerToken)
+                .find()
+        })
+        .then(learnerResults => {
+            if (learnerResults.items.length != 1)
+                throw("Unique learner ID not found for token " + learnerToken);
+
+            const learner = learnerResults.items[0];
+            if (!isLearnerProfileComplete(learner))
+                return requestProfileUpdate(learner._id, badge._id);
+            else
+                return Promise.resolve();
         })
         .then(() => {
             console.log("In post_teachableEnrollmentCompleted, awards successfully issued.")
@@ -105,7 +122,6 @@ export function post_teachableEnrollmentCompleted(request) {
                     "Content-Type": "application/json"
                 }
             };
-
 
             response.body = {
                 "result": "success",

@@ -28,7 +28,7 @@ Permissions - Custom: Read: Anyone, Write: Anyone, Update: Admin, Delete: Admin
 * teachableInferredEulaDate: teachableInferredEulaDate: Text: Teachable user created date
 
 ### Badging-Learners-PII
-Permissions - Custom: Read: Admin, Write: Anyone, Update: Admin, Delete: Admin
+Permissions - Custom: Read: Anyone, Write: Anyone, Update: Admin, Delete: Admin
 * sequenceID: title: Text (primary)
 * learnerRef: learnerRef: Reference -> Badging-Learners
 * email: email: Text (mark as PII and thus encrypted)
@@ -92,7 +92,11 @@ As (to this author's knowledge) Wix does not interact "well" with git/GitHub, th
   * Set the badge images to refer to the correct badge image as a new Media Gallery for each badge image, containing one badge image per media gallery
 * Create an account for [emailJS](https://www.emailjs.com/)
 * Create an emailJS template for contacting a learner:
+    * Name: _Vibrant Hawaii Badging Contact Learner_
     * Template ID: _badging_contact_learner_
+    * To Email: _{{learner_email}}_
+    * From Name: _{{enquirer_name}}_
+    * From Email: _User Default Address: checked_
     * Reply To: _{{enquirer_email}}_
     * Subject: _Vibrant Hawaii: New message from {{enquirer_name}}: {{enquirer_email}}_
     * Content:
@@ -103,6 +107,27 @@ As (to this author's knowledge) Wix does not interact "well" with git/GitHub, th
 > {{message}}
 >
 > Mahalo, Vibrant Hawaii
+
+* Create an emailJS template for requesting that a learner complete their profile information:
+  * Name: _Vibrant Hawaii Badging Congrats and Request Learner Profile Update_ 
+  * Template ID: _badging_req_profile_updt_
+  * To Email: _{{learner_email}}_
+  * From Name: _Vibrant Hawaii_
+  * From Email: _User Default Address: checked_
+  * Reply To: _badging@vibranthawaii.org_
+  * Subject: _Vibrant Hawaii: {{badge_name}} Course Completion_
+  * Content:
+
+> Aloha {{learner_name}},
+>
+> Congratulations on completing the {{badge_name}} course!
+> Vibrant Hawaii is honored to award you a digital badge to recognize this achievement. Please go to this web page to complete your profile information.
+>
+> Best wishes,
+> Vibrant Hawaii
+
+* Set the link of "this web page" to
+> {{update_learner_profile_link}}
 
 * In the emailJS _Settings_ tab, under _API Settings_, check both _"Allow EmailJS API for non-browser applications"_ and _"User access tokens (recommended)"_
 * Obtain your user ID and access token from the [integration](https://dashboard.emailjs.com/admin/integration) page in the EmailJS dashboard
@@ -120,17 +145,16 @@ As (to this author's knowledge) Wix does not interact "well" with git/GitHub, th
   * Select the "Enrollment Completed" event trigger
   * For development use the test site URL e.g. https://www.vibranthawaii.org/_functions-dev/teachableEnrollmentCompleted/?siteRevision=774
   * For production use: https://www.vibranthawaii.org/_functions/teachableEnrollmentCompleted
-  * Send at least one event to test
+  * Send at least one event to test. You'll need to have published the Wix site at least once for this to function.
 
 ## ToDos
++ test and fix Enroll from badge page on live site with known user
 + Fix broken EULARef from Teachable badge award webhook created users
 + New user - if no regions or EULA then email and point to custom page to enter
 + Override supported regions with latest info on user import from any source
 + Ask for EULA in enroll popup if not accepted yet by existing user
 + Enroll user flow - If EULA record not in system then prompt for checkbutton acknowledgement of EULA
 + Flag for supported regions in userDB if default to all, and ask for confirmation in enroll popup
-  + If new users from Teachable import then send email to collect region info?
-+ Email new users with customized link to supported region setting page
 + Add status animation after submit and enroll to Enroll Learner popup
 + Make clicking on any badge in search results, including text, OBVIOUSLY go to badge details page (mouse hover change?)
 + investigate if badge images should be images instead of media galleries
