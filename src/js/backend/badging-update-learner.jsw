@@ -19,7 +19,7 @@ export function updateLearner(learnerToken, regionIDs, eulaRef) {
             if (!learner.eulaRef)
                 learner.eulaRef = eulaRef;
 
-            return wixData.update("Badging-Learners", learner);
+            return wixData.update("Badging-Learners", learner, {suppressAuth: true});
         })
         .then(() => {
             return wixData.insertReference("Badging-Learners", "supportedRegionsRef", learner._id, regionIDs, {suppressAuth: true});

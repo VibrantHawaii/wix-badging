@@ -15,7 +15,7 @@ import {createLearner} from "backend/badging-create-learner";
 //     },
 //     'supportsRegions': supportedRegionIDs // undefined to not update
 // };
-export function awardToLearners(awardedUserDict, eulaId) { // eulaId undefined to not update
+export function awardToLearners(awardedUserDict, eulaId) { // eulaId null to not update
     let awardedBadgesDict = {};
     let existingUserResults = {};
 
@@ -106,11 +106,11 @@ export function awardToLearners(awardedUserDict, eulaId) { // eulaId undefined t
                                         "expiryDate": newBadgeAward.expiryDate
                                     };
 
-                                    return wixData.insert("Badging-AwardedBadges", newAward)
-                                        .then( newAward => {
+                                    return wixData.insert("Badging-AwardedBadges", newAward, {suppressAuth: true})
+                                        .then( () => {
                                             if (deleteOldAward) {
                                                 // delete old badge in DB
-                                                return wixData.remove("Badging-AwardedBadges", deleteOldAward)
+                                                return wixData.remove("Badging-AwardedBadges", deleteOldAward, {suppressAuth: true})
                                                     .then(() => resolve())
                                             }
                                             else
@@ -152,7 +152,6 @@ function mapAwardedUserstoAwardedBadgesDict (awardedUsersDict) {
 
         awardedBadgesDict[learnerEntry.award.badgeRef].push(
             {
-                "foobar": "barfoo",
                 "learnerRef": learnerEntry._id,
                 "awardedDate": learnerEntry.award.awardedDate,
                 "expiryDate": learnerEntry.award.expiryDate

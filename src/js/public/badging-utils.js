@@ -46,6 +46,18 @@ export function getRegions() {
         });
 }
 
+export function getLearnerIdGivenToken(learnerToken) {
+    return wixData.query("Badging-Learners")
+        .contains("learnerToken", learnerToken)
+        .find()
+        .then( (results) => {
+            if (results.length === 1) {
+                return results.items[0]._id;
+            } else {
+                return null;
+            }
+        });}
+
 export function shortDateString(date) {
     // Format: MM-DD-YYYY hh:mmAMPM
     let hour = date.getHours();

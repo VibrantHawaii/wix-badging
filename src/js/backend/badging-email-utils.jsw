@@ -38,20 +38,45 @@ function emailJsSend(template_id, template_params) {
         });
 }
 
-export function emailContactLearner(learner_name, learner_email, enquirer_name, enquirer_email, message) {
-    let template_id = 'badging_contact_learner';
+export function emailContactLearner(learnerName, learnerEmail, enquirerName, enquirerEmail, message) {
+    const template_id = 'badging_contact_learner';
     let template_params = {
-        'learner_name': learner_name,
-        'learner_email': learner_email,
-        'enquirer_name': enquirer_name,
-        'enquirer_email': enquirer_email,
+        'learner_name': learnerName,
+        'learner_email': learnerEmail,
+        'enquirer_name': enquirerName,
+        'enquirer_email': enquirerEmail,
         'message': message
     };
 
     return emailJsSend(template_id, template_params)
         .then((httpResponse) => {
             if (httpResponse.ok) {
-                console.log('Email was sent to ' + learner_name + " from " + enquirer_name + ": " + enquirer_email);
+                console.log('Email was sent to ' + learnerName + " from " + enquirerName + ": " + enquirerEmail);
+            } else {
+                return httpResponse.text()
+                    .then(text => {
+                        console.log("Email send failed with response: " + text);
+                        Promise.reject(text);}
+                    );
+            }
+        })
+}
+
+// let viewMode = wixWindow.viewMode;  // "Site"
+export function emailRequestProfileUpdate(learnerName, learnerEmail, badgeName, learnerToken) {
+    const updateLearnerProfileLink = "https://www.vibranthawaii.org/badging-update-learner-profile?token=" + learnerToken;
+    const template_id = 'badging_req_profile_updt';
+    let template_params = {
+        'learner_name': learnerName,
+        'learner_email': learnerEmail,
+        'badge_name': badgeName,
+        'update_learner_profile_link': updateLearnerProfileLink
+    };
+
+    return emailJsSend(template_id, template_params)
+        .then((httpResponse) => {
+            if (httpResponse.ok) {
+                console.log('Update Profile Request Email was sent to ' + learnerName);
             } else {
                 return httpResponse.text()
                     .then(text => {

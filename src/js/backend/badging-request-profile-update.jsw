@@ -1,0 +1,47 @@
+import wixData from 'wix-data';
+import {emailRequestProfileUpdate} from "backend/badging-email-utils"
+
+export function requestProfileUpdate(learnerId, badgeId) {
+    let learner = {};
+    let badge = {};
+    return wixData.query("Badging-BadgesBrief")
+        .eq("_id", badgeId)
+        .find()
+        .then( (badgeResults) => {
+            if (badgeResults.items.length != 1) {
+                let errorText = "Badge WITH REFERENCE " + badgeId + " NOT FOUND IN Badge DB";
+                console.error(errorText);
+                return Promise.reject(errorText);
+            }
+            badge = badgeResults.items[0];
+            return wixData.query("Badging-Learners")
+                .eq("_id", learnerId)
+                .find()
+        })
+        .then( (learner_results) => {
+            if (learner_results.length == 0) {
+                let errorText = "Learner WITH REFERENCE " + learnerId + " NOT FOUND IN Learner DB";
+                console.error(errorText);
+                return Promise.reject(errorText);
+            }
+
+            learner = learner_results.items[0];
+
+            return wixData.query("Badging-Learners-PII")
+                .eq("learnerRef", learnerId)
+                .find()
+        })
+        .then( (learner_pii_results) => {
+            if (learner_pii_results.length != 1) {
+                let errorText = "Learner WITH REFERENCE " + learnerId + " NOT FOUND IN Learner PII DB";
+                console.error(errorText);
+                return Promise.reject(errorText);
+            }
+
+            let learnerName = learner.title;
+            let learnerEmail = learner_pii_results.items[0].email;
+            console.log("Learner info and PII found: " + learnerName + ", email: " + learnerEmail)
+
+            return emailRequestProfileUpdate(learnerName, learnerEmail, badge.title, learner.learnerToken);
+        });
+}
