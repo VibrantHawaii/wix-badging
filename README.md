@@ -67,6 +67,7 @@ Permissions - Custom: Read: Anyone, Write: Anyone, Update: Admin, Delete: Admin
 * expiryDate: expiryDate: Date and Time
 
 ### Badging-Enrollment
+Permissions - Form Submission
 * userRef: userRef: Reference -> Badging-Learners
 * badgeRef: badgeRef: Reference -> Badging-BadgesBrief
 
@@ -147,7 +148,6 @@ As (to this author's knowledge) Wix does not interact "well" with git/GitHub, th
   * Send at least one event to test. You'll need to have published the Wix site at least once for this to function.
 
 ## ToDos
-+ test and fix Enroll from badge page on live site with known user
 + Ask for EULA in enroll popup if not accepted yet by existing user
 + Add status animation after submit and enroll to Enroll Learner popup
 + investigate if badge images should be images instead of media galleries
