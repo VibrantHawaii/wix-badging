@@ -114,6 +114,8 @@ $w.onReady(function () {
                     return regionData.title;
                 });
                 let supportedRegionString = supportedRegionsTitleArray.join(", ");
+                if (supportedRegionString === "")
+                    supportedRegionString = "All Regions";
 
                 return {
                     "_id":Learner._id,
