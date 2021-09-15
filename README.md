@@ -5,7 +5,7 @@ This system is designed to meet Vibrant Hawaii's specific requirements:
 * Publicly viewable
 * Searchable based on learner region and awarded badges
 * Privacy-aware way for the public to contact learners (with no direct exposure of learner's email address)
-* Ability to populate via import from Google Classroom CSV exports
+* Ability to populate via webhook signal from Teachable on course completion
 * Ability to populate via import from Google Sheets (template) log of attendees at a workshop/class
 
 <strong style="color: red;">NOTE: this architecture requires Wix APIs that are NOT available if Editor X is enabled for the Wix site.</strong>
@@ -25,7 +25,6 @@ Permissions - Custom: Read: Anyone, Write: Anyone, Update: Admin, Delete: Admin
 * learnerToken: learnerToken: Text: hash of learner name and email address. Used for uniqueness verification. See badging-utils.js->generateLearnerToken()
 * supportedRegionsRef: supportedRegionsRef: Multi-Reference -> Badging-Regions (multiple)
 * eulaRef: eulaRef: Reference -> Badging-EULA
-* teachableInferredEulaDate: teachableInferredEulaDate: Text: Teachable user created date
 
 ### Badging-Learners-PII
 Permissions - Custom: Read: Anyone, Write: Anyone, Update: Admin, Delete: Admin
@@ -149,14 +148,8 @@ As (to this author's knowledge) Wix does not interact "well" with git/GitHub, th
 
 ## ToDos
 + test and fix Enroll from badge page on live site with known user
-+ Fix broken EULARef from Teachable badge award webhook created users
-+ New user - if no regions or EULA then email and point to custom page to enter
-+ Override supported regions with latest info on user import from any source
 + Ask for EULA in enroll popup if not accepted yet by existing user
-+ Enroll user flow - If EULA record not in system then prompt for checkbutton acknowledgement of EULA
-+ Flag for supported regions in userDB if default to all, and ask for confirmation in enroll popup
 + Add status animation after submit and enroll to Enroll Learner popup
-+ Make clicking on any badge in search results, including text, OBVIOUSLY go to badge details page (mouse hover change?)
 + investigate if badge images should be images instead of media galleries
 + Public page: List of all badges
 + Remove badgesdetailed title

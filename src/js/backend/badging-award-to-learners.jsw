@@ -1,6 +1,8 @@
 import wixData from 'wix-data';
-import {fixUpDateForHST} from 'public/badging-utils'
+import {fixUpDateForHST, isLearnerProfileComplete} from 'public/badging-utils'
 import {createLearner} from "backend/badging-create-learner";
+import {requestProfileUpdate} from "backend/badging-request-profile-update"
+import {updateLearner} from "backend/badging-update-learner";
 
 // awardedUserDict[learnerToken] = {
 //     'name': name,
@@ -35,6 +37,7 @@ export function awardToLearners(awardedUserDict, eulaId) { // eulaId null to not
                     if ((allExistingUsers.includes(awardedUser.learnerToken))) {
                         let existingUser = existingUserResults.items.find(learner => learner.learnerToken == awardedUser.learnerToken);
                         awardedUserDict[awardedUser.learnerToken]._id = existingUser._id;
+                        updateLearner(awardedUser.learnerToken, awardedUser.supportsRegions, eulaId);
                         resolve();
                     }
                     else
@@ -54,81 +57,86 @@ export function awardToLearners(awardedUserDict, eulaId) { // eulaId null to not
             awardedBadgesDict = newAwardedBadgesDictResults;
 
             return Object.entries(awardedBadgesDict).map(([newAwardedBadgeID, newBadgeAwards]) => {
-                // For each badge type awarded
-                return new Promise((resolveAward, rejectAward) => {
+                // For each badge type awarded query for existing awards
+                return wixData.query("Badging-AwardedBadges")
+                    .contains("badgeRef", newAwardedBadgeID)
+                    .find()
+                    .then(existingBadgeAwards => {
+                        const existingAwardedUsers = existingBadgeAwards.items.map(existingAwardedUser => {
+                            return existingAwardedUser.learnerRef;
+                        });
 
-                    // Query for existing awards
-                    return wixData.query("Badging-AwardedBadges")
-                        .contains("badgeRef", newAwardedBadgeID)
-                        .find()
-                        .then(existingBadgeAwards => {
-                            const existingAwardedUsers = existingBadgeAwards.items.map(existingAwardedUser => {
-                                return existingAwardedUser.learnerRef;
-                            });
+                        return newBadgeAwards.map((newBadgeAward) => {
+                            // For each badge awarded
+                            let deleteOldAward = undefined;
+                            if (existingAwardedUsers.find(existingBadgeID => {
+                                return newBadgeAward.learnerRef == existingBadgeID;
+                            })) {
+                                // Consolodate existing awards for matching learnerRefs
+                                // Ruleset: use first awardedDate and newest expiryDate (if any)
+                                const originalAward = existingBadgeAwards.items.find(existingBadge => {
+                                    return existingBadge.learnerRef === newBadgeAward.learnerRef;
+                                })
 
-                            return newBadgeAwards.map((newBadgeAward) => {
-                                // For each badge awarded
-                                return new Promise((resolve, reject) => {
-                                    // For each learner newly awarded the badge
-                                    let deleteOldAward = undefined;
-                                    if (existingAwardedUsers.find(existingBadgeID => {
-                                        return newBadgeAward.learnerRef == existingBadgeID;
-                                    })) {
-                                        // Consolodate existing awards for matching learnerRefs
-                                        // Ruleset: use first awardedDate and newest expiryDate (if any)
-                                        const originalAward = existingBadgeAwards.items.find(existingBadge => {
-                                            return existingBadge.learnerRef === newBadgeAward.learnerRef;
-                                        })
+                                const originalAwardedDate = new Date(originalAward.awardedDate);
+                                // Fixups to translate input dates/times (assumed to be HST) to UTC
+                                const newAwardedDate = new Date(newBadgeAward.awardedDate);
+                                newBadgeAward.awardedDate = originalAwardedDate.getTime() < (new Date(fixUpDateForHST(newAwardedDate))).getTime() ? originalAward.awardedDate :  fixUpDateForHST(newBadgeAward.awardedDate);
 
-                                        const originalAwardedDate = new Date(originalAward.awardedDate);
-                                        // Fixups to translate input dates/times (assumed to be HST) to UTC
-                                        const newAwardedDate = new Date(newBadgeAward.awardedDate);
-                                        newBadgeAward.awardedDate = originalAwardedDate.getTime() < (new Date(fixUpDateForHST(newAwardedDate))).getTime() ? originalAward.awardedDate :  fixUpDateForHST(newBadgeAward.awardedDate);
+                                deleteOldAward = originalAward._id;
+                            }
+                            else
+                                // Not a match
+                                newBadgeAward.awardedDate = fixUpDateForHST(newBadgeAward.awardedDate);
 
-                                        deleteOldAward = originalAward._id;
+                            if (newBadgeAward.expiryDate !== undefined) {
+                                newBadgeAward.expiryDate = fixUpDateForHST(newBadgeAward.expiryDate);
+                            }
+
+                            const sequenceID = Date.now().toString() + ":" + newAwardedBadgeID.toString() + ":" + newBadgeAward.learnerRef.toString();
+
+                            // Add award entry
+                            let newAward = {
+                                "title": sequenceID,
+                                "badgeRef": newAwardedBadgeID,
+                                "learnerRef": newBadgeAward.learnerRef,
+                                "awardedDate": new Date(newBadgeAward.awardedDate),
+                                "expiryDate": newBadgeAward.expiryDate
+                            };
+
+                            return wixData.insert("Badging-AwardedBadges", newAward, {suppressAuth: true})
+                                .then( () => {
+                                    if (deleteOldAward) {
+                                        // delete old badge in DB
+                                        return wixData.remove("Badging-AwardedBadges", deleteOldAward, {suppressAuth: true});
                                     }
                                     else
-                                        // Not a match
-                                        newBadgeAward.awardedDate = fixUpDateForHST(newBadgeAward.awardedDate);
+                                        return Promise.resolve();
+                                })
+                                .then(() => {
+                                    return wixData.query("Badging-Learners")
+                                        .contains("_id", newBadgeAward.learnerRef)
+                                        .include("supportedRegionsRef", "eulaRef")
+                                        .find()
+                                })
+                                .then(learnerResults => {
+                                    if (learnerResults.items.length != 1)
+                                        throw("Unique learner ID not found " + newBadgeAward.learnerRef);
 
-                                    if (newBadgeAward.expiryDate !== undefined) {
-                                        newBadgeAward.expiryDate = fixUpDateForHST(newBadgeAward.expiryDate);
-                                    }
+                                    const learner = learnerResults.items[0];
 
-                                    const sequenceID = Date.now().toString() + ":" + newAwardedBadgeID.toString() + ":" + newBadgeAward.learnerRef.toString();
-
-                                    // Add award entry
-                                    let newAward = {
-                                        "title": sequenceID,
-                                        "badgeRef": newAwardedBadgeID,
-                                        "learnerRef": newBadgeAward.learnerRef,
-                                        "awardedDate": new Date(newBadgeAward.awardedDate),
-                                        "expiryDate": newBadgeAward.expiryDate
-                                    };
-
-                                    return wixData.insert("Badging-AwardedBadges", newAward, {suppressAuth: true})
-                                        .then( () => {
-                                            if (deleteOldAward) {
-                                                // delete old badge in DB
-                                                return wixData.remove("Badging-AwardedBadges", deleteOldAward, {suppressAuth: true})
-                                                    .then(() => resolve())
-                                            }
-                                            else
-                                                resolve();
-                                        })
-                                        .catch((error) => {
-                                            reject(error);
-                                        });
-                                });
-                            })
-                        })
-                        .then(badgeIssuance => Promise.all(badgeIssuance))
-                        .then(() => resolveAward())
-                        .catch((error) => {
-                            console.error(error);
-                            rejectAward(error);
+                                    if (!isLearnerProfileComplete(learner))
+                                        return requestProfileUpdate(learner._id, newAwardedBadgeID);
+                                    else
+                                        return Promise.resolve();
+                                })
                         });
-                })
+                    })
+                    .then(badgeIssuance => Promise.all(badgeIssuance))
+                    .catch((error) => {
+                        console.error(error);
+                        throw(error);
+                    });
             })
         })
         .then(badgeIssuance => Promise.all(badgeIssuance))

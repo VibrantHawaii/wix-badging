@@ -10,8 +10,4 @@ $w.onReady(function () {
     $w("#importOfflineClassBtn").onClick((event) => {
         wixWindow.openLightbox("Badging Admin Import CSV Popup Factory", {"popupType": "offlineClass"});
     });
-
-    $w("#importBadgrCVSBtn").onClick((event) => {
-        wixWindow.openLightbox("Badging Admin Import CSV Popup Factory", {"popupType": "badgrAward"});
-    });
 });

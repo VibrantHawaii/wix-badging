@@ -47,7 +47,7 @@ export function getRegions() {
 }
 
 export function isLearnerProfileComplete(learner) {
-    return ((learner.supportedRegionsRef && (learner.supportedRegionsRef.length > 0)) && ((learner.eulaRef)|| (learner.teachableInferredEulaDate)));
+    return true && ((learner.supportedRegionsRef && (learner.supportedRegionsRef.length > 0)) && (learner.eulaRef != null) && (learner.eulaRef != ""));
 }
 
 export function shortDateString(date) {

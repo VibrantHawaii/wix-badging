@@ -2,14 +2,15 @@ import wixData from 'wix-data';
 import {generateLearnerToken} from 'public/badging-utils'
 
 export function createLearner(name, email, supportsRegions, eulaId) {
-    let eula = eulaId === null ? "" : eulaId;
     let newLearnerEntry = {};
     const learnerToken = generateLearnerToken(name, email);
     let newLearner = {
         "title": name,
         "learnerToken": learnerToken,
-        "eulaRef": eula
     };
+    if (eulaId !== null )
+        newLearner["eulaRef"] = eulaId;
+
     return wixData.insert("Badging-Learners", newLearner, {suppressAuth: true})
         .then( newLearnerEntryResult => {
             newLearnerEntry = newLearnerEntryResult;

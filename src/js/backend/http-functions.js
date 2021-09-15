@@ -30,7 +30,6 @@ export function post_teachableEnrollmentCompleted(request) {
     let email = "";
     let badge = {};
     let teachableCourseId = "";
-    let teachableInferredEulaDate = "";
     let learnerToken = "";
     let awardedDate = "";
 
@@ -41,7 +40,6 @@ export function post_teachableEnrollmentCompleted(request) {
             name = requestJSON.object.user.name;
             email = requestJSON.object.user.email;
             teachableCourseId = requestJSON.object.course.id;
-            teachableInferredEulaDate = requestJSON.object.user.created_at;
 
             if (type != "Enrollment.completed")
                 throw 'invalid webhook data type: ' + type;
@@ -94,26 +92,10 @@ export function post_teachableEnrollmentCompleted(request) {
                     'awardedDate': awardedDate,
                     'expiryDate': expiryDate,
                 },
-                'supportsRegions': null,
-                'teachableInferredEulaDate': teachableInferredEulaDate
+                'supportsRegions': null
             }
 
             return awardToLearners(awardedUserDict, null);
-        })
-        .then(() => {
-            return wixData.query("Badging-Learners")
-                .contains("learnerToken", learnerToken)
-                .find()
-        })
-        .then(learnerResults => {
-            if (learnerResults.items.length != 1)
-                throw("Unique learner ID not found for token " + learnerToken);
-
-            const learner = learnerResults.items[0];
-            if (!isLearnerProfileComplete(learner))
-                return requestProfileUpdate(learner._id, badge._id);
-            else
-                return Promise.resolve();
         })
         .then(() => {
             console.log("In post_teachableEnrollmentCompleted, awards successfully issued.")

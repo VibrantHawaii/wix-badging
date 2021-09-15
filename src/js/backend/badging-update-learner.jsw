@@ -16,7 +16,7 @@ export function updateLearner(learnerToken, regionIDs, eulaRef) {
 
             learner = learnerResults.items[0];
 
-            if (!learner.eulaRef)
+            if (eulaRef !== null)
                 learner.eulaRef = eulaRef;
 
             return wixData.update("Badging-Learners", learner, {suppressAuth: true});

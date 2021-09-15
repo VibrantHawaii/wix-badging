@@ -141,12 +141,12 @@ let badgrAwardListCSVStruct = {
 };
 let regions = [];
 
-function validateAndImportCSVFileOfAwardedBadges(fileName, badgeRef, CSVStruct, forceAllRegionsSupported, eulaId) {
+function validateAndImportCSVFileOfAwardedBadges(fileName, badgeRef, CSVStruct, noRegionInformation, eulaId) {
     return new Promise((resolve) => {
         resolve(fetchFileFromMediaManager(fileName));
     })
         .then(fileText => validateCSVFormat(fileText, CSVStruct))
-        .then(arrayedCSV => createUserDict(arrayedCSV, CSVStruct, badgeRef, forceAllRegionsSupported))
+        .then(arrayedCSV => createUserDict(arrayedCSV, CSVStruct, badgeRef, noRegionInformation))
         .then(awardedUserDictResult => {
             return awardToLearners(awardedUserDictResult, eulaId);
         })
@@ -327,7 +327,7 @@ function validateCSVEntryType(entry, type, rowIndex, colIndex) {
     return true;
 }
 
-function createUserDict(csvArray, structure, badgeRef, forceAllRegionsSupported) {
+function createUserDict(csvArray, structure, badgeRef, noRegionInformation) {
     // Extract key: learner names
     let learnerDict = {};
 
@@ -351,11 +351,7 @@ function createUserDict(csvArray, structure, badgeRef, forceAllRegionsSupported)
         let name = csvArray[rowIndex][nameColumn];
 
         let supportedRegions = [];
-        if (forceAllRegionsSupported) {
-            // Force support for all regions
-            supportedRegions = regions;
-        }
-        else {
+        if (!noRegionInformation) {
             supportedRegions = regions.filter((region, index) => {
                 let regionColIndexInCSV = firstIndexOfSupportedRegion + index;
                 let csvEntry = csvArray[rowIndex][regionColIndexInCSV];
@@ -391,7 +387,8 @@ function createUserDict(csvArray, structure, badgeRef, forceAllRegionsSupported)
                 'awardedDate': awardedDate,
                 'expiryDate': expiryDate,
             },
-            'supportsRegions': supportedRegionIDs
+            'supportsRegions': supportedRegionIDs,
+            'teachableInferredEulaDate': ""
         };
     }
 
