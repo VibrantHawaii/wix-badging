@@ -1,25 +1,26 @@
 import wixData from 'wix-data';
 import {createLearner} from "backend/badging-create-learner";
-import {shortDateString} from 'public/badging-utils';
+import {getRegions, shortDateString} from 'public/badging-utils';
 
 let eulaVersionChanged = false;
 
 $w.onReady(function () {
+
     // Configure regions table
     $w("#regionsTable").columns = [
         {
             "id": "supported",
             "dataPath": "supported",
-            "label": "supported",
+            "label": "Supported",
             "type": "bool",
-            "width": 80
+            "width": 120
         },
         {
             "id": "regionName",
             "dataPath": "regionName",
-            "label": "regionName",
+            "label": "Region",
             "type": "string",
-            "width": 210
+            "width": 200
         },
         {
             "id": "regionId",
@@ -31,12 +32,10 @@ $w.onReady(function () {
         },
     ];
 
-    wixData.query("Badging-Regions")
-        .ascending("title")
-        .find()
-        .then( (results) => {
-            if (results.items.length > 0) {
-                $w("#regionsTable").rows = results.items.map(region => {
+    getRegions()
+        .then( (regions) => {
+            if (regions.length > 0) {
+                $w("#regionsTable").rows = regions.map(region => {
                     return {
                         "supported": true,
                         "regionName": region.title,

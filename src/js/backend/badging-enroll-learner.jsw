@@ -12,54 +12,59 @@ export function verifyAndEnrollKnownLearner(name, email, badgeId) {
 }
 
 function verifyAndEnrollLearner(name, email, badgeId) {
+    let learner = {};
     const hash = generateLearnerToken(name, email);
 
     return wixData.query("Badging-Learners")
-    .eq("learnerToken", hash)
-    .find()
-    .then( (learner_results) => {
-        if (learner_results.length === 0) {
-            // Retreive list of regions
-            return wixData.query("Badging-Regions")
-                .ascending("title")
-                .find()
-                .then( (results) => {
-                    if (results.length > 0) {
-                        return results.items;
-                    } else {
-                        const error = "NO REGIONS FOUND";
-                        console.error(error);
-                        throw (error);
-                    }
-                })
-                .then(regions => {
-                    return {
-                        "success": true,
-                        "LearnerFound": false,
-                        "regions": regions
-                    };
-                });
-        } else {
-            // Log Learner enrollment (intent)
-            const enrollment = {
-                LearnerRef: learner_results.items[0]._id,
-                badgeRef: badgeId
-            };
-            return wixData.insert("Badging-Enrollment", enrollment)
-                .then(() => {
-                    return {
-                        "success": true,
-                        "LearnerFound": true,
-                    };
-                })
-        }
-    })
+        .eq("learnerToken", hash)
+        .include("supportedRegionsRef", "eulaRef")
+        .find()
+        .then( (learner_results) => {
+            if (learner_results.length === 0) {
+                // Retreive list of regions
+                return wixData.query("Badging-Regions")
+                    .ascending("title")
+                    .find()
+                    .then( (results) => {
+                        if (results.length > 0) {
+                            return results.items;
+                        } else {
+                            const error = "NO REGIONS FOUND";
+                            console.error(error);
+                            throw (error);
+                        }
+                    })
+                    .then(regions => {
+                        return {
+                            "success": true,
+                            "learnerFound": false,
+                            "regions": regions
+                        };
+                    });
+            } else {
+                // Log Learner enrollment (intent)
+                learner = learner_results.items[0];
+                const enrollment = {
+                    LearnerRef: learner._id,
+                    badgeRef: badgeId
+                };
+                return wixData.insert("Badging-Enrollment", enrollment)
+                    .then(() => {
+                        return {
+                            "success": true,
+                            "learnerFound": true,
+                            "learner": learner,
+                            "regions": []   // to fix Wix linting error
+                        };
+                    })
+            }
+        })
 
-    .catch(error => {
-        console.log(error);
-        return {
-            "success": false,
-            "errorMsg": error
-        };
-    })
+        .catch(error => {
+            console.log(error);
+            return {
+                "success": false,
+                "errorMsg": error
+            };
+        })
 }

@@ -2,12 +2,15 @@ import wixLocation from 'wix-location';
 import wixWindow from 'wix-window';
 import {verifyAndEnrollKnownLearnerWithCapcha, verifyAndEnrollKnownLearner} from 'backend/badging-enroll-learner';
 import {createLearner} from "backend/badging-create-learner";
-import {getLatestEULA, getRegions} from "public/badging-utils";
+import {updateLearner} from "backend/badging-update-learner"
+import {generateLearnerToken, getLatestEULA, getRegions, isLearnerProfileComplete} from "public/badging-utils";
 
 let badgeId = "";
 let badgeUrl = "";
 let eulaID = "";
 let captchaVerified = false;
+let learnerNeedsProfileUpdate = false;
+let learner = {};
 
 $w.onReady(function () {
     let context = wixWindow.lightbox.getContext();
@@ -39,34 +42,46 @@ $w.onReady(function () {
                 if (verifyCallResponse.success === false)
                     throw (verifyCallResponse.errorMsg);
 
-                if (verifyCallResponse.LearnerFound) {
-                    console.log("Opening URL: ", badgeUrl);
-                    wixLocation.to(badgeUrl);
-                    return;
+                if (verifyCallResponse.learnerFound) {
+                    learner = verifyCallResponse.learner;
+                    if (isLearnerProfileComplete(learner)) {
+                        console.log("Opening URL: ", badgeUrl);
+                        wixLocation.to(badgeUrl);
+                        return;
+                    } else {
+                        // update learner info
+                        learnerNeedsProfileUpdate = true;
+                        $w("#captchaAndSubmitContainerBox").hide();
+                        $w("#captchaAndSubmitContainerBox").collapse();
+                        if (learner.supportedRegionsRef.length == 0) {
+                            $w("#regionContainerBox").expand();
+                            $w("#regionContainerBox").show();
+                            if (learner.eulaRef != null)
+                                $w("#enrollLearnerEnrollBtn").enable();
+                        }
+                        if (learner.eulaRef == null) {
+                            $w("#eulaContainerBox").expand();
+                            $w("#eulaContainerBox").show();
+                        }
+                        // $w("#eulaAcceptedCheckbox").expand();
+                        // $w("#eulaAcceptedCheckbox").show();
+                        $w("#enrollBtnContainerBox").expand();
+                        $w("#enrollBtnContainerBox").show();
+                        return;
+                    }
                 }
 
                 // No match, prompt for region info for new Learner
                 $w("#enrollLearnerCaptcha").hide();
                 $w("#enrollLearnerSubmitBtn").hide();
-                $w("#supportedRegionsPrompt").expand();
-                // $w("#supportedRegionsPrompt").show();
-                $w("#enrollLearnerRegionsTable").expand();
-                // $w("#enrollLearnerRegionsTable").show();
-                $w("#regionBox").expand();
-                $w("#regionBox").show();
-                $w("#eulaTitle").expand();
-                // $w("#eulaTitle").show();
-                $w("#eulaBox").expand();
-                // $w("#eulaBox").show();
-                // $w("#eulaText").show();
+                $w("#regionContainerBox").expand();
+                $w("#regionContainerBox").show();
                 $w("#eulaContainerBox").expand();
                 $w("#eulaContainerBox").show();
-                $w("#eulaAcceptedCheckbox").expand();
-                $w("#eulaAcceptedCheckbox").show();
+                // $w("#eulaAcceptedCheckbox").expand();
+                // $w("#eulaAcceptedCheckbox").show();
                 $w("#enrollBtnContainerBox").expand();
                 $w("#enrollBtnContainerBox").show();
-                $w("#enrollLearnerEnrollBtn").expand();
-                $w("#enrollLearnerEnrollBtn").show();
             })
             .catch(error => {
                 showStatusAndResetPopup(error);
@@ -96,20 +111,21 @@ $w.onReady(function () {
         });
 
     // Configure regions table
+    // Note the title row needs to be visible as there is a bug in Wix wehre the top row is not clickable, even if it is the first data row.
     $w("#enrollLearnerRegionsTable").columns = [
         {
             "id": "supported",
             "dataPath": "supported",
-            "label": "supported",
+            "label": "Supported",
             "type": "bool",
-            "width": 80
+            "width": 120
         },
         {
             "id": "regionName",
             "dataPath": "regionName",
-            "label": "regionName",
+            "label": "Region",
             "type": "string",
-            "width": 210
+            "width": 200
         },
         {
             "id": "regionId",
@@ -158,7 +174,17 @@ function enrollBtnHandler() {
     $w("#enrollLearnerEnrollBtn").disable();
     $w("#enrollLearnerEnrollBtn").label = "Please wait...";
 
-    createLearner(name, email, regionIDs, eulaID)
+    const updateOrCreatePromise = new Promise((resolve) => {
+        if (learnerNeedsProfileUpdate) {
+            if (learner.eulaRef === null)
+                eulaID = null;
+            resolve(updateLearner(generateLearnerToken(name, email), regionIDs, eulaID));
+        } else {
+            resolve(createLearner(name, email, regionIDs, eulaID));
+        }
+    });
+
+    updateOrCreatePromise
         .then(response => {
             if (response.success !== true) {
                 throw(response.errorMsg);
@@ -218,7 +244,7 @@ function showStatusAndResetPopup(statusText) {
     $w("#enrollLearnerEnrollBtn").disable();
     $w("#enrollLearnerEnrollBtn").label = "Enroll";
 
-    $w("#enrollLearnerStatus").text = statusText;
+    $w("#enrollLearnerStatus").text = statusText.toString();
     $w("#enrollLearnerStatus").show()
         .then(() => {
             $w("#enrollLearnerStatus").hide("fade", {"delay": 10000});

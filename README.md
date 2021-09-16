@@ -148,7 +148,6 @@ As (to this author's knowledge) Wix does not interact "well" with git/GitHub, th
   * Send at least one event to test. You'll need to have published the Wix site at least once for this to function.
 
 ## ToDos
-+ Ask for EULA in enroll popup if not accepted yet by existing user
 + Add status animation after submit and enroll to Enroll Learner popup
 + investigate if badge images should be images instead of media galleries
 + Public page: List of all badges
