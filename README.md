@@ -149,11 +149,10 @@ As (to this author's knowledge) Wix does not interact "well" with git/GitHub, th
 
 ## ToDos
 + Add status animation after submit and enroll to Enroll Learner popup
-+ investigate if badge images should be images instead of media galleries
-+ Public page: List of all badges
 + Remove badgesdetailed title
 + DB management
     + Badge CRUD
+      + https://www.wix.com/velo/reference/wix-media-backend/mediamanager-obj/upload
     + Manual Learner RUD
     + Manual AwardedBadge CRUD
         + Awarded badge Read showing issue and expiry dates
