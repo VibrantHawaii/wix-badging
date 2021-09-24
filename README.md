@@ -156,6 +156,7 @@ As (to this author's knowledge) Wix does not interact "well" with git/GitHub, th
 
 ## ToDos
 + Add status animation after submit and enroll to Enroll Learner popup
++ Age query and rejection upon enrollment
 + Remove badgesdetailed title
 + DB management
     + Badge UD
