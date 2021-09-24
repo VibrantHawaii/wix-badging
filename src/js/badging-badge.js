@@ -3,13 +3,13 @@ import wixLocation from 'wix-location';
 import wixWindow from 'wix-window';
 
 let badgeId = "";
-let badgeUrl = "";
+let enrollUrl = "";
 
 $w.onReady(function () {
     $w("#enrollBtn").onClick(() => {
         const popupContext = {
             "badgeId": badgeId,
-            "badgeUrl": badgeUrl
+            "enrollUrl": enrollUrl
         };
         wixWindow.openLightbox("Badging Enroll Learner Popup", popupContext);
     })
@@ -36,7 +36,7 @@ $w.onReady(function () {
                 }
 
                 let badge = results.items[0];
-                badgeUrl = badge.enrollUrl;
+                enrollUrl = badge.enrollUrl;
 
                 $w("#name").text = badge.title;
                 $w("#badgeImg").src = badge.iconRef.icon;
@@ -50,7 +50,7 @@ $w.onReady(function () {
                             return;
                         }
 
-                        if (badgeUrl !== undefined)
+                        if ((enrollUrl !== undefined) && (enrollUrl !== null) && (enrollUrl !== ""))
                             $w("#enrollBtn").show();
 
                         $w("#longDescription").html = badgeResults.items[0].detailedDescription;

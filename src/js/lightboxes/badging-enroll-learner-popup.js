@@ -6,7 +6,7 @@ import {updateLearner} from "backend/badging-update-learner"
 import {generateLearnerToken, getLatestEULA, getRegions, isLearnerProfileComplete} from "public/badging-utils";
 
 let badgeId = "";
-let badgeUrl = "";
+let enrollUrl = "";
 let eulaID = "";
 let captchaVerified = false;
 let learnerNeedsProfileUpdate = false;
@@ -15,7 +15,7 @@ let learner = {};
 $w.onReady(function () {
     let context = wixWindow.lightbox.getContext();
     badgeId = context.badgeId;
-    badgeUrl = context.badgeUrl;
+    enrollUrl = context.enrollUrl;
 
     $w("#enrollLearnerSubmitBtn").onClick(() => {
         $w("#enrollLearnerSubmitBtn").disable();
@@ -45,8 +45,8 @@ $w.onReady(function () {
                 if (verifyCallResponse.learnerFound) {
                     learner = verifyCallResponse.learner;
                     if (isLearnerProfileComplete(learner)) {
-                        console.log("Opening URL: ", badgeUrl);
-                        wixLocation.to(badgeUrl);
+                        console.log("Opening URL: ", enrollUrl);
+                        wixLocation.to(enrollUrl);
                         return;
                     } else {
                         // update learner info

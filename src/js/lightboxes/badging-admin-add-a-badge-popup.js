@@ -46,16 +46,12 @@ $w.onReady(function () {
     $w("#onTeachableCheckbox").onChange(() => {
         if ($w("#onTeachableCheckbox").checked === true) {
             $w("#teachableCourseIdInput").required = true;
-            $w("#enrollmentUrlBox").hide();
-            $w("#enrollmentUrlBox").collapse();
             $w("#teachableIdBox").expand()
                 .then(() => $w("#teachableIdBox").show());
         } else {
             $w("#teachableCourseIdInput").required = false;
             $w("#teachableIdBox").hide();
             $w("#teachableIdBox").collapse();
-            $w("#enrollmentUrlBox").expand()
-                .then(() => $w("#enrollmentUrlBox").show());
         }
     })
 
@@ -95,11 +91,9 @@ $w.onReady(function () {
             expiryInMonths = $w("#expiryMonthsDropdown").value;
         }
 
-        let enrollURL = null;
-        if ($w("#onTeachableCheckbox").checked !== true) {
-            enrollURL = $w("#enrollmentUrlInput").value;
-        }
-        return createBadge(name, category, shortDescription, detailedDescription, itemAfterSave._id, enrollURL, expiryInMonths, teachableId)
+        const iconId = itemAfterSave._id;
+        const enrollURL = $w("#enrollmentUrlInput").value;
+        return createBadge(name, category, shortDescription, detailedDescription, iconId, enrollURL, expiryInMonths, teachableId)
             .then(response => {
                 if (response.success !== true) {
                     showStatusAndResetPopup(response.errorMsg);

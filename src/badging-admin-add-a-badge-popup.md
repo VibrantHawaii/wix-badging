@@ -18,7 +18,7 @@ Name:
 | Dataset              | badgeIconDataset               | Lightbox          | Collection: Badging-BadgeIcons, Dataset Name: "Badging-BadgeIcons dataset", Mode: R&W
 | ContainerBox         | enrollmentUrlBox               | Lightbox          | Hidden: false, Collapsed: false |
 | Check Box            | onTeachableCheckbox            | Lightbox          | Test: "Course is on Teachable", Hidden: false, Collapsed: false, Enabled: true |
-| Input                | enrollmentUrlInput             | enrollmentUrlBox  | Required: false, Text: "(Optional) Enrollment URL", Hidden: false, Collapsed: false, Enabled: true, Settings->Type: Email |
+| Input                | enrollmentUrlInput             | enrollmentUrlBox  | Required: false, Text: '(Optional) Enrollment URL including "http://"', Hidden: false, Collapsed: false, Enabled: true, Settings->Type: Email |
 | ContainerBox         | teachableIdBox                 | Lightbox          | Hidden: true, Collapsed: true |
 | Text                 | teachableCourseIdPrompt        | teachableIdBox    | Text: "Teachable Course ID (Teachable->Admin->Course->Information)::", Hidden: false, Collapsed: false |
 | Image                | teachableCourseIdImg           | teachableIdBox    | Image: "Teachable Course ID.png", Hidden: false, Collapsed: false |

@@ -1,16 +1,18 @@
 import wixData from 'wix-data';
 
-export function createBadge(name, category, shortDescription, detailedDescription, iconRef, enrollURL, expiryInMonths, teachableId) {
+export function createBadge(name, category, shortDescription, detailedDescription, iconRef, enrollUrl, expiryInMonths, teachableId) {
     let newBadgeEntry = {};
     let newBadge = {
         "title": name,
         "badgeCategoryRef": category,
         "iconRef": iconRef,
-        "enrollUrl": enrollURL,
         "expiryRule": expiryInMonths,
         "teachableCourseId": teachableId,
         "shortDescription": shortDescription
     };
+
+    if ((enrollUrl !== undefined) && (enrollUrl !== null) && (enrollUrl !== ""))
+        newBadge["enrollUrl"] = enrollUrl;
 
     return wixData.insert("Badging-BadgesBrief", newBadge, {suppressAuth: true})
         .then( newBadgeEntryResult => {
