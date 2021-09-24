@@ -69,7 +69,7 @@ export function post_teachableEnrollmentCompleted(request) {
 
             badge = matchingBadges.items[0];
             let expiryDate = "";
-            if (badge.expiryRule !== undefined) {
+            if (badge.expiryRule !== null) {
                 let months = badge.expiryRule;
                 let date = new Date();
                 var d = date.getDate();

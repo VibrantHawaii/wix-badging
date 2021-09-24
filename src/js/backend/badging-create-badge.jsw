@@ -1,0 +1,47 @@
+import wixData from 'wix-data';
+
+export function createBadge(name, category, shortDescription, detailedDescription, iconRef, enrollURL, expiryInMonths, teachableId) {
+    let newBadgeEntry = {};
+    let newBadge = {
+        "title": name,
+        "badgeCategoryRef": category,
+        "iconRef": iconRef,
+        "enrollUrl": enrollURL,
+        "expiryRule": expiryInMonths,
+        "teachableCourseId": teachableId,
+        "shortDescription": shortDescription
+    };
+
+    return wixData.insert("Badging-BadgesBrief", newBadge, {suppressAuth: true})
+        .then( newBadgeEntryResult => {
+            newBadgeEntry = newBadgeEntryResult;
+            let newBadgeDetails = {
+                "title": name,
+                "detailedDescription": detailedDescription,
+                "badgeRef": newBadgeEntry._id
+            };
+            return wixData.insert("Badging-BadgesDetailed", newBadgeDetails, {suppressAuth: true});
+        })
+        .then( () => {
+            return wixData.query("Badging-BadgeIcons")
+                .contains("_id", iconRef)
+                .find()
+        })
+        .then( (badgeIconResults) => {
+            if (badgeIconResults.items.length != 1)
+                throw(badgeIconResults.items.length + " matching badge icons found for id " + iconRef + ", but exactly 1 was expected.");
+            let badgeIconEntry = badgeIconResults.items[0];
+            badgeIconEntry.title = name;
+            return wixData.update("Badging-BadgeIcons", badgeIconEntry), {suppressAuth: true};
+        })
+        .then(() => {
+            return {
+                success: true,
+                badge: newBadgeEntry
+            }
+        })
+        .catch(error => {
+            console.log(error);
+            return {success: false, errorMsg: error}
+        });
+}

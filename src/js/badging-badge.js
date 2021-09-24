@@ -19,6 +19,7 @@ $w.onReady(function () {
     if (params.has("id")) {
         badgeId = decodeURIComponent(params.get("id"));
         wixData.query("Badging-BadgesBrief")
+            .include(("iconRef"))
             .contains("_id", badgeId)
             .find()
             .then( (results) => {
@@ -38,7 +39,7 @@ $w.onReady(function () {
                 badgeUrl = badge.enrollUrl;
 
                 $w("#name").text = badge.title;
-                $w("#badgeImg").src = badge.imageUrl[0].src;
+                $w("#badgeImg").src = badge.iconRef.icon;
 
                 wixData.query("Badging-BadgesDetailed")
                     .contains("title", badge.title)

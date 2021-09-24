@@ -13,3 +13,4 @@ badging-administration
 | Text                 | administrationTitle        | Root/Any          | Text: "BADGING ADMINISTRATION", Hidden: false, Collapsed: false |
 | Button               | importTeachableCourseBtn   | Root/Any          | Text: "Import CSV for Teachable Course", Hidden: false, Collapsed: false, Enabled: true |
 | Button               | importOfflineClassBtn      | Root/Any          | Text: "Import CSV for Offline Class", Hidden: false, Collapsed: false, Enabled: true |
+| Button               | addBadgeBtn                | Root/Any          | Text: "Add a Badge", Hidden: false, Collapsed: false, Enabled: true |

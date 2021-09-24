@@ -39,8 +39,9 @@ Permissions - Custom: Read: Anyone, Write: Anyone, Update: Admin, Delete: Admin
 * title: title: Text (primary)
 * ShortDescription: shortDescription: Text
 * badgeCategoryRef: Reference -> Badging-BadgeCategories
-* imageUrl: imageUrl: Media Gallery entry
-* expiryRule: expiryRule: number of months from award until expiry, empty string to never expire
+* iconRef: Reference -> Badging-BadgeIcons
+* enrollURL: enrollURL: optional URL to enable enrollment in an external system. Enroll button is shown on the Badge detail page.
+* expiryRule: expiryRule: number of months from award until expiry, null to never expire
 * teachableCourseId: teachableCourseId: Text: ID from Teachable.com course information URL slug
 
 ### Badging-BadgesDetailed
@@ -55,6 +56,11 @@ Permissions - Custom: Read: Anyone, Write: Anyone, Update: Admin, Delete: Admin
 |---|
 | Curious | 
 | Contributor |
+
+### Badging-BadgeIcons
+Stores references to badge icons. This needs to be in a separate collection from BadgesBrief due to the way file uploading works.
+* title: title: Text (primary): Badge name (copied from BadgesBrief)
+* icon: icon: Image
 
 ### Badging-AwardedBadges
 ID is a system-generated unique ID. This is leveraged to make search result entries unique. SequenceID is needed as a primary key for this table (as ID can't be set as the primary key, for some reason...).
@@ -90,6 +96,7 @@ As (to this author's knowledge) Wix does not interact "well" with git/GitHub, th
 * Copy the images for the badges into the Media Gallery
 * Manually create the databases in Wix
   * Set the badge images to refer to the correct badge image as a new Media Gallery for each badge image, containing one badge image per media gallery
+* [Install](https://support.wix.com/en/article/velo-working-with-npm-packages#installing-a-new-package) the "got" NPM module in the Wix environment
 * Create an account for [emailJS](https://www.emailjs.com/)
 * Create an emailJS template for contacting a learner:
     * Name: _Vibrant Hawaii Badging Contact Learner_
@@ -151,13 +158,12 @@ As (to this author's knowledge) Wix does not interact "well" with git/GitHub, th
 + Add status animation after submit and enroll to Enroll Learner popup
 + Remove badgesdetailed title
 + DB management
-    + Badge CRUD
-      + https://www.wix.com/velo/reference/wix-media-backend/mediamanager-obj/upload
+    + Badge UD
     + Manual Learner RUD
     + Manual AwardedBadge CRUD
         + Awarded badge Read showing issue and expiry dates
     + Admin View Enrollments page - filter and sort capability
-+ Add analytics (Wix)
++ Add analytics and logging (Wix)
 + Contact learner capability
     + Catch error conditions on email send
     + New DB to track transactions (issue unique token for each contact button instance, revoke when used)

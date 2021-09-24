@@ -11,7 +11,7 @@ $w.onReady(function () {
     loadingPageDataAnimation();
 
     wixData.query("Badging-BadgesBrief")
-        .include("badgeCategoryRef")
+        .include("badgeCategoryRef", "iconRef")
         .find()
         .then( (badgeResults) => {
             let badges = badgeResults.items;
@@ -35,7 +35,7 @@ $w.onReady(function () {
                     "_id":badgeItem._id,
                     "name": badgeItem.title,
                     "description": badgeItem.shortDescription,
-                    "img": badgeItem.imageUrl[0].src
+                    "img": badgeItem.iconRef.icon
                 };
             });
 

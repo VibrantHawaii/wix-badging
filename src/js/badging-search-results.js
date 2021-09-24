@@ -23,7 +23,7 @@ $w.onReady(function () {
     }
 
     wixData.query("Badging-BadgesBrief")
-        .include("badgeCategoryRef")
+        .include("badgeCategoryRef", "iconRef")
         .find()
         .then( (badgeResults) => {
             if (badgeResults.length == 0) {
@@ -33,7 +33,7 @@ $w.onReady(function () {
 
             badgeResults.items.map((badgeItem) => {
                 badgeMap[badgeItem._id] = {
-                    "img": badgeItem.imageUrl[0].src,
+                    "img": badgeItem.iconRef.icon,
                     "title": badgeItem.title,
                     "category": badgeItem.badgeCategoryRef.category
                 };
