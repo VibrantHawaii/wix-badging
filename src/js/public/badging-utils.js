@@ -46,6 +46,39 @@ export function getRegions() {
         });
 }
 
+export function getAllBadgesBrief() {
+    return wixData.query("Badging-BadgesBrief")
+        .ascending("title")
+        .find()
+        .then( (results) => {
+            if (results.length > 0) {
+                return results.items;
+            } else {
+                return [];
+            }
+        });
+}
+
+export function getAwardedBadges(learnerId) {
+    return wixData.query("Badging-AwardedBadges")
+        .contains("learnerRef", learnerId)
+        .find()
+        .then( (results) => {
+            if (results.length > 0) {
+                let awardedBadges = results.items;
+                awardedBadges.sort((firstEl, secondEl) => {
+                    if (firstEl.awardedDate > secondEl.awardedDate)
+                        return 1;
+                    else
+                        return -1;
+                });
+                return awardedBadges;
+            } else {
+                return [];
+            }
+        });
+}
+
 export function isLearnerProfileComplete(learner) {
     return true && ((learner.supportedRegionsRef && (learner.supportedRegionsRef.length > 0)) && (learner.eulaRef != null) && (learner.eulaRef != ""));
 }

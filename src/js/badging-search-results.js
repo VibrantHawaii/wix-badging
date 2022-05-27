@@ -1,3 +1,5 @@
+// noinspection JSUnresolvedFunction
+
 import wixData from 'wix-data';
 import wixLocation from 'wix-location';
 import wixWindow from 'wix-window';
@@ -78,6 +80,10 @@ $w.onReady(function () {
         .then( (awardedBadgeResults) => {
             let now = new Date();
             let matchingAwardedBadgeResults = awardedBadgeResults.items.filter((award) => {
+                // Only show publicized badges
+                if (!award.publicize)
+                    return false;
+
                 if (!award.expiryDate)
                     return true;
                 return (award.expiryDate.getTime() > now.getTime());

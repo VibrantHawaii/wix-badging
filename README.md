@@ -71,6 +71,7 @@ Permissions - Custom: Read: Anyone, Write: Anyone, Update: Admin, Delete: Admin
 * badgeRef: badgeRef: Reference -> Badging-BadgesBrief
 * awardedDate: awardedDate: Date and Time
 * expiryDate: expiryDate: Date and Time
+* publicize: publicize: Boolean
 
 ### Badging-Enrollment
 Permissions - Form Submission
@@ -128,8 +129,8 @@ As (to this author's knowledge) Wix does not interact "well" with git/GitHub, th
 > Aloha {{learner_name}},
 >
 > Congratulations on completing the {{badge_name}} course!
-> Vibrant Hawaii is honored to award you a digital badge to recognize this achievement. Please go to this web page to complete your profile information.
->
+> Vibrant Hawaii is honored to award you a digital badge to recognize this achievement. Please go to this web page to complete your profile information. You can re-use this link in the future to update your preferences.
+> 
 > Best wishes,
 > Vibrant Hawaii
 

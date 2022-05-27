@@ -3,35 +3,35 @@ import wixCaptcha from 'wix-captcha-backend';
 import {emailContactLearner} from "backend/badging-email-utils"
 
 export function contactLearner(learner_ref, enquirer_name, enquirer_email, message, token) {
-    return wixCaptcha.authorize(token)
-        .then(() => {
-            return wixData.query("Badging-Learners")
-                .eq("_id", learner_ref)
+    // return wixCaptcha.authorize(token)
+    // .then(() => {
+    return wixData.query("Badging-Learners")
+        .eq("_id", learner_ref)
+        .find()
+        .then( (learner_results) => {
+            if (learner_results.length == 0) {
+                let errorText = "ERROR - Learner WITH REFERENCE " + learner_ref + " NOT FOUND IN Learner DB";
+                console.error(errorText);
+                return Promise.reject(errorText);
+            }
+
+            let learner = learner_results.items[0];
+
+            return wixData.query("Badging-Learners-PII")
+                .eq("learnerRef", learner_ref)
                 .find()
-                .then( (learner_results) => {
-                    if (learner_results.length == 0) {
-                        let errorText = "ERROR - Learner WITH REFERENCE " + learner_ref + " NOT FOUND IN Learner DB";
+                .then( (learner_pii_results) => {
+                    if (learner_pii_results.length != 1) {
+                        let errorText = "ERROR - Learner WITH REFERENCE " + learner_ref + " NOT FOUND IN Learner PII DB";
                         console.error(errorText);
                         return Promise.reject(errorText);
                     }
 
-                    let learner = learner_results.items[0];
+                    let learner_name = learner.title;
+                    console.log("Learner info and PII found: " + learner_name + ", email: " + learner_pii_results.items[0].email)
 
-                    return wixData.query("Badging-Learners-PII")
-                        .eq("learnerRef", learner_ref)
-                        .find()
-                        .then( (learner_pii_results) => {
-                            if (learner_pii_results.length != 1) {
-                                let errorText = "ERROR - Learner WITH REFERENCE " + learner_ref + " NOT FOUND IN Learner PII DB";
-                                console.error(errorText);
-                                return Promise.reject(errorText);
-                            }
-
-                            let learner_name = learner.title;
-                            console.log("Learner info and PII found: " + learner_name + ", email: " + learner_pii_results.items[0].email)
-
-                            return emailContactLearner(learner_name, learner_pii_results.items[0].email, enquirer_name, enquirer_email, message);
-                        });
+                    return emailContactLearner(learner_name, learner_pii_results.items[0].email, enquirer_name, enquirer_email, message);
                 });
         });
+    // });
 }

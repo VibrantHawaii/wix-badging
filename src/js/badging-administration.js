@@ -1,5 +1,5 @@
 // All other buttons linked to LIghtboxes and pages using WYSYWIG Wix editor
-
+import wixLocation from 'wix-location';
 import wixWindow from 'wix-window';
 
 $w.onReady(function () {
@@ -12,6 +12,6 @@ $w.onReady(function () {
     });
 
     $w("#addBadgeBtn").onClick((event) => {
-        wixWindow.openLightbox("Badging Admin Add A Badge Popup");
+        wixWindow.openLightbox("Badging Admin Create Edit Badge Popup");
     });
 });
