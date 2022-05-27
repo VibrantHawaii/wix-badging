@@ -2,7 +2,7 @@ import wixData from 'wix-data';
 import wixLocation from 'wix-location';
 import wixWindow from 'wix-window';
 import {updateLearner} from "backend/badging-update-learner";
-import {getLatestEULA, getRegions} from "public/badging-utils";
+import {getAllBadgesBrief, getAwardedBadges, getLatestEULA, getRegions, isLearnerProfileComplete} from "public/badging-utils";
 import {verifyCapcha} from "backend/badging-backend-utils";
 
 let learnerToken = ""
@@ -11,6 +11,7 @@ let needsEULA = false;
 let latestEulaID = "";
 let captchaVerified = false;
 let learner = {};
+let allBadgesBrief = [];
 
 let stillLoadingPageData = true;
 let stillLoadingPageDataAnimationStage = 3; // 1, 2, or 3. Start at 3 to immediately cause wrap around to 1 on instantiation.
@@ -46,11 +47,6 @@ $w.onReady(function () {
 
                 learner = learnerResults.items[0];
                 $w("#title").text = $w("#title").text + " " + learner.title.toUpperCase();
-
-                if ((learner.supportedRegionsRef && (learner.supportedRegionsRef.length > 0)) && ((learner.eulaRef)|| (learner.teachableInferredEulaDate))) {
-                    showGenericErrorAndReturnToHomepage("Your profile is already complete.  Taking you back to the VibrantHawaii homepage in 5 seconds...");
-                    return;
-                }
 
                 $w("#eulaAcceptedCheckbox").onChange(() => eulaAcceptedCheckboxHandler());
                 $w("#captcha").onVerified(() => captcha_verified());
@@ -99,13 +95,13 @@ $w.onReady(function () {
                             },
                         ];
 
-                        return getRegions()
+                        return getRegions();
                     })
-                    .then(regions => {
+                    .then((regions) => {
                         if (regions.length > 0) {
                             $w("#regionsTable").rows = regions.map(region => {
                                 return {
-                                    "supported": true,
+                                    "supported": learner.supportedRegionsRef.find(regionRef => regionRef._id === region._id) != undefined,
                                     "regionName": region.title,
                                     "regionId": region._id
                                 };
@@ -117,20 +113,50 @@ $w.onReady(function () {
                                 $w("#regionsTable").updateRow(event.rowIndex, newRowData);
                             })
 
-                            stillLoadingPageData = false;
-                            $w("#loadingAnimationText").hide();
-                            $w("#promptContainerBox").show();
-                            $w("#captchaAndSubmitContainerBox").show();
+                            // stillLoadingPageData = false;
+                            // $w("#loadingAnimationText").hide();
+                            // $w("#promptContainerBox").show();
+                            // $w("#captchaAndSubmitContainerBox").show();
 
                             if ((!learner.supportedRegionsRef) || (learner.supportedRegionsRef.length === 0)) {
                                 needsRegions = true;
-                                return $w("#regionContainerBox").expand()
-                                    .then(() => $w("#regionContainerBox").show());
                             }
-
                         }
+
+                        return getAllBadgesBrief();
                     })
-                    .then(() => {
+                    .then((allBadgesResults) => {
+                        allBadgesBrief = allBadgesResults;
+                        return getAwardedBadges(learner._id);
+                    })
+                    .then((awardedBadges) => {
+                        $w("#regionContainerBox").expand()
+                            .then(() => $w("#regionContainerBox").show());
+
+                        if (awardedBadges.length > 0) {
+                            $w("#awardedBadgesTable").rows = awardedBadges.map(award => {
+                                return {
+                                    "publicize": award.publicize,
+                                    "badgeName": allBadgesBrief.find(badge => badge._id === award.badgeRef).title,
+                                    "awardId": award._id
+                                };
+                            });
+
+                            $w("#awardedBadgesTable").onRowSelect(event => {
+                                let newRowData = event.rowData;
+                                newRowData.publicize = !event.rowData.publicize;
+                                $w("#awardedBadgesTable").updateRow(event.rowIndex, newRowData);
+                            })
+
+                            $w("#courseOptInBox").expand()
+                                .then(() => $w("#courseOptInBox").show());
+                        }
+
+                        stillLoadingPageData = false;
+                        $w("#loadingAnimationText").hide();
+                        $w("#promptContainerBox").show();
+                        $w("#captchaAndSubmitContainerBox").show();
+
                         if ((!learner.eulaRef) && (!learner.teachableInferredEulaDate)) {
                             $w("#eulaContainerBox").expand()
                                 .then(() => $w("#eulaContainerBox").show());
@@ -160,8 +186,12 @@ function showGenericErrorAndReturnToHomepage(customPrompt) {
 function submitBtnHandler() {
     $w("#submitBtn").disable();
 
+    console.log($w("#captcha").token);
+
     verifyCapcha($w("#captcha").token)
         .then(verifyCaptchaResponse => {
+            console.log(verifyCaptchaResponse);
+
             if (verifyCaptchaResponse.success === false)
                 throw (verifyCaptchaResponse.errorMsg);
 
@@ -171,11 +201,16 @@ function submitBtnHandler() {
             })
             const regionIDs = selectedRegions.map(region => region.regionId);
 
+            const publicizedBadgesTableRows = $w("#awardedBadgesTable").rows;
+            const awardedBadges = publicizedBadgesTableRows.map(rowData => {
+                return {id: rowData.awardId, publicize: rowData.publicize};
+            })
+
             let eulaID = learner.eulaRef;
             if (needsEULA)
                 eulaID = latestEulaID;
 
-            return updateLearner(learnerToken, regionIDs, eulaID);
+            return updateLearner(learnerToken, regionIDs, awardedBadges, eulaID);
         })
         .then(response => {
             if (response.success !== true) {
@@ -189,7 +224,7 @@ function submitBtnHandler() {
         })
         .catch(error => {
             console.error(error);
-            showGenericErrorAndReturnToHomepage();
+            // showGenericErrorAndReturnToHomepage();
         });
 }
 
