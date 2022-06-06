@@ -312,7 +312,7 @@ function validateCSVEntryType(entry, type, rowIndex, colIndex) {
         case "awardedDate":
         case "expiryDate":
             // Example: "7/1/2021"
-            if ((entry.match("\\d{1,2}/\\d{1,2}/\\d{4}") === null) &&
+            if ((entry.match("\\d{1,2}/\\d{1,2}/\\d{2,4}") === null) &&
                 (entry.match("\\d{4}-\\d{1,2}-\\d{1,2}") === null))
                 failedValidation(entry, type, rowIndex, colIndex)
             break;
@@ -386,6 +386,7 @@ function createUserDict(csvArray, structure, badgeRef, noRegionInformation) {
                 'badgeRef': badgeRef,
                 'awardedDate': awardedDate,
                 'expiryDate': expiryDate,
+                'publicize': false
             },
             'supportsRegions': supportedRegionIDs,
             'teachableInferredEulaDate': ""
