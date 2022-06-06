@@ -1,7 +1,5 @@
 import wixCaptchaBackend from 'wix-captcha-backend';
 
 export function verifyCapcha(token) {
-    return {success: true};
-    // TODO: reenable after Wix Captcha is working reliably. Debugging indicates that this should work.
-//    return wixCaptchaBackend.authorize(token)
+    return wixCaptchaBackend.authorize(token)
 }
