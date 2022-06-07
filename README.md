@@ -40,6 +40,7 @@ Permissions - Custom: Read: Anyone, Write: Anyone, Update: Admin, Delete: Admin
 * ShortDescription: shortDescription: Text
 * badgeCategoryRef: Reference -> Badging-BadgeCategories
 * iconRef: Reference -> Badging-BadgeIcons
+* infoPageUrl: infoPageUrl: optional URL to link to badging sales/info page
 * enrollURL: enrollURL: optional URL to enable enrollment in an external system. Enroll button is shown on the Badge detail page.
 * expiryRule: expiryRule: number of months from award until expiry, null to never expire
 * teachableCourseId: teachableCourseId: Text: ID from Teachable.com course information URL slug
