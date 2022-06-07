@@ -1,10 +1,65 @@
 import wixData from 'wix-data';
+import wixWindow from 'wix-window';
 import {createBadge} from "backend/badging-create-badge"
 
+let badgeId = "";
+let badge = {};
+let editBadge = false;
+
 $w.onReady(function () {
-    wixData.query("Badging-BadgeCategories")
-        .descending("category")
-        .find()
+    let context = wixWindow.lightbox.getContext();
+    if (context !== undefined)
+        badgeId = context.badgeId;
+
+    const editBadgeQuery = new Promise((resolve) => {
+        if (badgeId) {
+            return wixData.query("Badging-BadgesBrief")
+                .include("badgeCategoryRef", "iconRef")
+                .contains("_id", badgeId)
+                .find()
+                .then(badgesResults => {
+                    let badges = badgesResults.items;
+                    if (badges.length === 1) {
+                        badge = badges[0];
+                        editBadge = true;
+                        $w("#title").text = "EDIT BADGE";
+                        $w("#badgeNameInput").value = badge.title;
+                        // $w("#shortDescriptionInput").value = badge.shortDescription;
+                        $w("#infoPageUrlInput").value = badge.infoPageUrl;
+                        $w("#enrollmentUrlInput").value = badge.enrollURL;
+                        if ((badge.teachableCourseId !== undefined) && (badge.teachableCourseId !== null) && (badge.teachableCourseId !== "")) {
+                            $w("#onTeachableCheckbox").checked = true;
+                            $w("#teachableCourseIdInput").value = badge.teachableCourseId;
+                            $w("#onTeachableCheckbox").onChange(null);
+                        }
+                        if ((badge.expiryRule !== undefined) && (badge.expiryRule !== null) && (badge.expiryRule !== "") && (badge.expiryRule !== 0)) {
+                            $w("#expiresCheckbox").checked = true;
+                            $w("#expiryMonthsDropdown").value = badge.expiryRule;
+                            $w("#expiresCheckbox").onChange(null);
+                        }
+                        return wixData.query("Badging-BadgesDetailed")
+                            .include("badgeRef")
+                            .contains("badgeRef", badgeId)
+                            .find()
+                            .then(badgesDetailedResults => {
+                                let badgesDetailed = badgesDetailedResults.items;
+                                if (badgesDetailed.length === 1)
+                                    $w("#detailedDescriptionRichTextBox").value = badgesDetailed[0].detailedDescription;
+                            })
+                    }
+                    resolve();
+                })
+        }
+        else
+            resolve();
+    });
+
+    editBadgeQuery
+        .then(() => {
+            return wixData.query("Badging-BadgeCategories")
+                .descending("category")
+                .find()
+        })
         .then( (results) => {
             let categories = results.items;
             if (categories.length === 0) {
@@ -16,21 +71,23 @@ $w.onReady(function () {
                 return {"label":category.category, "value":category._id}
             });
             $w("#categoryDropdown").options = categoryOptions;
+
+            if (editBadge)
+                $w("#categoryDropdown").value = badge.badgeCategoryRef._id;
         })
         .catch(error => {
             showStatusAndResetPopup(error);
         });
 
     $w("#badgeIconDataset").onReady(() => $w("#badgeIconDataset").add());
-
     $w("#badgeNameInput").onChange(testAllInputs);
     $w("#categoryDropdown").onChange(testAllInputs);
     $w("#onTeachableCheckbox").onChange(testAllInputs);
-    $w("#enrollmentUrlInput").onChange(testAllInputs);
+    $w("#infoPageUrlInput").onChange(testAllInputs);
     $w("#teachableCourseIdInput").onChange(testAllInputs);
     $w("#expiresCheckbox").onChange(testAllInputs);
     $w("#expiryMonthsDropdown").onChange(testAllInputs);
-    $w("#shortDescriptionInput").onChange(testAllInputs);
+    // $w("#shortDescriptionInput").onChange(testAllInputs);
     $w("#detailedDescriptionRichTextBox").onChange(testAllInputs);
 
     $w("#expiresCheckbox").onChange(() => {
@@ -69,10 +126,11 @@ $w.onReady(function () {
         $w("#uploadFileBtn").disable();
         $w("#onTeachableCheckbox").disable();
         $w("#enrollmentUrlInput").disable();
+        $w("#infoPageUrlInput").disable();
         $w("#teachableCourseIdInput").disable();
         $w("#expiresCheckbox").disable();
         $w("#expiryMonthsDropdown").disable();
-        $w("#shortDescriptionInput").disable();
+        // $w("#shortDescriptionInput").disable();
         $w("#detailedDescriptionRichTextBox").disable();
     })
 
@@ -92,8 +150,9 @@ $w.onReady(function () {
         }
 
         const iconId = itemAfterSave._id;
+        const infoPageURL = $w("#infoPageUrlInput").value;
         const enrollURL = $w("#enrollmentUrlInput").value;
-        return createBadge(name, category, shortDescription, detailedDescription, iconId, enrollURL, expiryInMonths, teachableId)
+        return createBadge(name, category, shortDescription, detailedDescription, iconId, infoPageURL, enrollURL, expiryInMonths, teachableId)
             .then(response => {
                 if (response.success !== true) {
                     showStatusAndResetPopup(response.errorMsg);
@@ -107,20 +166,25 @@ $w.onReady(function () {
 })
 
 function testAllInputs() {
-    if ($w("#badgeNameInput").valid &&
-        $w("#categoryDropdown").valid &&
-        $w("#uploadFileBtn").valid &&
-        (($w("#onTeachableCheckbox").checked !== true) || (($w("#onTeachableCheckbox").checked === true) && ($w("#teachableCourseIdInput").valid))) &&
-        (($w("#expiresCheckbox").checked !== true) || (($w("#expiresCheckbox").checked === true) && ($w("#expiryMonthsDropdown").selectedIndex != undefined))) &&
-        $w("#shortDescriptionInput").valid &&
-        $w("#shortDescriptionInput").value.length >= 10 &&
-        $w("#detailedDescriptionRichTextBox").valid &&
-        $w("#detailedDescriptionRichTextBox").value.length >= 10)
+    if (areAllInputsValid())
     {
         $w("#submitBtn").enable();
     }
     else
         $w("#submitBtn").disable();
+}
+
+function areAllInputsValid() {
+    return ($w("#badgeNameInput").valid &&
+        $w("#categoryDropdown").valid &&
+        $w("#uploadFileBtn").valid &&
+        (($w("#onTeachableCheckbox").checked !== true) || (($w("#onTeachableCheckbox").checked === true) && ($w("#teachableCourseIdInput").valid))) &&
+        (($w("#expiresCheckbox").checked !== true) || (($w("#expiresCheckbox").checked === true) && ($w("#expiryMonthsDropdown").selectedIndex != undefined))) &&
+        // $w("#shortDescriptionInput").valid &&
+        // $w("#shortDescriptionInput").value.length >= 10 &&
+        (($w("#infoPageUrlInput").valid ||
+            ($w("#detailedDescriptionRichTextBox").valid &&
+                $w("#detailedDescriptionRichTextBox").value.length >= 10))));
 }
 
 function showStatusAndResetPopup(statusText) {
@@ -129,10 +193,11 @@ function showStatusAndResetPopup(statusText) {
     $w("#uploadFileBtn").enable();
     $w("#onTeachableCheckbox").enable();
     $w("#enrollmentUrlInput").enable();
+    $w("#infoPageUrlInput").enable();
     $w("#teachableCourseIdInput").enable();
     $w("#expiresCheckbox").enable();
     $w("#expiryMonthsDropdown").enable();
-    $w("#shortDescriptionInput").enable();
+    // $w("#shortDescriptionInput").enable();
     $w("#detailedDescriptionRichTextBox").enable();
 
     $w("#status").text = statusText;

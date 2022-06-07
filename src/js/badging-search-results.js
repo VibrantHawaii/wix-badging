@@ -1,5 +1,3 @@
-// noinspection JSUnresolvedFunction
-
 import wixData from 'wix-data';
 import wixLocation from 'wix-location';
 import wixWindow from 'wix-window';
@@ -27,8 +25,8 @@ $w.onReady(function () {
     wixData.query("Badging-BadgesBrief")
         .include("badgeCategoryRef", "iconRef")
         .find()
-        .then( (badgeResults) => {
-            if (badgeResults.length == 0) {
+        .then((badgeResults) => {
+            if (badgeResults.length === 0) {
                 console.error("ERROR - NO BADGES FOUND")
                 return;
             }
@@ -37,13 +35,14 @@ $w.onReady(function () {
                 badgeMap[badgeItem._id] = {
                     "img": badgeItem.iconRef.icon,
                     "title": badgeItem.title,
-                    "category": badgeItem.badgeCategoryRef.category
+                    "category": badgeItem.badgeCategoryRef.category,
+                    "infoPageUrl": badgeItem.infoPageUrl,
                 };
             });
         })
         .then(() => {
             let operatingLearnerQuery = wixData.query("Badging-Learners");
-            if (regions != "All") {
+            if (regions !== "All") {
                 operatingLearnerQuery = operatingLearnerQuery.hasSome("supportedRegionsRef", regions);
             }
 
@@ -52,21 +51,21 @@ $w.onReady(function () {
                 .ascending("title")
                 .find()
         })
-        .then( (result) => {
+        .then((result) => {
             learnerResults = result;
-            if (learnerResults.length == 0) {
+            if (learnerResults.length === 0) {
                 $w("#statusText").show();
                 $w("#loadingAnimationText").hide();
                 $w("#learnersRepeater").hide();
                 return;
             }
 
-            let learnerIDs = learnerResults.items.map( (learner) => {
+            let learnerIDs = learnerResults.items.map((learner) => {
                 return learner._id;
             });
 
             let operatingAwardedBadgesQuery = wixData.query("Badging-AwardedBadges");
-            if (badges != "All") {
+            if (badges !== "All") {
                 // Do not filter out for only awarded badge matches here, as the entire list of awarded badges is required to show all badges for the matching Learners
                 operatingAwardedBadgesQuery = operatingAwardedBadgesQuery.hasSome("learnerRef", learnerIDs)
             }
@@ -77,7 +76,7 @@ $w.onReady(function () {
                 .lt("awardedDate", now)
                 .find()
         })
-        .then( (awardedBadgeResults) => {
+        .then((awardedBadgeResults) => {
             let now = new Date();
             let matchingAwardedBadgeResults = awardedBadgeResults.items.filter((award) => {
                 // Only show publicized badges
@@ -94,11 +93,11 @@ $w.onReady(function () {
                 return badgeMap[award.badgeRef].category === "Contributor";
             });
 
-            if (badges != "All") {
+            if (badges !== "All") {
                 matchingAwardedBadgeResults = matchingAwardedBadgeResults.filter((award) => badges.includes(award.badgeRef));
             };
 
-            if (matchingAwardedBadgeResults.length == 0) {
+            if (matchingAwardedBadgeResults.length === 0) {
                 $w("#statusText").show();
                 $w("#loadingAnimationText").hide();
                 $w("#learnersRepeater").hide();
@@ -108,11 +107,11 @@ $w.onReady(function () {
             $w("#statusText").hide();
 
             let LearnerBadgeMap = {};
-            let filteredLearners = learnerResults.items.filter( learner => {
-                let allAwardedBadgeMatches = matchingAwardedBadgeResults.filter( (awardedBadge) => learner._id == awardedBadge.learnerRef);
+            let filteredLearners = learnerResults.items.filter(learner => {
+                let allAwardedBadgeMatches = matchingAwardedBadgeResults.filter((awardedBadge) => learner._id == awardedBadge.learnerRef);
                 LearnerBadgeMap[learner._id] = allAwardedBadgeMatches.map((award) => award.badgeRef);
 
-                return matchingAwardedBadgeResults.some( (awardedBadge) => learner._id == awardedBadge.learnerRef);
+                return matchingAwardedBadgeResults.some((awardedBadge) => learner._id == awardedBadge.learnerRef);
             });
 
             let dataArray = filteredLearners.map((Learner) => {
@@ -124,10 +123,10 @@ $w.onReady(function () {
                     supportedRegionString = "All Regions";
 
                 return {
-                    "_id":Learner._id,
-                    "name":Learner.title,
+                    "_id": Learner._id,
+                    "name": Learner.title,
                     "supportedRegions": supportedRegionString,
-                    "awardedBadges":LearnerBadgeMap[Learner._id]
+                    "awardedBadges": LearnerBadgeMap[Learner._id]
                 };
             })
 
@@ -144,14 +143,13 @@ $w.onReady(function () {
         // Configure badges table
         let awardedBadgeCount = itemData.awardedBadges.length;
         //console.log("Learner " + itemData.name + " has " + awardedBadgeCount + " badges awarded");
-        $item("#badgesTable").columns = [
-            {
-                "id": "badgeImg",
-                "dataPath": "badgeImg",
-                "label": "badgeImg",
-                "type": "image",
-                "width": 80
-            },
+        $item("#badgesTable").columns = [{
+            "id": "badgeImg",
+            "dataPath": "badgeImg",
+            "label": "badgeImg",
+            "type": "image",
+            "width": 80
+        },
             {
                 "id": "badgeTitle",
                 "dataPath": "badgeTitle",
@@ -171,18 +169,21 @@ $w.onReady(function () {
 
         $item("#badgesTable").rows = itemData.awardedBadges.map((badgeRef) => {
             return {
+                "badgeId": badgeRef,
                 "badgeImg": badgeMap[badgeRef].img,
                 "badgeTitle": badgeMap[badgeRef].title,
-                "badgeId": badgeRef
+                "infoPageUrl": badgeMap[badgeRef].infoPageUrl,
             };
         });
 
-        $item("#badgesTable").onRowSelect( (event) => {
-            let badgeId = event.rowData.badgeId;
-            var target = "/badging-badge?";
-            target += "id=" + encodeURIComponent(badgeId);
-            wixLocation.to(target);
-        } );
+        $item("#badgesTable").onRowSelect((event) => {
+            if (event.rowData.infoPageUrl !== undefined && event.rowData.infoPageUrl !== "") {
+                const targetURL = event.rowData.infoPageUrl;
+                wixLocation.to(targetURL.startsWith("http") ? targetURL : "https://" + targetURL);
+            } else {
+                wixLocation.to("/badging-badge?id=" + encodeURIComponent(event.rowData.badgeId));
+            }
+        });
 
         $item("#contactBtn").onClick((event) => {
             wixWindow.openLightbox("Badging Contact Popup", {
@@ -193,7 +194,6 @@ $w.onReady(function () {
 
         $item("#badgesTable").show();
     });
-
 
 });
 

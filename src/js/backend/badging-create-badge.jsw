@@ -1,6 +1,6 @@
 import wixData from 'wix-data';
 
-export function createBadge(name, category, shortDescription, detailedDescription, iconRef, enrollUrl, expiryInMonths, teachableId) {
+export function createBadge(name, category, shortDescription, detailedDescription, iconRef, infoPageUrl, enrollUrl, expiryInMonths, teachableId) {
     let newBadgeEntry = {};
     let newBadge = {
         "title": name,
@@ -10,6 +10,9 @@ export function createBadge(name, category, shortDescription, detailedDescriptio
         "teachableCourseId": teachableId,
         "shortDescription": shortDescription
     };
+
+    if ((infoPageUrl !== undefined) && (infoPageUrl !== null) && (infoPageUrl !== ""))
+        newBadge["infoPageUrl"] = infoPageUrl;
 
     if ((enrollUrl !== undefined) && (enrollUrl !== null) && (enrollUrl !== ""))
         newBadge["enrollUrl"] = enrollUrl;
@@ -30,7 +33,7 @@ export function createBadge(name, category, shortDescription, detailedDescriptio
                 .find()
         })
         .then( (badgeIconResults) => {
-            if (badgeIconResults.items.length != 1)
+            if (badgeIconResults.items.length !== 1)
                 throw(badgeIconResults.items.length + " matching badge icons found for id " + iconRef + ", but exactly 1 was expected.");
             let badgeIconEntry = badgeIconResults.items[0];
             badgeIconEntry.title = name;
