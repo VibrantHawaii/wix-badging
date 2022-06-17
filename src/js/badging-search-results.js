@@ -90,6 +90,8 @@ $w.onReady(function () {
 
             // Only show contributor badges
             matchingAwardedBadgeResults = matchingAwardedBadgeResults.filter((award) => {
+                if (badgeMap[award.badgeRef] === undefined)
+                    return false;
                 return badgeMap[award.badgeRef].category === "Contributor";
             });
 
