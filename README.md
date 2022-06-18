@@ -54,9 +54,9 @@ Permissions - Custom: Read: Anyone, Write: Anyone, Update: Admin, Delete: Admin
 * category: category: Text (primary): Category type
 
 | Entries (case sensitive) |
-|---|
-| Curious | 
-| Contributor |
+|--------------------------|
+| Curious                  | 
+| Contributor              |
 
 ### Badging-BadgeIcons
 Stores references to badge icons. This needs to be in a separate collection from BadgesBrief due to the way file uploading works.
