@@ -14,6 +14,7 @@ import {updateLearner} from "backend/badging-update-learner";
 //         'badgeRef': badgeRef,
 //         'awardedDate': awardedDate,
 //         'expiryDate': expiryDate,
+//         'publicize': false
 //     },
 //     'supportsRegions': supportedRegionIDs // undefined to not update
 // };
@@ -101,7 +102,8 @@ export function awardToLearners(awardedUserDict, eulaId) { // eulaId null to not
                                 "badgeRef": newAwardedBadgeID,
                                 "learnerRef": newBadgeAward.learnerRef,
                                 "awardedDate": new Date(newBadgeAward.awardedDate),
-                                "expiryDate": newBadgeAward.expiryDate
+                                "expiryDate": newBadgeAward.expiryDate,
+                                "publicize": newBadgeAward.publicize
                             };
 
                             return wixData.insert("Badging-AwardedBadges", newAward, {suppressAuth: true})
@@ -125,10 +127,10 @@ export function awardToLearners(awardedUserDict, eulaId) { // eulaId null to not
 
                                     const learner = learnerResults.items[0];
 
-                                    if (!isLearnerProfileComplete(learner))
-                                        return requestProfileUpdate(learner._id, newAwardedBadgeID);
-                                    else
-                                        return Promise.resolve();
+                                    // if (!isLearnerProfileComplete(learner))
+                                    return requestProfileUpdate(learner._id, newAwardedBadgeID);
+                                    // else
+                                    // return Promise.resolve();
                                 })
                         });
                     })
@@ -162,7 +164,8 @@ function mapAwardedUserstoAwardedBadgesDict (awardedUsersDict) {
             {
                 "learnerRef": learnerEntry._id,
                 "awardedDate": learnerEntry.award.awardedDate,
-                "expiryDate": learnerEntry.award.expiryDate
+                "expiryDate": learnerEntry.award.expiryDate,
+                "publicize": learnerEntry.award.publicize
             }
         );
     })

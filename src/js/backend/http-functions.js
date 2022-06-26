@@ -90,10 +90,13 @@ export function post_teachableEnrollmentCompleted(request) {
                 'award': {
                     'badgeRef': badge._id,
                     'awardedDate': awardedDate,
-                    'expiryDate': expiryDate,
+                    // 'expiryDate': expiryDate,
                 },
                 'supportsRegions': null
             }
+
+            if (expiryDate != "")
+                awardedUserDict[learnerToken]['award']['expiryDate'] = expiryDate;
 
             return awardToLearners(awardedUserDict, null);
         })
