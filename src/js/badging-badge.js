@@ -53,7 +53,8 @@ $w.onReady(function () {
                         if ((enrollUrl !== undefined) && (enrollUrl !== null) && (enrollUrl !== ""))
                             $w("#enrollBtn").show();
 
-                        $w("#longDescription").html = badgeResults.items[0].detailedDescription;
+                        $w("#longDescription").html = '<span style="color:black;font-size:18px;>' + badgeResults.items[0].detailedDescription + "</span>";
+
                         $w("#name").show();
                         $w("#badgeImg").show();
                         $w("#longDescription").show();
