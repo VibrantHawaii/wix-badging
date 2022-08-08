@@ -1,8 +1,8 @@
 import { mediaManager } from 'wix-media-backend';
 import wixData from 'wix-data';
-import {fetch} from 'wix-fetch';
-import {generateLearnerToken, logAndThrowError} from 'public/badging-utils'
-import {awardToLearners} from "backend/badging-award-to-learners";
+import { fetch } from 'wix-fetch';
+import { generateLearnerToken, logAndThrowError } from 'public/badging-utils'
+import { awardToLearners } from "backend/badging-award-to-learners";
 
 const MAGIC_SUPPORTS_WORD = "Supports";
 
@@ -119,23 +119,31 @@ let badgrAwardListCSVStruct = {
         "type": "email"
     },
     "2": {
-        "title": "Recipient Name (optional)",
-        "type": "name"
+        "title": "First Name",
+        "type": "firstname"
     },
     "3": {
-        "title": "Narrative (optional)",
-        "type": undefined
+        "title": "Last Name",
+        "type": "lastname"
     },
     "4": {
-        "title": "Evidence URL (optional)",
+        "title": "Narrative",
         "type": undefined
     },
     "5": {
-        "title": "Issue Date (optional)",
-        "type": "awardedDate"
+        "title": "Evidence Narrative",
+        "type": undefined
     },
     "6": {
-        "title": "Expiration Date (optional)",
+        "title": "Evidence URL",
+        "type": undefined
+    },
+    "7": {
+        "title": "Issue Date",
+        "type": "awardedDate"
+    },
+    "8": {
+        "title": "Expiration Date",
         "type": "expiryDate"
     }
 };
@@ -161,13 +169,13 @@ function validateAndImportCSVFileOfAwardedBadges(fileName, badgeRef, CSVStruct, 
 
 export function importTeachableCourseCSV(fileName, badgeRef, eulaId) {
     return seedRegions()
-        .then(() => { return validateAndImportCSVFileOfAwardedBadges(fileName, badgeRef, teachableCourseCSVStruct, true, eulaId)});
+        .then(() => { return validateAndImportCSVFileOfAwardedBadges(fileName, badgeRef, teachableCourseCSVStruct, true, eulaId) });
 }
 
 export function importOfflineClassCSV(fileName, badgeRef, eulaId) {
     return seedRegions()
         .then(() => seedOfflineClassCSVStruct())
-        .then(() => { return validateAndImportCSVFileOfAwardedBadges(fileName, badgeRef, offlineClassCSVStruct, false, eulaId)});
+        .then(() => { return validateAndImportCSVFileOfAwardedBadges(fileName, badgeRef, offlineClassCSVStruct, false, eulaId) });
 }
 
 export function importBadgrAwardListCSV(fileName, badgeRef, eulaId) {
@@ -229,7 +237,7 @@ function validateCSVFormat(csvText, structure) {
 
         resolve(arrayedCSV);
     })
-        .catch( (error) => {
+        .catch((error) => {
             logAndThrowError(error);
         })
 }
@@ -239,7 +247,7 @@ function fetchFileFromMediaManager(fileName) {
     return mediaManager.getFileUrl(fileName).then((url) => {
         return fetch(url).then((theFile) => {
             return theFile.text().then((theText) => {
-                return(theText);
+                return (theText);
             });
         });
     })
@@ -253,7 +261,7 @@ function seedRegions() {
     return wixData.query("Badging-Regions")
         .ascending("title")
         .find()
-        .then( (results) => {
+        .then((results) => {
             if (results.length > 0) {
                 regions = results.items;
                 regions.sort((firstEl, secondEl) => {
@@ -293,11 +301,16 @@ function validateCSVEntryType(entry, type, rowIndex, colIndex) {
 
     switch (type) {
         case "bool":
-            if (!["Yes","No","YES","NO","yes","no","Y","N","y","n", ""].includes(entry))
+            if (!["Yes", "No", "YES", "NO", "yes", "no", "Y", "N", "y", "n", ""].includes(entry))
                 return failedValidation(entry, type, rowIndex, colIndex)
             break;
 
         case "name":
+            if (entry.length < 3)
+                return failedValidation(entry, type, rowIndex, colIndex)
+            break;
+
+        case "lastname":
             if (entry.length < 3)
                 return failedValidation(entry, type, rowIndex, colIndex)
             break;
@@ -310,13 +323,21 @@ function validateCSVEntryType(entry, type, rowIndex, colIndex) {
             break;
 
         case "awardedDate":
-        case "expiryDate":
             // Example: "7/1/2021"
             if ((entry.match("\\d{1,2}/\\d{1,2}/\\d{2,4}") === null) &&
                 (entry.match("\\d{4}-\\d{1,2}-\\d{1,2}") === null))
                 failedValidation(entry, type, rowIndex, colIndex)
             break;
 
+        case "expiryDate":
+            // Example: "7/1/2021" or ""
+            if ((entry !== "") &&
+                (entry.match("\\d{1,2}/\\d{1,2}/\\d{2,4}") === null) &&
+                (entry.match("\\d{4}-\\d{1,2}-\\d{1,2}") === null))
+                failedValidation(entry, type, rowIndex, colIndex)
+            break;
+
+        case "firstname":
         case undefined:
             break;
 
@@ -343,12 +364,19 @@ function createUserDict(csvArray, structure, badgeRef, noRegionInformation) {
     let awardedDateColumn = getCSVColumn("awardedDate");
     let expiryDateColumn = getCSVColumn("expiryDate");
     let nameColumn = getCSVColumn("name");
+    let firstnameColumn = getCSVColumn("firstname");
+    let lastnameColumn = getCSVColumn("lastname");
+
     let emailColumn = getCSVColumn("email");
 
     // Skip header row [0]
     let firstIndexOfSupportedRegion = Object.keys(structure).length - regions.length;
     for (let rowIndex = 1; rowIndex < csvArray.length; rowIndex++) {
-        let name = csvArray[rowIndex][nameColumn];
+        let name = "";
+        if (nameColumn != undefined)
+            name = csvArray[rowIndex][nameColumn];
+        else
+            name = csvArray[rowIndex][firstnameColumn] + " " + csvArray[rowIndex][lastnameColumn];
 
         let supportedRegions = [];
         if (!noRegionInformation) {
@@ -397,14 +425,36 @@ function createUserDict(csvArray, structure, badgeRef, noRegionInformation) {
 }
 
 function boolStringToBool(target) {
-    return ["Yes","YES","yes","Y","y"].includes(target);
+    return ["Yes", "YES", "yes", "Y", "y"].includes(target);
 }
 
 function convertCSVTextToArray(csvText) {
     let linedCSV = csvText.split("\n");
     let arrayedCSV = [];
-    linedCSV.forEach(element => {
-        arrayedCSV.push(element.replace(/[\n\r]+/g, '').trim().split(","))
+    linedCSV.forEach((line, lineIndex) => {
+        arrayedCSV[lineIndex] = [];
+        const substrings = line.replace(/[\n\r]+/g, '').trim().split(",");
+        let inQuotes = false;
+        let quoteStartIndex = 0;
+        substrings.forEach((substring, index) => {
+            if (substring.startsWith("\"")) {
+                inQuotes = true;
+                quoteStartIndex = index;
+                if (substring.slice(-1) === "\"") { // Ends with "
+                    arrayedCSV[lineIndex].push(substring);
+                    inQuotes = false;
+                }
+            } else {
+                if (substring.slice(-1) === "\"") { // Ends with "
+                    const quotedArray = substrings.slice(quoteStartIndex, index + 1);
+                    arrayedCSV[lineIndex].push(quotedArray.join());
+                    inQuotes = false;
+                } else {
+                    if (!inQuotes)
+                        arrayedCSV[lineIndex].push(substring);
+                }
+            }
+        })
     });
     return arrayedCSV;
 }

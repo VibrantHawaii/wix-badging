@@ -8,9 +8,10 @@ True
 badging-administration
 
 ## Required Elements
-| Type                 | Name                       | Parent Element    | Attributes                                        |
-|----------------------|----------------------------|-------------------|--------------------------------|
-| Text                 | administrationTitle        | Root/Any          | Text: "BADGING ADMINISTRATION", Hidden: false, Collapsed: false |
-| Button               | importTeachableCourseBtn   | Root/Any          | Text: "Import CSV for Teachable Course", Hidden: false, Collapsed: false, Enabled: true |
-| Button               | importOfflineClassBtn      | Root/Any          | Text: "Import CSV for Offline Class", Hidden: false, Collapsed: false, Enabled: true |
-| Button               | addBadgeBtn                | Root/Any          | Text: "Add a Badge", Hidden: false, Collapsed: false, Enabled: true |
+| Type   | Name                     | Parent Element | Attributes                                                                              |
+|--------|--------------------------|----------------|-----------------------------------------------------------------------------------------|
+| Text   | administrationTitle      | Root/Any       | Text: "BADGING ADMINISTRATION", Hidden: false, Collapsed: false                         |
+| Button | importBadgrCourseBtn     | Root/Any       | Text: "Import CSV for Badgr Badge", Hidden: false, Collapsed: false, Enabled: true      |
+| Button | importTeachableCourseBtn | Root/Any       | Text: "Import CSV for Teachable Course", Hidden: false, Collapsed: false, Enabled: true |
+| Button | importOfflineClassBtn    | Root/Any       | Text: "Import CSV for Offline Class", Hidden: false, Collapsed: false, Enabled: true    |
+| Button | addBadgeBtn              | Root/Any       | Text: "Add a Badge", Hidden: false, Collapsed: false, Enabled: true                     |
